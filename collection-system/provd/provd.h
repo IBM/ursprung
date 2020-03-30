@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-#include <iostream>
-#include "provd.h"
+#ifndef PROVD_PROVD_H_
+#define PROVD_PROVD_H_
 
-int main(int argc, char** argv) {
-  std::cout << "Hello World!" << std::endl;
-}
+
+
+
+
+#endif /* PROVD_PROVD_H_ */
