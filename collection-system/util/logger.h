@@ -36,7 +36,7 @@
 // always log fatal, errors, and warnings
 #define LOG_FATAL(msg) LOG(fatal_logger(), msg)
 #define LOG_ERROR(msg) LOG(error_logger(), msg)
-#define LOG_WARN(msg) LOG(warn_Logger(), msg)
+#define LOG_WARN(msg) LOG(warn_logger(), msg)
 
 #ifndef INFO
 #define LOG_INFO(msg) do {} while(0)
