@@ -18,7 +18,8 @@
 #include "config.h"
 
 TEST(parse_config_test, test1) {
-  Config::parse_config("test.cfg");
+  int rc = Config::parse_config("test.cfg");
+  EXPECT_EQ(0, rc);
   EXPECT_TRUE((Config::config.find("key1") != Config::config.end()));
   EXPECT_TRUE((Config::config.find("key2") != Config::config.end()));
   EXPECT_TRUE((Config::config.find("key3") != Config::config.end()));
@@ -28,4 +29,9 @@ TEST(parse_config_test, test1) {
   EXPECT_EQ("val2", Config::config["key2"]);
   EXPECT_EQ("val3", Config::config["key3"]);
   EXPECT_EQ("val4", Config::config["key4"]);
+}
+
+TEST(parse_config_test, test2) {
+  int rc = Config::parse_config("test-invalid-path.cfg");
+  EXPECT_EQ(-1, rc);
 }

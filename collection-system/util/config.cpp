@@ -19,6 +19,9 @@
 
 #include <fstream>
 
+#include <string.h>
+#include <errno.h>
+
 config_opts_t Config::config;
 
 /**
@@ -28,6 +31,12 @@ config_opts_t Config::config;
  */
 int Config::parse_config(std::string path) {
   std::ifstream config_file(path);
+
+  if (config_file.fail()) {
+    LOG_ERROR("Couldn't read config file: " << strerror(errno));
+    return -1;
+  }
+
   std::string line;
 
   while (std::getline(config_file, line)) {
