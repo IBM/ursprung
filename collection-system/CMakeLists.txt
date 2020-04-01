@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 
 project(ursprung)
 
@@ -6,15 +6,28 @@ project(ursprung)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# testing
-enable_testing()
-
-include_directories(util)
+# logging level
+if ( INFO )
+	add_compile_definitions(INFO=1)
+endif()
+if ( DEBUG )
+	add_compile_definitions(INFO=1)
+	add_compile_definitions(DEBUG=1)
+endif()
+if ( PERF )
+	add_compile_definitions(PERF=1)
+endif()
 
 # set include directories
+include_directories(util)
 set(CMAKE_REQUIRED_INCLUDES "/usr/local/include")
 
 add_subdirectory(provd)
 add_subdirectory(consumer)
-add_subdirectory(test)
-add_subdirectory(lib/googletest)
+
+# testing
+if ( BUILD_TESTS )
+  enable_testing()
+  add_subdirectory(test)
+  add_subdirectory(lib/googletest)
+endif()
