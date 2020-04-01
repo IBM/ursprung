@@ -27,7 +27,25 @@ typedef std::map<std::string, std::string> config_opts_t;
  * a static map to be available to the entire program.
  */
 class Config {
+private:
+  static bool is_conf_key_valid(std::string key);
+
 public:
+  // valid configuration keys
+  static const std::string CKEY_DB_HOST;
+  static const std::string CKEY_DB_PORT;
+  static const std::string CKEY_DB_NAME;
+  static const std::string CKEY_DB_USER;
+  static const std::string CKEY_DB_PASS;
+  static const std::string CKEY_BROKER_HOST;
+  static const std::string CKEY_BROKER_PORT;
+  static const std::string CKEY_KAFKA_TOPIC;
+  static const std::string CKEY_KAFKA_SASL_USER;
+  static const std::string CKEY_KAFKA_SASL_PASS;
+  static const std::string CKEY_LOG_FILE;
+  static const std::string CKEY_RULES_FILE;
+  static const std::string CKEY_TRACK_VERSIONS;
+
   static config_opts_t config;
   static int parse_config(std::string path);
 };

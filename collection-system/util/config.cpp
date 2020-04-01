@@ -23,6 +23,21 @@
 #include <string.h>
 #include <errno.h>
 
+// define config keys
+const std::string Config::CKEY_DB_HOST = "db-host";
+const std::string Config::CKEY_DB_PORT = "db-port";
+const std::string Config::CKEY_DB_NAME = "db-name";
+const std::string Config::CKEY_DB_USER = "db-user";
+const std::string Config::CKEY_DB_PASS = "db-password";
+const std::string Config::CKEY_BROKER_HOST = "broker-host";
+const std::string Config::CKEY_BROKER_PORT = "broker-port";
+const std::string Config::CKEY_KAFKA_TOPIC = "kafka-topic";
+const std::string Config::CKEY_KAFKA_SASL_USER = "sasl-user";
+const std::string Config::CKEY_KAFKA_SASL_PASS = "sasl-password";
+const std::string Config::CKEY_LOG_FILE = "log-file";
+const std::string Config::CKEY_RULES_FILE = "rules-file";
+const std::string Config::CKEY_TRACK_VERSIONS = "enable-versioning";
+
 config_opts_t Config::config;
 
 /**
@@ -50,11 +65,11 @@ int Config::parse_config(std::string path) {
     size_t pos = line.find("=");
     // ignore invalid lines
     if (pos == std::string::npos) {
-      LOG_ERROR("\"" << line << "\" is an invalid config entry, ignoring it.");
+      LOG_WARN("\"" << line << "\" is an invalid config entry, ignoring it.");
       continue;
     }
 
-    // get and trim key and value
+    // get and trim key
     std::string key = line.substr(0, pos);
     key.erase(key.begin(), std::find_if(key.begin(), key.end(), [](int c) {
       return !std::isspace(c);
@@ -63,6 +78,12 @@ int Config::parse_config(std::string path) {
       return !std::isspace(c);
     }).base(), key.end());
 
+    if (!Config::is_conf_key_valid(key)) {
+      LOG_WARN("Key \"" << key << "\" is not a valid key, ignoring config entry.");
+      continue;
+    }
+
+    // get and trim value
     std::string val = line.substr(pos + 1);
     val.erase(val.begin(), std::find_if(val.begin(), val.end(), [](int c) {
       return !std::isspace(c);
@@ -75,4 +96,39 @@ int Config::parse_config(std::string path) {
   }
 
   return NO_ERROR;
+}
+
+/**
+ * Checks whether the provided configuration key is valid. A key
+ * is valid if it is defined in the ConfigKeys enum (see config.h).
+ */
+bool Config::is_conf_key_valid(std::string key) {
+  if (key == Config::CKEY_DB_HOST)
+    return true;
+  if (key == Config::CKEY_DB_PORT)
+    return true;
+  if (key == Config::CKEY_DB_NAME)
+    return true;
+  if (key == Config::CKEY_DB_USER)
+    return true;
+  if (key == Config::CKEY_DB_PASS)
+    return true;
+  if (key == Config::CKEY_BROKER_HOST)
+    return true;
+  if (key == Config::CKEY_BROKER_PORT)
+    return true;
+  if (key == Config::CKEY_KAFKA_TOPIC)
+    return true;
+  if (key == Config::CKEY_KAFKA_SASL_USER)
+    return true;
+  if (key == Config::CKEY_KAFKA_SASL_PASS)
+    return true;
+  if (key == Config::CKEY_LOG_FILE)
+    return true;
+  if (key == Config::CKEY_RULES_FILE)
+    return true;
+  if (key == Config::CKEY_TRACK_VERSIONS)
+    return true;
+
+  return false;
 }

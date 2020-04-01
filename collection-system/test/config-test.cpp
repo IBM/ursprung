@@ -21,15 +21,15 @@
 TEST(parse_config_test, test1) {
   int rc = Config::parse_config("test.cfg");
   EXPECT_EQ(NO_ERROR, rc);
-  EXPECT_TRUE((Config::config.find("key1") != Config::config.end()));
-  EXPECT_TRUE((Config::config.find("key2") != Config::config.end()));
-  EXPECT_TRUE((Config::config.find("key3") != Config::config.end()));
-  EXPECT_TRUE((Config::config.find("key4") != Config::config.end()));
+  EXPECT_TRUE((Config::config.find("db-host") != Config::config.end()));
+  EXPECT_TRUE((Config::config.find("db-port") != Config::config.end()));
+  EXPECT_TRUE((Config::config.find("db-user") != Config::config.end()));
+  EXPECT_TRUE((Config::config.find("db-password") != Config::config.end()));
   EXPECT_EQ(4, Config::config.size());
-  EXPECT_EQ("val1", Config::config["key1"]);
-  EXPECT_EQ("val2", Config::config["key2"]);
-  EXPECT_EQ("val3", Config::config["key3"]);
-  EXPECT_EQ("val4", Config::config["key4"]);
+  EXPECT_EQ("val1", Config::config["db-host"]);
+  EXPECT_EQ("val2", Config::config["db-port"]);
+  EXPECT_EQ("val3", Config::config["db-user"]);
+  EXPECT_EQ("val4", Config::config["db-password"]);
 }
 
 TEST(parse_config_test, test2) {
