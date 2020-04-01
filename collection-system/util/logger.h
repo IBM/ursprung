@@ -86,13 +86,13 @@ Logger& performance_logger();
 
 class LogBackend {
 public:
-  virtual ~LogBackend() {};
+  virtual ~LogBackend() {}
   virtual void log_msg(std::string msg) = 0;
 };
 
 class ConsoleBackend: public LogBackend {
 public:
-  ~ConsoleBackend() {};
+  ~ConsoleBackend() {}
   void log_msg(std::string msg);
 };
 
@@ -105,6 +105,5 @@ public:
   ~FileBackend();
   void log_msg(std::string msg);
 };
-
 
 #endif /* COMMON_GLOBAL_LOGGER_H_ */

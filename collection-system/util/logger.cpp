@@ -23,8 +23,7 @@
 std::string Logger::log_file_name = "";
 
 Logger::Logger(Level l) :
-    level { l },
-    lock { } {
+    level { l }, lock { } {
   // check if we have a log configuration present in the current directory
   if (!log_file_name.empty()) {
     std::cout << "Log file name set, will start logging to "
@@ -35,7 +34,7 @@ Logger::Logger(Level l) :
     std::cout << "Log file name not set, logging to console" << std::endl;
     backend = new ConsoleBackend();
   }
-};
+}
 
 Logger::~Logger() {
   delete backend;

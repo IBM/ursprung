@@ -20,4 +20,3 @@
 int main(int argc, char **argv) {
   int rc = Config::parse_config("/bla/bla");
 }
-
