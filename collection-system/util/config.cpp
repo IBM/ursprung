@@ -16,6 +16,7 @@
 
 #include "config.h"
 #include "logger.h"
+#include "error.h"
 
 #include <fstream>
 
@@ -34,7 +35,7 @@ int Config::parse_config(std::string path) {
 
   if (config_file.fail()) {
     LOG_ERROR("Couldn't read config file: " << strerror(errno));
-    return -1;
+    return ERROR_NO_RETRY;
   }
 
   std::string line;
@@ -71,7 +72,7 @@ int Config::parse_config(std::string path) {
     Config::config[key] = val;
   }
 
-  return 0;
+  return NO_ERROR;
 }
 
 

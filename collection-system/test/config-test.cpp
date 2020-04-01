@@ -16,10 +16,11 @@
 
 #include "gtest/gtest.h"
 #include "config.h"
+#include "error.h"
 
 TEST(parse_config_test, test1) {
   int rc = Config::parse_config("test.cfg");
-  EXPECT_EQ(0, rc);
+  EXPECT_EQ(NO_ERROR, rc);
   EXPECT_TRUE((Config::config.find("key1") != Config::config.end()));
   EXPECT_TRUE((Config::config.find("key2") != Config::config.end()));
   EXPECT_TRUE((Config::config.find("key3") != Config::config.end()));
@@ -33,5 +34,5 @@ TEST(parse_config_test, test1) {
 
 TEST(parse_config_test, test2) {
   int rc = Config::parse_config("test-invalid-path.cfg");
-  EXPECT_EQ(-1, rc);
+  EXPECT_EQ(ERROR_NO_RETRY, rc);
 }
