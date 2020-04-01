@@ -31,7 +31,8 @@ int Config::parse_config(std::string path) {
   std::string line;
 
   while (std::getline(config_file, line)) {
-    // ignore comments
+    // ignore comments and empty lines
+    if (line.empty()) continue;
     if (line.at(0) == '#') continue;
 
     size_t pos = line.find("=");
