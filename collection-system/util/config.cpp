@@ -50,7 +50,7 @@ int Config::parse_config(std::string path) {
       return !std::isspace(c);
     }).base(), key.end());
 
-    std::string val = line.substr(pos);
+    std::string val = line.substr(pos + 1);
     val.erase(val.begin(), std::find_if(val.begin(), val.end(), [](int c) {
       return !std::isspace(c);
     }));

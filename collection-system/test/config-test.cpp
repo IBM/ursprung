@@ -18,5 +18,14 @@
 #include "config.h"
 
 TEST(parse_config_test, test1) {
-    EXPECT_EQ (0,  0);
+  Config::parse_config("test.cfg");
+  EXPECT_TRUE((Config::config.find("key1") != Config::config.end()));
+  EXPECT_TRUE((Config::config.find("key2") != Config::config.end()));
+  EXPECT_TRUE((Config::config.find("key3") != Config::config.end()));
+  EXPECT_TRUE((Config::config.find("key4") != Config::config.end()));
+  EXPECT_EQ(4, Config::config.size());
+  EXPECT_EQ("val1", Config::config["key1"]);
+  EXPECT_EQ("val2", Config::config["key2"]);
+  EXPECT_EQ("val3", Config::config["key3"]);
+  EXPECT_EQ("val4", Config::config["key4"]);
 }
