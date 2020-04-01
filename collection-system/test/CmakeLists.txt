@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.10)
+
+set(TEST_BIN all-tests)
+
+file(GLOB_RECURSE tests LIST_DIRECTORIES false *.h *.cpp)
+file(GLOB_RECURSE utils LIST_DIRECTORIES false ../util/*.h ../util/*.cpp)
+
+set(SOURCES ${tests} ${utils})
+
+add_executable(${TEST_BIN} ${tests} ${utils})
+add_test(NAME ${TEST_BIN} COMMAND ${TEST_BIN})
+
+target_link_libraries(${TEST_BIN} PUBLIC gtest)
