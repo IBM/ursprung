@@ -50,12 +50,14 @@ int parse_args(int argc, char **argv) {
   }
 
   int opt;
+  bool config_provided = false;
   while ((opt = getopt_long(argc, argv, shortops, longops, nullptr)) != -1) {
     switch (opt) {
     case 'c':
       if ((rc = Config::parse_config(std::string(optarg))) != NO_ERROR) {
         return rc;
       }
+      config_provided = true;
       break;
     case 'l':
       Config::config[Config::CKEY_LOG_FILE] = std::string(optarg);
@@ -66,6 +68,10 @@ int parse_args(int argc, char **argv) {
     }
   }
 
+  if (!config_provided) {
+    print_usage();
+    return ERROR_NO_RETRY;
+  }
   Config::print_config();
 
   return rc;
@@ -76,11 +82,11 @@ int main(int argc, char **argv) {
                "              Ursprung Provenance Consumer                 " << std::endl <<
                "-----------------------------------------------------------" << std::endl;
 
+  // parse command line arguments and config file
   if (parse_args(argc, argv)) {
     exit(-1);
   }
 
   // configure Logger
   Logger::set_log_file_name(Config::config[Config::CKEY_LOG_FILE]);
-  LOG_WARN("Hello World");
 }
