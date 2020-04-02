@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_GLOBAL_LOGGER_H_
-#define COMMON_GLOBAL_LOGGER_H_
+#ifndef UTIL_LOGGER_H_
+#define UTIL_LOGGER_H_
 
 #include <iostream>
 #include <sstream>
@@ -106,4 +106,4 @@ public:
   void log_msg(std::string msg);
 };
 
-#endif /* COMMON_GLOBAL_LOGGER_H_ */
+#endif /* UTIL_LOGGER_H_ */

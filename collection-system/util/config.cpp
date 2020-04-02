@@ -98,9 +98,27 @@ int Config::parse_config(std::string path) {
   return NO_ERROR;
 }
 
+void Config::print_config() {
+  std::cout << "Config values:" << std::endl
+      << Config::CKEY_DB_HOST << " = "  << Config::config[Config::CKEY_DB_HOST] << std::endl
+      << Config::CKEY_DB_PORT << " = "  << Config::config[Config::CKEY_DB_PORT] << std::endl
+      << Config::CKEY_DB_NAME << " = "  << Config::config[Config::CKEY_DB_NAME] << std::endl
+      << Config::CKEY_DB_USER << " = "  << Config::config[Config::CKEY_DB_USER] << std::endl
+      << Config::CKEY_DB_PASS << " = "  << Config::config[Config::CKEY_DB_PASS] << std::endl
+      << Config::CKEY_BROKER_HOST << " = "  << Config::config[Config::CKEY_BROKER_HOST] << std::endl
+      << Config::CKEY_BROKER_PORT << " = "  << Config::config[Config::CKEY_BROKER_PORT] << std::endl
+      << Config::CKEY_KAFKA_TOPIC << " = "  << Config::config[Config::CKEY_KAFKA_TOPIC] << std::endl
+      << Config::CKEY_KAFKA_SASL_USER << " = "  << Config::config[Config::CKEY_KAFKA_SASL_USER] << std::endl
+      << Config::CKEY_KAFKA_SASL_PASS << " = "  << Config::config[Config::CKEY_KAFKA_SASL_PASS] << std::endl
+      << Config::CKEY_LOG_FILE << " = "  << Config::config[Config::CKEY_LOG_FILE] << std::endl
+      << Config::CKEY_RULES_FILE << " = "  << Config::config[Config::CKEY_RULES_FILE] << std::endl
+      << Config::CKEY_TRACK_VERSIONS << " = "  << Config::config[Config::CKEY_TRACK_VERSIONS]
+      << std::endl;
+}
+
 /**
- * Checks whether the provided configuration key is valid. A key
- * is valid if it is defined in the ConfigKeys enum (see config.h).
+ * Checks whether the provided configuration key is valid, i.e.
+ * if it equals one of the above defined CKEY_ constants.
  */
 bool Config::is_conf_key_valid(std::string key) {
   if (key == Config::CKEY_DB_HOST)

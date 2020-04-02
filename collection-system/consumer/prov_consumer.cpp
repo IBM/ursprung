@@ -14,9 +14,69 @@
  * limitations under the License.
  */
 
+#include <iostream>
+#include <getopt.h>
 #include <librdkafka/rdkafkacpp.h>
+
+#include "error.h"
 #include "config.h"
+#include "logger.h"
+
+void print_usage() {
+  std::cout << "Usage :\n"
+      " -c, --config       path to config file      (required)\n"
+      " -l, --log-file     path to log file         (optional)\n"
+      "";
+}
+
+/**
+ * Parse command line arguments. Arugments specified
+ * on the command line overwrite any arguments defined
+ * in the config file.
+ */
+int parse_args(int argc, char **argv) {
+  int rc = NO_ERROR;
+
+  const char *const shortops = "hc:l:";
+  const option longops[] = {
+      { "help", no_argument, nullptr, 'h' },
+      { "config", required_argument, nullptr, 'c' },
+      { "log-file", required_argument,nullptr, 'l' }
+  };
+
+  if (argc <= 1) {
+    print_usage();
+    return ERROR_NO_RETRY;
+  }
+
+  int opt;
+  while ((opt = getopt_long(argc, argv, shortops, longops, nullptr)) != -1) {
+    switch (opt) {
+    case 'c':
+      if ((rc = Config::parse_config(std::string(optarg))) != NO_ERROR) {
+        return rc;
+      }
+      break;
+    case 'l':
+      Config::config[Config::CKEY_LOG_FILE] = std::string(optarg);
+      break;
+    case 'h':
+      print_usage();
+      exit(0);
+    }
+  }
+
+  Config::print_config();
+
+  return rc;
+}
 
 int main(int argc, char **argv) {
-  int rc = Config::parse_config("/bla/bla");
+  if (parse_args(argc, argv)) {
+    exit(-1);
+  }
+
+  // configure Logger
+  Logger::set_log_file_name(Config::config[Config::CKEY_LOG_FILE]);
+  LOG_WARN("Hello World");
 }

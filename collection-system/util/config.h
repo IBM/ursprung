@@ -48,6 +48,7 @@ public:
 
   static config_opts_t config;
   static int parse_config(std::string path);
+  static void print_config();
 };
 
 #endif /* UTIL_CONFIG_H_ */
