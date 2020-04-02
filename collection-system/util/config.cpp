@@ -15,10 +15,10 @@
  */
 
 #include "config.h"
-#include "logger.h"
 #include "error.h"
 
 #include <fstream>
+#include <iostream>
 
 #include <string.h>
 #include <errno.h>
@@ -49,7 +49,7 @@ int Config::parse_config(std::string path) {
   std::ifstream config_file(path);
 
   if (config_file.fail()) {
-    LOG_ERROR("Couldn't read config file: " << strerror(errno));
+    std::cerr << "Couldn't read config file: " << strerror(errno) << std::endl;
     return ERROR_NO_RETRY;
   }
 
@@ -65,7 +65,7 @@ int Config::parse_config(std::string path) {
     size_t pos = line.find("=");
     // ignore invalid lines
     if (pos == std::string::npos) {
-      LOG_WARN("\"" << line << "\" is an invalid config entry, ignoring it.");
+      std::cout << "\"" << line << "\" is an invalid config entry, ignoring it." << std::endl;
       continue;
     }
 
@@ -79,7 +79,7 @@ int Config::parse_config(std::string path) {
     }).base(), key.end());
 
     if (!Config::is_conf_key_valid(key)) {
-      LOG_WARN("Key \"" << key << "\" is not a valid key, ignoring config entry.");
+      std::cout << "Key \"" << key << "\" is not a valid key, ignoring config entry." << std::endl;
       continue;
     }
 

@@ -72,6 +72,10 @@ int parse_args(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
+  std::cout << "-----------------------------------------------------------" << std::endl <<
+               "              Ursprung Provenance Consumer                 " << std::endl <<
+               "-----------------------------------------------------------" << std::endl;
+
   if (parse_args(argc, argv)) {
     exit(-1);
   }
