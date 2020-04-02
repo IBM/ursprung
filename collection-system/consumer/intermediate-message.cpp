@@ -50,7 +50,7 @@ std::string IntermediateMessage::format_as_varchar(const std::string &str, int l
       }
     }
     // If even, any suffix of single-quotes is escaped.
-    // Otherwise, snip one additional char.
+    // Otherwise, remove one additional char.
     if (escape_parity % 2) {
       escaped_str.resize(escaped_str.length() - 1);
     }

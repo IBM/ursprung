@@ -48,13 +48,13 @@ public:
   virtual ~IntermediateMessage() {};
 
   /**
-   * Get a unique ID for this IM.
+   * Get a unique ID for this intermediate message.
    */
   virtual std::string get_id() const =0;
 
   /**
-   * Return a message formatted for a MOS of type cdest.
-   * If cdest requires delimited fields, use this delim.
+   * Return a message formatted for a consumer destination of type cdest.
+   * If cdest requires delimited fields, specify the delim parameter.
    */
   virtual std::string normalize(ConsumerDestination cdest, std::string delim = ",") const =0;
 
