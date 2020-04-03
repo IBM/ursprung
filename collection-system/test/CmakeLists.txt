@@ -17,3 +17,10 @@ add_custom_command(
   ${CMAKE_CURRENT_SOURCE_DIR}/resources/test.cfg
   ${CMAKE_BINARY_DIR}/test/
 )
+
+add_custom_command(
+  TARGET ${TEST_BIN}
+  COMMAND ${CMAKE_COMMAND} -E copy
+  ${CMAKE_CURRENT_SOURCE_DIR}/resources/test-file-in-stream
+  ${CMAKE_BINARY_DIR}/test/
+)

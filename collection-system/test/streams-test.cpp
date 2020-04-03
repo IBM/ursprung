@@ -19,9 +19,18 @@
 #include "msg-output-stream.h"
 #include "error.h"
 
-TEST(file_input_stream_test, test_open) {
-  std::string file = "testfile";
+TEST(file_input_stream_test, test1) {
+  std::string file = "test-file-in-stream";
   FileInputStream s(file);
   int rc = s.open();
-  EXPECT_EQ(0, rc);
+  EXPECT_EQ(NO_ERROR, rc);
+
+  std::string msg;
+  rc = s.recv(msg);
+  EXPECT_EQ(NO_ERROR, rc);
+  EXPECT_EQ(std::string("testline"), msg);
+  rc = s.recv(msg);
+  EXPECT_EQ(ERROR_EOF, rc);
+
+  s.close();
 }
