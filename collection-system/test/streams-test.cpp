@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <fstream>
+
 #include "gtest/gtest.h"
 #include "msg-input-stream.h"
 #include "msg-output-stream.h"
@@ -33,4 +35,21 @@ TEST(file_input_stream_test, test1) {
   EXPECT_EQ(ERROR_EOF, rc);
 
   s.close();
+}
+
+TEST(file_output_stream_test, test1) {
+  std::string file = "test-file-out-stream";
+  FileOutputStream s(file);
+  int rc = s.open();
+  EXPECT_EQ(NO_ERROR, rc);
+
+  std::string msg = "test message";
+  rc = s.send(msg, 0);
+  s.flush();
+  s.close();
+
+  std::ifstream inFile(file);
+  std::string line;
+  std::getline(inFile, line);
+  EXPECT_EQ(msg, line);
 }

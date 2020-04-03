@@ -29,7 +29,7 @@ FileOutputStream::FileOutputStream(std::string filename) :
 }
 
 int FileOutputStream::open() {
-  out_file->open(filename);
+  out_file->open(filename, std::ofstream::trunc);
 
   if (!out_file->good()) {
     LOG_ERROR("Problems while trying to open output file " << filename << ": " << strerror(errno));
@@ -45,7 +45,7 @@ void FileOutputStream::close() {
 int FileOutputStream::send(const std::string &msg_str, int partition,
     const std::string *key) {
   assert(out_file->is_open());
-  *out_file << msg_str;
+  *out_file << msg_str << std::endl;
   return NO_ERROR;
 }
 
