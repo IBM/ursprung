@@ -50,20 +50,20 @@ public:
   /**
    * Get a unique ID for this intermediate message.
    */
-  virtual std::string get_id() const =0;
+  virtual std::string get_id() const = 0;
 
   /**
    * Return a message formatted for a consumer destination of type cdest.
    * If cdest requires delimited fields, specify the delim parameter.
    */
-  virtual std::string normalize(ConsumerDestination cdest, std::string delim = ",") const =0;
+  virtual std::string normalize(ConsumerDestination cdest, std::string delim = ",") const = 0;
 
   /**
    * Get the value for the specified message field.
    * If the field doesn't exist, this function returns
    * a nullptr.
    */
-  virtual std::string get_value(std::string field) const =0;
+  virtual std::string get_value(std::string field) const = 0;
 };
 
 #endif /* CONSUMER_INTERMEDIATE_MESSAGE_H_ */

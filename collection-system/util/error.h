@@ -20,7 +20,8 @@
 enum ErrorCodes : int {
     NO_ERROR = 0,
     ERROR_RETRY = 1,
-    ERROR_NO_RETRY = 2
+    ERROR_NO_RETRY = 2,
+    ERROR_EOF = 3
 };
 
 #endif /* UTIL_ERROR_H_ */
