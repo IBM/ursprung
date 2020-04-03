@@ -20,6 +20,8 @@
 #include <vector>
 
 #include "intermediate-message.h"
+#include "msg-input-stream.h"
+#include "msg-output-stream.h"
 
 typedef std::vector<std::string> msgs_t;
 typedef std::shared_ptr<IntermediateMessage> im_t;
@@ -82,17 +84,16 @@ protected:
 
   ConsumerSource c_src;
   ConsumerDestination c_dest;
-  //MessageInStream *inStream;
-  //MessageOutStream *outStream;
+  std::unique_ptr<MsgInputStream> inStream;
+  std::unique_ptr<MsgOutputStream> outStream;
 
   msgs_t msg_buffer;
-
   //std::shared_ptr<RuleEngine> rule_engine;
 
 public:
-  //AbstractConsumer(ConsumerSource csrc, MessageInStream *mis,
-  //    ConsumerDestination cdest, MessageOutStream *toOcean,
-  //    uint32_t batchsize = 10000);
+  AbstractConsumer(ConsumerSource csrc, MsgInputStream *in,
+      ConsumerDestination cdest, MsgOutputStream *out,
+      uint32_t batchsize = 10000);
   virtual ~AbstractConsumer();
 
   int run();
