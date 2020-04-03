@@ -43,9 +43,13 @@ void FileOutputStream::close() {
 }
 
 int FileOutputStream::send(const std::string &msg_str, int partition,
-    const std::string *key = nullptr) {
+    const std::string *key) {
   assert(out_file->is_open());
-  out_file << msg_str;
+  *out_file << msg_str;
+  return NO_ERROR;
+}
+
+int FileOutputStream::send_batch(std::vector<std::string> msg_batch) {
   return NO_ERROR;
 }
 

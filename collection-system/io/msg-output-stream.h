@@ -20,6 +20,7 @@
 #include <fstream>
 #include <string>
 #include <memory>
+#include <vector>
 
 /**
  * An output stream handles setting up, writing to, and tearing down
@@ -27,16 +28,13 @@
  */
 class MsgOutputStream {
 public:
-  MsgOutputStream();
   virtual ~MsgOutputStream() {}
-
   virtual int open() = 0;
   virtual void close() = 0;
   virtual int send(const std::string &msg_str, int partition,
       const std::string *key = nullptr) = 0;
   virtual int send_batch(std::vector<std::string> msg_batch) = 0;
   virtual void flush() const = 0;
-
 };
 
 /**
@@ -49,7 +47,7 @@ private:
 
 public:
   FileOutputStream(std::string filename);
-  ~FileOutputStream();
+  virtual ~FileOutputStream() {};
 
   virtual int open() override;
   virtual void close() override;

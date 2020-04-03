@@ -28,7 +28,7 @@ class MsgInputStream {
 public:
   virtual ~MsgInputStream() {};
   virtual int open() = 0;
-  virtual int close() = 0;
+  virtual void close() = 0;
   virtual int recv(std::string &msg_str) = 0;
 };
 
