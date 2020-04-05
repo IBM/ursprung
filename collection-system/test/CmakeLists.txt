@@ -4,15 +4,16 @@ file(GLOB_RECURSE tests LIST_DIRECTORIES false *.h *.cpp)
 file(GLOB_RECURSE utils LIST_DIRECTORIES false ../util/*.h ../util/*.cpp)
 file(GLOB_RECURSE io LIST_DIRECTORIES false ../io/*.h ../io/*.cpp)
 file(GLOB_RECURSE sql LIST_DIRECTORIES false ../sql/*.h ../sql/*.cpp)
+file(GLOB_RECURSE rules LIST_DIRECTORIES false ../rules/*.h ../rules/*.cpp)
 
-set(SOURCES ${tests} ${utils} ${io} ${sql})
+set(SOURCES ${tests} ${utils} ${io} ${sql} ${rules})
 
-add_executable(${TEST_BIN} ${tests} ${utils} ${io} ${sql})
+add_executable(${TEST_BIN} ${tests} ${utils} ${io} ${sql} ${rules})
 add_test(NAME ${TEST_BIN} COMMAND ${TEST_BIN})
 
-target_include_directories(${TEST_BIN} PUBLIC /usr/local/include ../util ../io ../sql)
+target_include_directories(${TEST_BIN} PUBLIC /usr/local/include ../util ../io ../sql ../rules)
 target_link_directories(${TEST_BIN} PUBLIC /usr/local/lib)
-target_link_libraries(${TEST_BIN} PUBLIC gtest odbc)
+target_link_libraries(${TEST_BIN} PUBLIC gtest odbc boost_regex)
 
 add_custom_command(
   TARGET ${TEST_BIN}
