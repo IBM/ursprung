@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
+#include <sstream>
+#include <vector>
+
 #include "intermediate-message.h"
+#include "logger.h"
+
+/*------------------------------
+ * IntermediateMessage
+ *------------------------------*/
 
 std::string IntermediateMessage::format_as_varchar(const std::string &str, int limit) const {
   std::string escaped_str = "";
@@ -58,4 +66,51 @@ std::string IntermediateMessage::format_as_varchar(const std::string &str, int l
   }
 
   return "'" + escaped_str + "'";
+}
+
+/*------------------------------
+ * TestIntermediateMessage
+ *------------------------------*/
+
+TestIntermediateMessage::TestIntermediateMessage(ConsumerSource csrc,
+    const std::string &msgin) {
+  // split on commas
+  std::stringstream ss(msgin);
+  std::string item;
+  std::vector<std::string> tokens;
+
+  while (getline(ss, item, ',')) {
+    tokens.push_back(item);
+  }
+  if (tokens.size() != NUM_FIELDS) {
+    LOG_WARN("Got " << tokens.size() << " tokens but expected " <<
+        TestIntermediateMessage::NUM_FIELDS << " tokens in message <" <<
+        msgin << ">. Ignoring extra tokens.");
+  }
+
+  int i = 0;
+  f1 = tokens.at(i++);
+  f2 = tokens.at(i++);
+  f3 = tokens.at(i++);
+}
+
+std::string TestIntermediateMessage::normalize(ConsumerDestination cdst,
+    std::string delim) const {
+  std::string normalized;
+  if (cdst == CD_DB2 || cdst == CD_POSTGRES) {
+    normalized = format_as_varchar(f1, 20)
+        + delim + format_as_varchar(f2, 32)
+        + delim + format_as_varchar(f3, 128);
+  } else {
+    assert(!"Error, unsupported cdest\n");
+  }
+
+  return normalized;
+}
+
+std::string TestIntermediateMessage::get_value(std::string field) const {
+  if (field == "f1") return f1;
+  else if (field == "f2") return f2;
+  else if (field == "f3") return f3;
+  else return "";
 }

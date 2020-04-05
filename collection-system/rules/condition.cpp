@@ -40,7 +40,7 @@ Condition::Condition(std::string condition) {
   if (boost::regex_search(condition, match, FIND_OP_REGEX)) {
     int pos = match.position();
 
-    fieldName = condition.substr(0, pos);
+    field_name = condition.substr(0, pos);
     op = condition.substr(pos, match.length());
     rvalue = condition.substr(pos + match.length());
     rvalue = boost::regex_replace(rvalue, boost::regex("\\["), "(");
@@ -68,8 +68,8 @@ bool Condition::evaluate(std::string val) const {
  *------------------------------*/
 
 void ConditionExpr::lex() {
-  std::string::size_type exprSize = expression.size();
-  for (std::string::size_type i = 0; i < exprSize; i++) {
+  std::string::size_type expr_size = expression.size();
+  for (std::string::size_type i = 0; i < expr_size; i++) {
     if (isspace(expression[i])) {
       continue;
     } else if (expression[i] == '(') {
@@ -86,99 +86,99 @@ void ConditionExpr::lex() {
       i++;
     } else {
       // parse the condition
-      std::stringstream condStr;
+      std::stringstream cond_str;
       while (expression[i] != '(' && expression[i] != ')'
           && expression[i] != '&' && expression[i] != '|'
-          && !isspace(expression[i]) && i < exprSize) {
-        condStr << expression[i];
+          && !isspace(expression[i]) && i < expr_size) {
+        cond_str << expression[i];
         i++;
       }
       // decrement back to the next control character
       i--;
-      Condition *cond = new Condition(condStr.str());
+      Condition *cond = new Condition(cond_str.str());
       tokens.push_back(new Token(Token::TokenType::COND, "", cond));
     }
   }
 }
 
 void ConditionExpr::parse() {
-  unsigned int currTokenIdx = 0;
-  astRoot = expr(tokens, currTokenIdx);
+  unsigned int curr_token_idx = 0;
+  ast_root = expr(tokens, curr_token_idx);
 }
 
 bool ConditionExpr::eval(const IntermediateMessage &msg) {
-  return evalRec(astRoot, msg);
+  return eval_rec(ast_root, msg);
 }
 
-Node* ConditionExpr::factor(std::vector<Token*> tokens, unsigned int &currTokenIdx) const {
-  if (tokens[currTokenIdx]->getType() == Token::TokenType::COND) {
-    CondNode *n = new CondNode(new Condition(*tokens[currTokenIdx]->getCond()));
-    currTokenIdx++;
+Node* ConditionExpr::factor(std::vector<Token*> tokens, unsigned int &curr_token_idx) const {
+  if (tokens[curr_token_idx]->get_type() == Token::TokenType::COND) {
+    CondNode *n = new CondNode(new Condition(*tokens[curr_token_idx]->get_cond()));
+    curr_token_idx++;
     return n;
-  } else if (tokens[currTokenIdx]->getType() == Token::TokenType::LPAREN) {
-    currTokenIdx++;
-    Node *n = expr(tokens, currTokenIdx);
-    if (!(tokens[currTokenIdx]->getType() == Token::TokenType::RPAREN)) {
-      std::cout << "Missing ) in expression at " << currTokenIdx << std::endl;
+  } else if (tokens[curr_token_idx]->get_type() == Token::TokenType::LPAREN) {
+    curr_token_idx++;
+    Node *n = expr(tokens, curr_token_idx);
+    if (!(tokens[curr_token_idx]->get_type() == Token::TokenType::RPAREN)) {
+      std::cout << "Missing ) in expression at " << curr_token_idx << std::endl;
       throw std::invalid_argument("Invalid expression!");
     }
-    currTokenIdx++;
+    curr_token_idx++;
     return n;
   } else {
-    std::cout << "Invalid token " << tokens[currTokenIdx]->getType()
-        << " in expression at " << currTokenIdx << std::endl;
+    std::cout << "Invalid token " << tokens[curr_token_idx]->get_type()
+        << " in expression at " << curr_token_idx << std::endl;
     throw std::invalid_argument("Invalid expression!");
   }
 }
 
-Node* ConditionExpr::term(std::vector<Token*> tokens, unsigned int &currTokenIdx) const {
-  Node *latest = factor(tokens, currTokenIdx);
+Node* ConditionExpr::term(std::vector<Token*> tokens, unsigned int &curr_token_idx) const {
+  Node *latest = factor(tokens, curr_token_idx);
 
-  while (currTokenIdx < tokens.size()
-      && tokens[currTokenIdx]->getType() == Token::TokenType::AND) {
-    OpNode *op = new OpNode(tokens[currTokenIdx]->getVal());
-    op->setLChild(latest);
-    currTokenIdx++;
-    op->setRChild(factor(tokens, currTokenIdx));
+  while (curr_token_idx < tokens.size()
+      && tokens[curr_token_idx]->get_type() == Token::TokenType::AND) {
+    OpNode *op = new OpNode(tokens[curr_token_idx]->get_val());
+    op->set_lchild(latest);
+    curr_token_idx++;
+    op->set_rchild(factor(tokens, curr_token_idx));
     latest = op;
   }
 
   return latest;
 }
 
-Node* ConditionExpr::expr(std::vector<Token*> tokens, unsigned int &currTokenIdx) const {
-  Node *latest = term(tokens, currTokenIdx);
+Node* ConditionExpr::expr(std::vector<Token*> tokens, unsigned int &curr_token_idx) const {
+  Node *latest = term(tokens, curr_token_idx);
 
-  while (currTokenIdx < tokens.size()
-      && tokens[currTokenIdx]->getType() == Token::TokenType::OR) {
-    OpNode *op = new OpNode(tokens[currTokenIdx]->getVal());
-    op->setLChild(latest);
-    currTokenIdx++;
-    op->setRChild(term(tokens, currTokenIdx));
+  while (curr_token_idx < tokens.size()
+      && tokens[curr_token_idx]->get_type() == Token::TokenType::OR) {
+    OpNode *op = new OpNode(tokens[curr_token_idx]->get_val());
+    op->set_lchild(latest);
+    curr_token_idx++;
+    op->set_rchild(term(tokens, curr_token_idx));
     latest = op;
   }
 
   return latest;
 }
 
-bool ConditionExpr::evalRec(Node *node, const IntermediateMessage &msg) const {
-  if (!node->isLeaf()) {
+bool ConditionExpr::eval_rec(Node *node, const IntermediateMessage &msg) const {
+  if (!node->is_leaf()) {
     OpNode *op = (OpNode*) node;
-    if (op->getOp() == "&&") {
-      return evalRec(op->getLChild(), msg) && evalRec(op->getRChild(), msg);
-    } else if (op->getOp() == "||") {
-      return evalRec(op->getLChild(), msg) || evalRec(op->getRChild(), msg);
+    if (op->get_op() == "&&") {
+      return eval_rec(op->get_lchild(), msg) && eval_rec(op->get_rchild(), msg);
+    } else if (op->get_op() == "||") {
+      return eval_rec(op->get_lchild(), msg) || eval_rec(op->get_rchild(), msg);
     } else {
       LOG_ERROR("Op not recognized");
       return false;
     }
   } else {
-    Condition *c = ((CondNode*) node)->getCond();
-    std::string val = msg.get_value(c->getFieldName());
+    Condition *c = ((CondNode*) node)->get_cond();
+    std::string val = msg.get_value(c->get_field_name());
     if (!val.empty()) {
       return c->evaluate(val);
     } else {
-      LOG_ERROR("Field " << c->getFieldName() << " not part of message." << "Ignoring rule.");
+      LOG_ERROR("Field " << c->get_field_name() << " not part of message." << "Ignoring rule.");
       return false;
     }
   }

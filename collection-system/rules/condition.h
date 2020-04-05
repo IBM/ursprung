@@ -32,7 +32,7 @@
  */
 class Condition {
 private:
-  std::string fieldName;
+  std::string field_name;
   std::string op;
   std::string rvalue;
 
@@ -40,52 +40,52 @@ public:
   Condition(std::string condition);
   ~Condition() {}
   Condition(const Condition &other) {
-    fieldName = other.getFieldName();
-    op = other.getOp();
-    rvalue = other.getRValue();
+    field_name = other.get_field_name();
+    op = other.get_op();
+    rvalue = other.get_rvalue();
   }
   Condition& operator=(const Condition &other) {
-    this->fieldName = other.getFieldName();
-    this->op = other.getOp();
-    this->rvalue = other.getRValue();
+    this->field_name = other.get_field_name();
+    this->op = other.get_op();
+    this->rvalue = other.get_rvalue();
     return *this;
   }
 
   bool evaluate(std::string val) const;
-  std::string getFieldName() const { return fieldName; }
-  std::string getOp() const { return op; }
-  std::string getRValue() const { return rvalue; }
-  std::string str() const { return fieldName + op + rvalue; }
+  std::string get_field_name() const { return field_name; }
+  std::string get_op() const { return op; }
+  std::string get_rvalue() const { return rvalue; }
+  std::string str() const { return field_name + op + rvalue; }
 };
 
 class Node {
 public:
   virtual ~Node() {}
   virtual std::string str() = 0;
-  virtual bool const isLeaf() = 0;
+  virtual bool const is_leaf() = 0;
 };
 
 class OpNode: public Node {
 public:
-  OpNode(std::string o) : lChild { NULL }, rChild { NULL }, op { o } {}
+  OpNode(std::string o) : l_child { NULL }, r_child { NULL }, op { o } {}
   ~OpNode() {
-    if (lChild) delete lChild;
-    if (rChild) delete rChild;
+    if (l_child) delete l_child;
+    if (r_child) delete r_child;
   }
   OpNode(const OpNode &other) = delete;
   OpNode& operator=(const OpNode &other) = delete;
 
-  void setLChild(Node *l) { lChild = l; }
-  void setRChild(Node *r) { rChild = r; }
-  Node* getLChild() const { return lChild; }
-  Node* getRChild() const { return rChild; }
-  std::string getOp() const { return op; }
+  void set_lchild(Node *l) { l_child = l; }
+  void set_rchild(Node *r) { r_child = r; }
+  Node* get_lchild() const { return l_child; }
+  Node* get_rchild() const { return r_child; }
+  std::string get_op() const { return op; }
   virtual std::string str() override { return this->op; }
-  virtual bool const isLeaf() override { return false; }
+  virtual bool const is_leaf() override { return false; }
 
 private:
-  Node *lChild;
-  Node *rChild;
+  Node *l_child;
+  Node *r_child;
   std::string op;
 };
 
@@ -98,9 +98,9 @@ public:
   CondNode(const CondNode &other) = delete;
   CondNode& operator=(const CondNode &other) = delete;
 
-  Condition* getCond() const { return cond; }
+  Condition* get_cond() const { return cond; }
   virtual std::string str() override { return cond->str(); }
-  virtual bool const isLeaf() override { return true; }
+  virtual bool const is_leaf() override { return true; }
 
 private:
   Condition *cond;
@@ -123,9 +123,9 @@ public:
   Token(const Token &other) = delete;
   Token& operator=(const Token &other) = delete;
 
-  TokenType getType() const { return type; }
-  std::string getVal() const { return val; }
-  Condition* getCond() const { return cond; }
+  TokenType get_type() const { return type; }
+  std::string get_val() const { return val; }
+  Condition* get_cond() const { return cond; }
 
 private:
   TokenType type;
@@ -142,21 +142,25 @@ private:
 class ConditionExpr {
 private:
   std::string expression;
-  Node *astRoot;
+  Node *ast_root;
   std::vector<Token*> tokens;
 
   Node* expr(std::vector<Token*> tokens, unsigned int &currTokenIdx) const;
   Node* term(std::vector<Token*> tokens, unsigned int &currTokenIdx) const;
   Node* factor(std::vector<Token*> tokens, unsigned int &currTokenIdx) const;
-  bool evalRec(Node *node, const IntermediateMessage &msg) const;
+  bool eval_rec(Node *node, const IntermediateMessage &msg) const;
+  void lex();
+  void parse();
 
 public:
   ConditionExpr(std::string e) :
-      expression { e }, astRoot { NULL } {
+      expression { e }, ast_root { NULL } {
+    lex();
+    parse();
   }
   ~ConditionExpr() {
-    if (astRoot)
-      delete astRoot;
+    if (ast_root)
+      delete ast_root;
     for (unsigned int i = 0; i < tokens.size(); i++) {
       delete tokens[i];
     }
@@ -164,8 +168,6 @@ public:
   ConditionExpr(const ConditionExpr &other) = delete;
   ConditionExpr& operator=(const ConditionExpr &other) = delete;
 
-  void lex();
-  void parse();
   bool eval(const IntermediateMessage &msg);
 };
 

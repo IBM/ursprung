@@ -44,26 +44,40 @@ protected:
   std::string format_as_varchar(const std::string &str, int limit = -1) const;
 
 public:
-  IntermediateMessage(ConsumerSource csrc, const std::string &msgin);
+  IntermediateMessage() {};
+  IntermediateMessage(ConsumerSource csrc, const std::string &msgin) {};
   virtual ~IntermediateMessage() {};
-
-  /**
-   * Get a unique ID for this intermediate message.
-   */
-  virtual std::string get_id() const = 0;
 
   /**
    * Return a message formatted for a consumer destination of type cdest.
    * If cdest requires delimited fields, specify the delim parameter.
    */
-  virtual std::string normalize(ConsumerDestination cdest, std::string delim = ",") const = 0;
+  virtual std::string normalize(ConsumerDestination cdst, std::string delim = ",") const = 0;
 
   /**
    * Get the value for the specified message field.
    * If the field doesn't exist, this function returns
-   * a nullptr.
+   * an empty string.
    */
   virtual std::string get_value(std::string field) const = 0;
+};
+
+/**
+ * This intermediate message implementation is only used for
+ * testing purposes.
+ */
+class TestIntermediateMessage : public IntermediateMessage {
+private:
+  static const int NUM_FIELDS = 3;
+  std::string f1;
+  std::string f2;
+  std::string f3;
+public:
+  TestIntermediateMessage(ConsumerSource csrc, const std::string &msgin);
+  ~TestIntermediateMessage() {}
+
+  virtual std::string normalize(ConsumerDestination cdst, std::string delim = ",") const override;
+  virtual std::string get_value(std::string field) const override;
 };
 
 #endif /* CONSUMER_INTERMEDIATE_MESSAGE_H_ */
