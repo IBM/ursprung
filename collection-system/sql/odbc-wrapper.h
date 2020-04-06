@@ -23,6 +23,7 @@
 #include <string>
 #include <exception>
 
+// TODO remove
 using namespace std;
 
 typedef enum {
@@ -30,6 +31,15 @@ typedef enum {
   ODBC_ERROR,
   ODBC_NO_DATA
 } odbc_rc;
+
+// TODO aggregate all separate DSN information (in action.h) with dsn_t
+typedef struct dsn {
+  std::string dsn_name;
+  std::string username;
+  std::string password;
+  std::string db_schema;
+  std::string tablename;
+} dsn_t;
 
 /**
  * This class defines a simple wrapper around ODBC to

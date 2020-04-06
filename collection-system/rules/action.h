@@ -202,8 +202,10 @@ public:
  */
 class LogLoadAction: public Action {
 private:
-  // A single action can cover several log files (e.g. if the condition is a path regex). We
-  // keep the state for each individual file that is watched by this action in this parsing state.
+  /*
+   * A single action can cover several log files (e.g. if the condition is a path regex). We
+   * keep the state for each individual file that is watched by this action in this parsing state.
+   */
   parse_state_t parsingState;
   std::string dbServer;
   std::string dbUser;

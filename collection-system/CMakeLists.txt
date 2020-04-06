@@ -18,11 +18,6 @@ if ( PERF )
 	add_compile_definitions(PERF=1)
 endif()
 
-# set include directories
-include_directories(util)
-include_directories(io)
-set(CMAKE_REQUIRED_INCLUDES "/usr/local/include")
-
 add_subdirectory(provd)
 add_subdirectory(consumer)
 
