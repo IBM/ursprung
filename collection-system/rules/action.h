@@ -58,6 +58,7 @@ typedef std::map<std::string, std::pair<long long int, unsigned long long>> pars
  */
 class Action {
 protected:
+  db_conn_t target_db;
   bool running;
   std::string ruleID;
   std::vector<std::thread> consumerThreads;
@@ -78,6 +79,7 @@ public:
   void stopActionConsumers();
   void setRuleID(std::string rid) { ruleID = rid; }
   a_queue_t* getActionQueue() { return actionQueue; }
+  std::string getTargetDb() const { return target_db; }
 
   // TODO make this configurable
   virtual int getNumConsumerThreads() const = 0;
@@ -99,12 +101,7 @@ public:
  */
 class DBLoadAction: public Action {
 private:
-  std::string dbServer;
-  std::string dbUser;
-  std::string dbPassword;
   std::string eventField;
-  std::string tablename;
-  std::string schema;
   bool header;
 
 public:
@@ -112,11 +109,6 @@ public:
   virtual ~DBLoadAction() {};
 
   std::string getEventField() const { return eventField; }
-  std::string getTablename() const { return tablename; }
-  std::string getSchema() const { return schema; }
-  std::string getDBServer() const { return dbServer; }
-  std::string getDBUser() const { return dbUser; }
-  std::string getDBPassword() const { return dbPassword; }
   bool hasHeader() const { return header; }
 
   virtual int execute(std::shared_ptr<IntermediateMessage>) override;
@@ -150,11 +142,6 @@ public:
 class DBTransferAction: public Action {
 private:
   std::string queryState;
-  std::string targetDbServer;
-  std::string targetDbUser;
-  std::string targetDbPassword;
-  std::string targetTablename;
-  std::string targetSchema;
   std::string query;
   std::string stateAttributeName;
   std::string odbcDSN;
@@ -165,11 +152,6 @@ public:
   DBTransferAction(std::string action);
   virtual ~DBTransferAction();
 
-  std::string getTargetDbServer() const { return targetDbServer; }
-  std::string getTargetDbUser() const { return targetDbUser; }
-  std::string getTargetDbPassword() const { return targetDbPassword; }
-  std::string getTargetTablename() const { return targetTablename; }
-  std::string getTargetSchema() const { return targetSchema; }
   std::string getQuery() const { return query; }
   std::string getStateAttributeName() const { return stateAttributeName; }
   std::string getOdbcDSN() const { return odbcDSN; }
@@ -207,12 +189,7 @@ private:
    * keep the state for each individual file that is watched by this action in this parsing state.
    */
   parse_state_t parsingState;
-  std::string dbServer;
-  std::string dbUser;
-  std::string dbPassword;
   std::string eventField;
-  std::string tablename;
-  std::string schema;
   std::regex matchingString;
   std::string delimiter;
   std::vector<LogLoadField*> fields;
@@ -227,11 +204,6 @@ public:
   virtual ~LogLoadAction();
 
   std::string getEventField() const { return eventField; }
-  std::string getTablename() const { return tablename; }
-  std::string getSchema() const { return schema; }
-  std::string getDBServer() const { return dbServer; }
-  std::string getDBUser() const { return dbUser; }
-  std::string getDBPassword() const { return dbPassword; }
   std::regex getMatchingString() const { return matchingString; }
   std::string getDelimiter() const { return delimiter; }
   std::vector<LogLoadField*> getFields() const { return fields; }
@@ -257,9 +229,6 @@ public:
  */
 class TrackAction: public Action {
 private:
-  std::string dbServer;
-  std::string dbUser;
-  std::string dbPassword;
   std::regex pathRegex;
   std::string pathRegexStr;
   OdbcWrapper *targetDB;
@@ -281,11 +250,7 @@ public:
   TrackAction(std::string action);
   virtual ~TrackAction();
 
-  std::string getDBServer() const { return dbServer; }
-  std::string getDBUser() const { return dbUser; }
-  std::string getDBPassword() const { return dbPassword; }
   std::regex getPathRegex() const { return pathRegex; }
-
   virtual int execute(std::shared_ptr<IntermediateMessage>) override;
   virtual std::string str() const override;
   virtual std::string getType() const override;
@@ -309,11 +274,6 @@ public:
  */
 class StdoutCaptureAction: public Action {
 private:
-  std::string dbServer;
-  std::string dbUser;
-  std::string dbPassword;
-  std::string tablename;
-  std::string schema;
   std::string matchingString;
   std::regex matchingRegex;
   std::string delimiter;
@@ -323,11 +283,6 @@ public:
   StdoutCaptureAction(std::string action);
   virtual ~StdoutCaptureAction();
 
-  std::string getTablename() const { return tablename; }
-  std::string getSchema() const { return schema; }
-  std::string getDBServer() const { return dbServer; }
-  std::string getDBUser() const { return dbUser; }
-  std::string getDBPassword() const { return dbPassword; }
   std::string getMatchingString() const { return matchingString; }
   std::regex getMatchingRegex() const { return matchingRegex; }
   std::string getDelimiter() const { return delimiter; }

@@ -32,7 +32,6 @@ typedef enum {
   ODBC_NO_DATA
 } odbc_rc;
 
-// TODO aggregate all separate DSN information (in action.h) with dsn_t
 typedef struct dsn {
   std::string dsn_name;
   std::string username;
@@ -40,6 +39,14 @@ typedef struct dsn {
   std::string db_schema;
   std::string tablename;
 } dsn_t;
+
+typedef struct db_conn {
+  std::string hostname;
+  std::string username;
+  std::string password;
+  std::string db_schema;
+  std::string tablename;
+} db_conn_t;
 
 /**
  * This class defines a simple wrapper around ODBC to
