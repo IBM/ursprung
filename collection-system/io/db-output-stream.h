@@ -58,18 +58,27 @@ private:
   bool running = true;
   dsn_t dsn;
 
+  std::string format_csv_line(const std::string &line);
   std::string get_utc_time();
   int parallel_send_to_db(const std::vector<std::vector<std::string>> &batches,
       std::string table, std::string schema);
-  int send_to_db(const std::vector<std::string> &batch, std::string table, std::string schema);
-  int send_sync(std::vector<std::string> records);
+  int send_to_db(const std::vector<std::string> &batch, std::string table,
+      std::string schema);
+  int send_sync(const std::vector<std::string> &records);
   void send_async(std::vector<std::string> records);
 
 public:
   DBOutputStream(const std::string &dsn, const std::string &username,
       const std::string &passwd, const std::string &dbSchema,
       const std::string &tablename, bool async = false);
-  ~DBOutputStream();
+  virtual ~DBOutputStream() {};
+
+  virtual int open() override;
+  virtual void close() override;
+  virtual int send(const std::string &msg_str, int partition,
+        const std::string *key = nullptr) override;
+  virtual int send_batch(const std::vector<std::string> &msgs) override;
+  virtual void flush() const override;
 
   void set_header() { header = true; }
   void unset_header() { header = false; }
@@ -77,11 +86,8 @@ public:
   void unset_add_info() { add_info = false; }
   void set_multiplex(int pos) { multiplex = true; attr_position = pos; }
   void unset_multiplex() { multiplex = false; }
-
-  std::string format_csv_line(const std::string &line);
-  int send(std::vector<std::string> records);
-  void run_inserter();
   void set_multiplex_group(std::string target_table, std::string target_schema, std::string key);
+  void run_inserter();
 };
 
 #endif /* IO_DB_OUTPUT_STREAM_H_ */

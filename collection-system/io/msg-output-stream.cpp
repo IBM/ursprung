@@ -49,7 +49,7 @@ int FileOutputStream::send(const std::string &msg_str, int partition,
   return NO_ERROR;
 }
 
-int FileOutputStream::send_batch(std::vector<std::string> msg_batch) {
+int FileOutputStream::send_batch(const std::vector<std::string> &msg_batch) {
   return NO_ERROR;
 }
 

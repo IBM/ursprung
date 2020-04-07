@@ -31,6 +31,7 @@
 //#include "action.h"
 //#include "odbc-wrapper.h"
 //#include "logger.h"
+//#include "db-output-stream.h"
 ////#include "provd-client.h"
 //
 //// 4KB buffer size to store log file lines (we assume that 4K
@@ -52,6 +53,7 @@
 //// TODO make configurable
 //const std::string REPO_LOCATION="/opt/ibm/metaocean/contenttracking";
 //const std::string DATE_FORMAT = "%Y-%m-%d %H:%M:%S";
+//const std::string DEFAULT_DSN = "ursprung-dsn"
 //
 //
 ///*------------------------------
@@ -356,28 +358,29 @@
 //    std::string userPassword = connectionString.substr(0, atPos);
 //
 //    size_t colonPos = userPassword.find(":");
-//    dbUser = userPassword.substr(0, colonPos);
-//    dbPassword = userPassword.substr(colonPos + 1, userPassword.length());
+//    target_db.username = userPassword.substr(0, colonPos);
+//    target_db.password = userPassword.substr(colonPos + 1, userPassword.length());
 //
 //    std::string serverTable = connectionString.substr(atPos + 1, connectionString.length());
 //    size_t slashPos = serverTable.find("/");
 //
-//    dbServer = serverTable.substr(0, slashPos);
-//    tablename = serverTable.substr(slashPos + 1, serverTable.length());
+//    target_db.hostname = serverTable.substr(0, slashPos);
+//    target_db.tablename = serverTable.substr(slashPos + 1, serverTable.length());
 //
 //    size_t headerPos = action.find("HEADER", 0);
 //
+//    std::string schema;
 //    if (headerPos != std::string::npos) {
 //        header = true;
-//        schema = action.substr(usingPos + 6, (headerPos - 1) - (usingPos + 6));
+//        target_db.db_schema = action.substr(usingPos + 6, (headerPos - 1) - (usingPos + 6));
 //    } else {
 //        header = false;
-//        schema = action.substr(usingPos + 6, action.length() - (usingPos + 6));
+//        target_db.db_schema = action.substr(usingPos + 6, action.length() - (usingPos + 6));
 //    }
 //
-//    out = new BatchedDBOutStream(MO_DSN, dbUser, dbPassword, schema, tablename);
-//    dynamic_cast<BatchedDBOutStream*>(out)->setAddInfo();
-//    if (header) dynamic_cast<BatchedDBOutStream*>(out)->setHeader();
+//    out = new DBOutputStream(DEFAULT_DSN, target_db.username, target_db.password, target_db.db_schema, target_db.tablename);
+//    dynamic_cast<DBOutputStream*>(out)->set_add_info();
+//    if (header) dynamic_cast<DBOutputStream*>(out)->setHeader();
 //    out->open();
 //}
 //

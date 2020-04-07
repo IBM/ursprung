@@ -33,7 +33,7 @@ public:
   virtual void close() = 0;
   virtual int send(const std::string &msg_str, int partition,
       const std::string *key = nullptr) = 0;
-  virtual int send_batch(std::vector<std::string> msg_batch) = 0;
+  virtual int send_batch(const std::vector<std::string> &msg_batch) = 0;
   virtual void flush() const = 0;
 };
 
@@ -53,7 +53,7 @@ public:
   virtual void close() override;
   virtual int send(const std::string &msg_str, int partition,
       const std::string *key = nullptr) override;
-  virtual int send_batch(std::vector<std::string> msg_batch) override;
+  virtual int send_batch(const std::vector<std::string> &msg_batch) override;
   virtual void flush() const override;
 };
 

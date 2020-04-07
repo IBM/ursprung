@@ -54,73 +54,25 @@ void DBOutputStream::run_inserter() {
   LOG_INFO("Inserter thread exiting.");
 }
 
-/**
- * Takes a CSV string as input and returns a newly formatted string, ready
- * for insertion into a database. The returned string has the following
- * properties:
- *
- * - All CSV entries are in single quotes
- * - If an entry is in double quotes, double quotes are replaced by single quotes
- * - Single quotes inside an entry are escaped by a double single quote
- * - Empty or NA entries are replaced with NULL
- * - NULL entries are not in single quotes
- */
-std::string DBOutputStream::format_csv_line(const std::string &line) {
-  std::size_t pos;
-  std::string processed_line;
-  int i = 0;
-  bool processing = true;
-
-  if (add_info) {
-    processed_line.append("'").append(get_utc_time()).append("',");
-  }
-
-  while (processing) {
-    // detect whether we've encountered a (single or double) quoted
-    // entry or the entry is not quoted
-    std::string entry_split = ",";
-    if (line[i] == '\"') {
-      entry_split = "\",";
-    } else if (line[i] == '\'') {
-      entry_split = "\',";
-    }
-    int skip = entry_split.length() - 1;
-
-    // find the next quote + delimiter combination, which marks the
-    // end of the entry
-    pos = line.find(entry_split, i);
-
-    // determine the end of the entry based on whether this is the last
-    // entry or not
-    size_t to = pos != std::string::npos ? pos - (i + skip) : (line.length() - skip) - (i + skip);
-    std::string entry = line.substr(i + skip, to);
-
-    // check if entry should be NULL
-    if (entry == "NA" || entry == "") {
-      processed_line.append("NULL");
-    } else {
-      // if not, escape all single quotes and add escaped entry in single quotes
-      size_t quote_pos = 0;
-      while (std::string::npos != (quote_pos = entry.find("'", quote_pos))) {
-        entry.replace(quote_pos, 1, "\'\'", 2);
-        quote_pos += 2;
-      }
-      processed_line.append("'").append(entry).append("'");
-    }
-
-    // update position in original string or stop if we're done
-    if (pos != std::string::npos) {
-      i = pos + entry_split.length();
-      processed_line.append(",");
-    } else {
-      processing = false;
-    }
-  }
-
-  return processed_line;
+int DBOutputStream::open() {
+  // nothing to do for DBOutputStream
+  return NO_ERROR;
 }
 
-int DBOutputStream::send(std::vector<std::string> records) {
+void DBOutputStream::close() {
+  // nothing to do for DBOutputStream
+}
+
+void DBOutputStream::flush() const {
+  // nothing to do for DBOutputStream
+}
+
+int DBOutputStream::send(const std::string &msg_str, int partition, const std::string *key) {
+  LOG_WARN("Call to not implemented DBOutputStream::send.");
+  return NO_ERROR;
+}
+
+int DBOutputStream::send_batch(const std::vector<std::string> &records) {
   if (async) {
     send_async(records);
     return NO_ERROR;
@@ -129,7 +81,19 @@ int DBOutputStream::send(std::vector<std::string> records) {
   }
 }
 
+/**
+ * Adds a new multiplex group to the DB output stream. The group defines
+ * the value of the key, which indicates that the record should be moved
+ * to the target_table using the target_schema.
+ */
+void DBOutputStream::set_multiplex_group(std::string target_table, std::string target_schema, std::string key) {
+  tablenames.push_back(target_table);
+  db_schemas.push_back(target_schema);
+  attr_keys.push_back(key);
+}
+
 void DBOutputStream::send_async(std::vector<std::string> records) {
+  // TODO what happens if we also pass a const& here, is it going to be copied?
   batch_queue->push(records);
 }
 
@@ -139,7 +103,7 @@ void DBOutputStream::send_async(std::vector<std::string> records) {
  * different auditd event types. It will insert each subset
  * separately.
  */
-int DBOutputStream::send_sync(std::vector<std::string> records) {
+int DBOutputStream::send_sync(const std::vector<std::string> &records) {
   std::unordered_map<std::string, std::vector<std::vector<std::string>>> payloadContents;
   std::unordered_map<std::string, std::vector<std::string>> tmp;
   std::string recordType;
@@ -152,25 +116,41 @@ int DBOutputStream::send_sync(std::vector<std::string> records) {
   }
 
   // split records in batches of batchSize for each table
-  for (std::string record : records) {
-    // TODO distinguish between multiplexed and non-multiplexed streams
-    // extract the record type,stored in the first entry of the CSV record
-    pos = record.find(",", 0);
-    recordType = record.substr(0, pos);
-    record.replace(0, pos + 1, "");
-    if (tmp.find(recordType) != tmp.end()) {
-      // TODO can we optimize this to omit a call to format_csv_line if record comes from consumer
-      tmp[recordType].push_back(format_csv_line(record));
-      if (tmp[recordType].size() % batch_size == 0) {
+  if (multiplex) {
+    for (std::string record : records) {
+      // extract the record type, stored in the first entry of the CSV record
+      pos = record.find(",", 0);
+      recordType = record.substr(0, pos);
+      record.replace(0, pos + 1, "");
+      if (tmp.find(recordType) != tmp.end()) {
+        // TODO can we optimize this to omit a call to format_csv_line if record comes from consumer
+        tmp[recordType].push_back(format_csv_line(record));
+        if (tmp[recordType].size() % batch_size == 0) {
+          payloadContents[recordType].push_back(tmp[recordType]);
+          tmp[recordType].clear();
+        }
+      } else {
+        std::vector<std::string> vec;
+        vec.push_back(record);
+        tmp[recordType] = vec;
+      }
+    }
+  } else {
+    // if we're not multiplexing across target tables, we only have a single record type
+    assert(attr_keys.size() == 1);
+    std::string record_type = attr_keys.at(0);
+    std::vector<std::string> vec;
+    tmp[record_type] = vec;
+
+    for (std::string record : records) {
+      tmp[record_type].push_back(format_csv_line(record));
+      if (tmp[record_type] % batch_size == 0) {
         payloadContents[recordType].push_back(tmp[recordType]);
         tmp[recordType].clear();
       }
-    } else {
-      std::vector<std::string> vec;
-      vec.push_back(record);
-      tmp[recordType] = vec;
     }
   }
+
   // add any unfinished batches for sending
   for (std::string value : attr_keys) {
     if (tmp[value].size() > 0) {
@@ -250,6 +230,72 @@ int DBOutputStream::send_to_db(const std::vector<std::string> &batch,
   odbc_wrapper.disconnect();
 
   return rc;
+}
+
+/**
+ * Takes a CSV string as input and returns a newly formatted string, ready
+ * for insertion into a database. The returned string has the following
+ * properties:
+ *
+ * - All CSV entries are in single quotes
+ * - If an entry is in double quotes, double quotes are replaced by single quotes
+ * - Single quotes inside an entry are escaped by a double single quote
+ * - Empty or NA entries are replaced with NULL
+ * - NULL entries are not in single quotes
+ */
+std::string DBOutputStream::format_csv_line(const std::string &line) {
+  std::size_t pos;
+  std::string processed_line;
+  int i = 0;
+  bool processing = true;
+
+  if (add_info) {
+    processed_line.append("'").append(get_utc_time()).append("',");
+  }
+
+  while (processing) {
+    // detect whether we've encountered a (single or double) quoted
+    // entry or the entry is not quoted
+    std::string entry_split = ",";
+    if (line[i] == '\"') {
+      entry_split = "\",";
+    } else if (line[i] == '\'') {
+      entry_split = "\',";
+    }
+    int skip = entry_split.length() - 1;
+
+    // find the next quote + delimiter combination, which marks the
+    // end of the entry
+    pos = line.find(entry_split, i);
+
+    // determine the end of the entry based on whether this is the last
+    // entry or not
+    size_t to = pos != std::string::npos ? pos - (i + skip) : (line.length() - skip) - (i + skip);
+    std::string entry = line.substr(i + skip, to);
+
+    // check if entry should be NULL
+    if (entry == "NA" || entry == "") {
+      processed_line.append("NULL");
+    } else {
+      // if not, escape all single quotes and add escaped entry in single quotes
+      size_t quote_pos = 0;
+      while (std::string::npos != (quote_pos = entry.find("'", quote_pos))) {
+        entry.replace(quote_pos, 1, "\'\'", 2);
+        quote_pos += 2;
+      }
+      processed_line.append("'").append(entry).append("'");
+    }
+
+    // update position in original string or stop if we're done
+    if (pos != std::string::npos) {
+      i = pos + entry_split.length();
+      processed_line.append(",");
+    } else {
+      processing = false;
+    }
+  }
+
+  return processed_line;
 }
 
 /**
