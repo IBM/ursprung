@@ -23,11 +23,21 @@
 
 DBOutputStream::DBOutputStream(const std::string &dsn,
     const std::string &username, const std::string &passwd,
-    const std::string &db_schema, const std::string &tablename, bool async) :
-    dsn { dsn, username, passwd, db_schema, tablename } {
+    const std::string &db_schema, const std::string &tablename, bool async_val,
+    bool multiplex_val, int pos) :
+    dsn { dsn, username, passwd, db_schema, tablename },
+    multiplex { multiplex_val },
+    async { async_val } {
   if (async) {
     batch_queue = new SynchronizedQueue<std::vector<std::string>>();
     inserter = std::thread(&DBOutputStream::run_inserter, this);
+  }
+  if (multiplex) {
+    attr_position = pos;
+  } else {
+    tablenames.push_back(tablename);
+    db_schemas.push_back(db_schema);
+    attr_keys.push_back("NA");
   }
 }
 
@@ -85,8 +95,15 @@ int DBOutputStream::send_batch(const std::vector<std::string> &records) {
  * Adds a new multiplex group to the DB output stream. The group defines
  * the value of the key, which indicates that the record should be moved
  * to the target_table using the target_schema.
+ *
+ * If the stream is not multiplexed (multiplex = false), this function
+ * will emit a warning and return.
  */
 void DBOutputStream::set_multiplex_group(std::string target_table, std::string target_schema, std::string key) {
+  if (!multiplex) {
+    LOG_WARN("Stream is not multiplexed, not setting multiplex group.");
+    return;
+  }
   tablenames.push_back(target_table);
   db_schemas.push_back(target_schema);
   attr_keys.push_back(key);
@@ -144,7 +161,7 @@ int DBOutputStream::send_sync(const std::vector<std::string> &records) {
 
     for (std::string record : records) {
       tmp[record_type].push_back(format_csv_line(record));
-      if (tmp[record_type] % batch_size == 0) {
+      if (tmp[record_type].size() % batch_size == 0) {
         payloadContents[recordType].push_back(tmp[recordType]);
         tmp[recordType].clear();
       }

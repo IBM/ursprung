@@ -378,9 +378,11 @@
 //        target_db.db_schema = action.substr(usingPos + 6, action.length() - (usingPos + 6));
 //    }
 //
-//    out = new DBOutputStream(DEFAULT_DSN, target_db.username, target_db.password, target_db.db_schema, target_db.tablename);
+//    out = new DBOutputStream(DEFAULT_DSN, target_db.username, target_db.password,
+//        target_db.db_schema, target_db.tablename, false);
 //    dynamic_cast<DBOutputStream*>(out)->set_add_info();
-//    if (header) dynamic_cast<DBOutputStream*>(out)->setHeader();
+//    if (header)
+//      dynamic_cast<DBOutputStream*>(out)->set_header();
 //    out->open();
 //}
 //

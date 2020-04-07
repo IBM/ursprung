@@ -42,7 +42,7 @@ private:
   std::vector<std::string> db_schemas;
   std::vector<std::string> attr_keys;
   int attr_position = -1;
-  bool multiplex = false;
+  const bool multiplex;
 
   // TODO make configurable
   int batch_size = 1000;
@@ -70,8 +70,8 @@ private:
 public:
   DBOutputStream(const std::string &dsn, const std::string &username,
       const std::string &passwd, const std::string &dbSchema,
-      const std::string &tablename, bool async = false);
-  virtual ~DBOutputStream() {};
+      const std::string &tablename, bool async, bool multiplex = false, int pos = -1);
+  ~DBOutputStream();
 
   virtual int open() override;
   virtual void close() override;
@@ -84,8 +84,6 @@ public:
   void unset_header() { header = false; }
   void set_add_info() { add_info = true; }
   void unset_add_info() { add_info = false; }
-  void set_multiplex(int pos) { multiplex = true; attr_position = pos; }
-  void unset_multiplex() { multiplex = false; }
   void set_multiplex_group(std::string target_table, std::string target_schema, std::string key);
   void run_inserter();
 };
