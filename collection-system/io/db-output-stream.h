@@ -44,7 +44,12 @@ private:
   int attr_position = -1;
   const bool multiplex;
 
-  // TODO make configurable
+  /*
+   * Defines how many records will be inserted into the database by one thread
+   * in a single INSERT statement.
+   *
+   * TODO make configurable
+   */
   int batch_size = 1000;
   /* Indicates whether a timestamp should be added to each record before sending. */
   bool add_info = false;
@@ -58,8 +63,23 @@ private:
   bool running = true;
   dsn_t dsn;
 
+  /*
+   * Takes a CSV string as input and returns a newly formatted string, ready
+   * for insertion into a database. The returned string has the following
+   * properties:
+   *
+   * - All CSV entries are in single quotes
+   * - If an entry is in double quotes, double quotes are replaced by single quotes
+   * - Single quotes inside an entry are escaped by a double single quote
+   * - Empty or NA entries are replaced with NULL
+   * - NULL entries are not in single quotes
+   */
   std::string format_csv_line(const std::string &line);
   std::string get_utc_time();
+  /*
+   * Takes a list of batches as input and inserts each batch in
+   * a separate thread into the DB using the specified table and schema.
+   */
   int parallel_send_to_db(const std::vector<std::vector<std::string>> &batches,
       std::string table, std::string schema);
   int send_to_db(const std::vector<std::string> &batch, std::string table,
@@ -84,6 +104,14 @@ public:
   void unset_header() { header = false; }
   void set_add_info() { add_info = true; }
   void unset_add_info() { add_info = false; }
+  /*
+   * Adds a new multiplex group to the DB output stream. The group defines
+   * the value of the key, which indicates that the record should be moved
+   * to the target_table using the target_schema.
+   *
+   * If the stream is not multiplexed (multiplex = false), this function
+   * will emit a warning and return.
+   */
   void set_multiplex_group(std::string target_table, std::string target_schema, std::string key);
   void run_inserter();
 };

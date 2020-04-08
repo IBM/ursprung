@@ -91,14 +91,6 @@ int DBOutputStream::send_batch(const std::vector<std::string> &records) {
   }
 }
 
-/**
- * Adds a new multiplex group to the DB output stream. The group defines
- * the value of the key, which indicates that the record should be moved
- * to the target_table using the target_schema.
- *
- * If the stream is not multiplexed (multiplex = false), this function
- * will emit a warning and return.
- */
 void DBOutputStream::set_multiplex_group(std::string target_table, std::string target_schema, std::string key) {
   if (!multiplex) {
     LOG_WARN("Stream is not multiplexed, not setting multiplex group.");
@@ -114,12 +106,6 @@ void DBOutputStream::send_async(std::vector<std::string> records) {
   batch_queue->push(records);
 }
 
-/**
- * Inserts the current payload into the database. This method will
- * read all the content first and then split it into the three
- * different auditd event types. It will insert each subset
- * separately.
- */
 int DBOutputStream::send_sync(const std::vector<std::string> &records) {
   std::unordered_map<std::string, std::vector<std::vector<std::string>>> payloadContents;
   std::unordered_map<std::string, std::vector<std::string>> tmp;
@@ -187,10 +173,6 @@ int DBOutputStream::send_sync(const std::vector<std::string> &records) {
   return rc;
 }
 
-/**
- * Takes a list of batches as input and inserts each batch in
- * a separate thread into the DB using the specified table and schema.
- */
 int DBOutputStream::parallel_send_to_db(const std::vector<std::vector<std::string>> &batches,
     std::string table, std::string schema) {
   std::vector<std::thread> insertThreads;
@@ -210,10 +192,7 @@ int DBOutputStream::parallel_send_to_db(const std::vector<std::vector<std::strin
 }
 
 /**
- * Inserts the specified batch in the specified table
- * using the specified schema.
- *
- * NB: We are currently establishing a new connection every time send_to_db is called.
+ * We are currently establishing a new connection every time send_to_db is called.
  * This is so we're not getting into trouble when different threads are calling this
  * method. We can optimize this by, e.g., using a thread pool with existing persistent
  * connections.
@@ -249,17 +228,6 @@ int DBOutputStream::send_to_db(const std::vector<std::string> &batch,
   return rc;
 }
 
-/**
- * Takes a CSV string as input and returns a newly formatted string, ready
- * for insertion into a database. The returned string has the following
- * properties:
- *
- * - All CSV entries are in single quotes
- * - If an entry is in double quotes, double quotes are replaced by single quotes
- * - Single quotes inside an entry are escaped by a double single quote
- * - Empty or NA entries are replaced with NULL
- * - NULL entries are not in single quotes
- */
 std::string DBOutputStream::format_csv_line(const std::string &line) {
   std::size_t pos;
   std::string processed_line;
@@ -315,9 +283,6 @@ std::string DBOutputStream::format_csv_line(const std::string &line) {
   return processed_line;
 }
 
-/**
- * Get the current UTC time, formatted as '%Y-%m-%d %H:%M:%S.sss'.
- */
 std::string DBOutputStream::get_utc_time() {
   // get current UTC time
   auto now = std::chrono::system_clock::now();
