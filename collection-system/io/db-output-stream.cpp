@@ -109,7 +109,7 @@ void DBOutputStream::send_async(std::vector<std::string> records) {
 int DBOutputStream::send_sync(const std::vector<std::string> &records) {
   std::unordered_map<std::string, std::vector<std::vector<std::string>>> payloadContents;
   std::unordered_map<std::string, std::vector<std::string>> tmp;
-  std::string recordType;
+  std::string record_type;
   size_t pos;
 
   // initialize payloadContents
@@ -122,34 +122,35 @@ int DBOutputStream::send_sync(const std::vector<std::string> &records) {
   if (multiplex) {
     for (std::string record : records) {
       // extract the record type, stored in the first entry of the CSV record
+      // TODO use attr_position here instead of assuming the key attr is stored in the first entry
       pos = record.find(",", 0);
-      recordType = record.substr(0, pos);
+      record_type = record.substr(0, pos);
       record.replace(0, pos + 1, "");
-      if (tmp.find(recordType) != tmp.end()) {
+      if (tmp.find(record_type) != tmp.end()) {
         // TODO can we optimize this to omit a call to format_csv_line if record comes from consumer
-        tmp[recordType].push_back(format_csv_line(record));
-        if (tmp[recordType].size() % batch_size == 0) {
-          payloadContents[recordType].push_back(tmp[recordType]);
-          tmp[recordType].clear();
+        tmp[record_type].push_back(format_csv_line(record));
+        if (tmp[record_type].size() % batch_size == 0) {
+          payloadContents[record_type].push_back(tmp[record_type]);
+          tmp[record_type].clear();
         }
       } else {
         std::vector<std::string> vec;
-        vec.push_back(record);
-        tmp[recordType] = vec;
+        vec.push_back(format_csv_line(record));
+        tmp[record_type] = vec;
       }
     }
   } else {
     // if we're not multiplexing across target tables, we only have a single record type
     assert(attr_keys.size() == 1);
-    std::string record_type = attr_keys.at(0);
+    record_type = attr_keys[0];
     std::vector<std::string> vec;
     tmp[record_type] = vec;
 
     for (std::string record : records) {
       tmp[record_type].push_back(format_csv_line(record));
       if (tmp[record_type].size() % batch_size == 0) {
-        payloadContents[recordType].push_back(tmp[recordType]);
-        tmp[recordType].clear();
+        payloadContents[record_type].push_back(tmp[record_type]);
+        tmp[record_type].clear();
       }
     }
   }
@@ -177,7 +178,7 @@ int DBOutputStream::parallel_send_to_db(const std::vector<std::vector<std::strin
     std::string table, std::string schema) {
   std::vector<std::thread> insertThreads;
   for (unsigned int i = 0; i < batches.size(); i++) {
-    LOG_DEBUG("Sending stream of size " << batches[i].size() << " to DB for " << tablename);
+    LOG_DEBUG("Sending stream of size " << batches[i].size() << " to DB for " << table);
     insertThreads.push_back(std::thread(&DBOutputStream::send_to_db,
         this, std::ref(batches[i]), table, schema));
     // TODO correct error handling using promises and futures
@@ -210,6 +211,7 @@ int DBOutputStream::send_to_db(const std::vector<std::string> &batch,
     query.append("(").append(batch[j]).append(")");
     query.append(j == batch.size() - 1 ? "" : ",");
   }
+  LOG_DEBUG(query);
 
   // connect to the database and submit the query
   OdbcWrapper odbc_wrapper(dsn.dsn_name, dsn.username, dsn.password);

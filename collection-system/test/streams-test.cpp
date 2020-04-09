@@ -15,11 +15,18 @@
  */
 
 #include <fstream>
+#include <thread>
+#include <chrono>
 
 #include "gtest/gtest.h"
 #include "msg-input-stream.h"
 #include "msg-output-stream.h"
+#include "db-output-stream.h"
 #include "error.h"
+
+/*------------------------------
+ * FileInputStream tests
+ *------------------------------*/
 
 TEST(file_input_stream_test, test1) {
   std::string file = "test-file-in-stream";
@@ -37,6 +44,10 @@ TEST(file_input_stream_test, test1) {
   s.close();
 }
 
+/*------------------------------
+ * FileOutputStream tests
+ *------------------------------*/
+
 TEST(file_output_stream_test, test1) {
   std::string file = "test-file-out-stream";
   FileOutputStream s(file);
@@ -52,4 +63,91 @@ TEST(file_output_stream_test, test1) {
   std::string line;
   std::getline(inFile, line);
   EXPECT_EQ(msg, line);
+}
+
+/*----------------------------------------------------------------------------------
+ * DBOutputStream tests
+ *
+ * All tests, which test sending functionality of the stream are currently disabled
+ * as with the current design, there's not really a good way of mocking/faking
+ * the ODBC connection that is established in DBOutputStream::send_to_db. As
+ * a quick and dirty way to semi-manually check whether the stream works as
+ * expected is to comment out the ODBC related part in DBOutputStream::send_to_db,
+ * enable the tests,  and then print and inspect the generated queries (that would
+ * be submitted to the database) manually. This is not ideal but good enough for now.
+ *
+ * Maybe we should decouple query generation fom query submission in the stream
+ * and then somehow only test up to query generation but skip submission?
+ *-----------------------------------------------------------------------------------*/
+
+TEST(db_output_stream_test, test_dummies) {
+  std::string dsn = "dsn";
+  std::string user = "user";
+  std::string pw = "pw";
+  std::string schema = "schema";
+  std::string table = "table";
+  DBOutputStream s(dsn, user, pw, schema, table, false);
+
+  // does nothing
+  s.open();
+  s.close();
+  s.flush();
+  EXPECT_EQ(NO_ERROR, s.send("msg", 0));
+}
+
+TEST(db_output_stream_test, DISABLED_test_send_batch_sync) {
+  std::string dsn = "dsn";
+  std::string user = "user";
+  std::string pw = "pw";
+  std::string schema = "col";
+  std::string table = "testtable";
+  DBOutputStream s(dsn, user, pw, schema, table, false);
+
+  // create first batch
+  std::vector<std::string> msgs;
+  for (size_t i = 0; i < 10; i++) {
+    msgs.push_back("msg " + std::to_string(i));
+  }
+  s.send_batch(msgs);
+}
+
+TEST(db_output_stream_test, DISABLED_test_send_batch_sync_multiplexed) {
+  std::string dsn = "dsn";
+  std::string user = "user";
+  std::string pw = "pw";
+  std::string schema = "col";
+  std::string table = "testtable";
+  DBOutputStream s(dsn, user, pw, schema, table, false, true, 0);
+
+  s.set_multiplex_group("tableA", "keyA,val", "A");
+  s.set_multiplex_group("tableB", "keyB,val", "B");
+  s.set_multiplex_group("tableC", "keyC,val", "C");
+
+  // create first batch
+  std::vector<std::string> msgs;
+  for (size_t i = 0; i < 6; i++) {
+    msgs.push_back("A,key A,msg " + std::to_string(i));
+    msgs.push_back("B,key B,msg " + std::to_string(i));
+    msgs.push_back("C,key C,msg " + std::to_string(i));
+  }
+  s.send_batch(msgs);
+}
+
+TEST(db_output_stream_test, DISABLED_test_send_batch_async) {
+  std::string dsn = "dsn";
+  std::string user = "user";
+  std::string pw = "pw";
+  std::string schema = "col";
+  std::string table = "testtable";
+  DBOutputStream s(dsn, user, pw, schema, table, true);
+
+  // create first batch
+  std::vector<std::string> msgs;
+  for (size_t i = 0; i < 12; i++) {
+    msgs.push_back("msg " + std::to_string(i));
+  }
+  s.send_batch(msgs);
+
+  // wait for threads to finish inserting
+  std::this_thread::sleep_for (std::chrono::seconds(1));
 }
