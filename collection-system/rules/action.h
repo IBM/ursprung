@@ -23,6 +23,7 @@
 #include <map>
 #include <exception>
 #include <thread>
+#include <regex>
 
 #include "intermediate-message.h"
 #include "msg-output-stream.h"
@@ -37,6 +38,27 @@ extern "C" {
 #include "utils.h"
 }
 
+// 4KB buffer size to store log file lines (we assume that 4K
+// is enough to hold the longest line in any log file.
+#define MAX_LINE_LENGTH 4096
+
+// regex constants for each rule
+const std::regex DB_LOAD_SYNTAX = std::regex("DBLOAD [a-zA-Z]* INTO "
+    "(.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
+const std::regex DB_TRANSFER_SYNTAX = std::regex("DBTRANSFER (.*)/[a-zA-Z0-9]* FROMDSN "
+    "[a-zA-Z0-9]* TO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
+const std::regex LOG_LOAD_SYNTAX = std::regex("LOGLOAD [a-zA-Z0-9]* MATCH (.)* FIELDS "
+    "(.)* DELIM (.*) INTO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
+const std::regex TRACK_SYNTAX = std::regex("TRACK (.*) INTO (.*):(.*)@(.*):[0-9]*");
+const std::regex CAPTURESOUT_SYNTAX = std::regex("CAPTURESOUT MATCH (.)* FIELDS "
+    "(.)* DELIM (.*) INTO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
+
+// string constants
+const std::string DATE_FORMAT = "%Y-%m-%d %H:%M:%S";
+// TODO make configurable
+const std::string REPO_LOCATION = "/opt/ibm/metaocean/contenttracking";
+// TODO make configurable
+const std::string DEFAULT_DSN = "ursprung-dsn";
 const std::string DB_LOAD_RULE = "DBLOAD";
 const std::string DB_TRANSFER_RULE = "DBTRANSFER";
 const std::string LOG_LOAD_RULE = "LOGLOAD";
@@ -44,6 +66,14 @@ const std::string TRACK_RULE = "TRACK";
 const std::string CAPTURESOUT_RULE = "CAPTURESOUT";
 
 class LogLoadField;
+
+int insert_state(OdbcWrapper *db_connection, std::string rule_id,
+    std::string state, std::string target = "");
+int update_state(OdbcWrapper *db_connection, std::string rule_id,
+   std::string state, std::string target = "");
+int lookup_state(OdbcWrapper *db_connection, char *state_buffer,
+    std::string rule_id, std::string target = "");
+std::string convert_date_field(std::string date, LogLoadField *field);
 
 typedef SynchronizedQueue<std::shared_ptr<IntermediateMessage>> a_queue_t;
 typedef std::map<std::string, std::pair<long long int, unsigned long long>> parse_state_t;
@@ -80,7 +110,7 @@ public:
   void stop_action_consumers();
   void set_rule_iD(std::string rid) { rule_id = rid; }
   a_queue_t* get_action_queue() { return action_queue; }
-  std::string get_target_db() const { return target_db; }
+  db_conn_t get_target_db() const { return target_db; }
 
   // TODO make this configurable
   virtual int get_num_consumer_threads() const = 0;
