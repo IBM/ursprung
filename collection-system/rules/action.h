@@ -60,12 +60,13 @@ class Action {
 protected:
   db_conn_t target_db;
   bool running;
-  std::string ruleID;
-  std::vector<std::thread> consumerThreads;
-  a_queue_t *actionQueue;
+  std::string rule_id;
+  std::vector<std::thread> consumer_threads;
+  a_queue_t *action_queue;
+  // TODO template actions with output stream
   MsgOutputStream *out;
 
-  void runConsumer();
+  void run_consumer();
   virtual int execute(std::shared_ptr<IntermediateMessage> msg) = 0;
 
 public:
@@ -74,16 +75,16 @@ public:
   Action(const Action&) = delete;
   Action& operator=(const Action &x) = delete;
 
-  static std::shared_ptr<Action> parseAction(std::string action);
-  void startActionConsumers(int numThreads);
-  void stopActionConsumers();
-  void setRuleID(std::string rid) { ruleID = rid; }
-  a_queue_t* getActionQueue() { return actionQueue; }
-  std::string getTargetDb() const { return target_db; }
+  static std::shared_ptr<Action> parse_action(std::string action);
+  void start_action_consumers(int numThreads);
+  void stop_action_consumers();
+  void set_rule_iD(std::string rid) { rule_id = rid; }
+  a_queue_t* get_action_queue() { return action_queue; }
+  std::string get_target_db() const { return target_db; }
 
   // TODO make this configurable
-  virtual int getNumConsumerThreads() const = 0;
-  virtual std::string getType() const = 0;
+  virtual int get_num_consumer_threads() const = 0;
+  virtual std::string get_type() const = 0;
   virtual std::string str() const = 0;
 };
 
@@ -101,19 +102,19 @@ public:
  */
 class DBLoadAction: public Action {
 private:
-  std::string eventField;
+  std::string event_field;
   bool header;
 
 public:
   DBLoadAction(std::string action);
   virtual ~DBLoadAction() {};
 
-  std::string getEventField() const { return eventField; }
-  bool hasHeader() const { return header; }
+  std::string get_event_field() const { return event_field; }
+  bool has_header() const { return header; }
 
   virtual int execute(std::shared_ptr<IntermediateMessage>) override;
-  virtual int getNumConsumerThreads() const override { return 10; }
-  virtual std::string getType() const override;
+  virtual int get_num_consumer_threads() const override { return 10; }
+  virtual std::string get_type() const override;
   virtual std::string str() const override;
 };
 
@@ -141,24 +142,24 @@ public:
  */
 class DBTransferAction: public Action {
 private:
-  std::string queryState;
+  std::string query_state;
   std::string query;
-  std::string stateAttributeName;
-  std::string odbcDSN;
-  OdbcWrapper *sourceDB;
-  OdbcWrapper *targetDB;
+  std::string state_attribute_name;
+  std::string odbc_dsn;
+  OdbcWrapper *source_db_wrapper;
+  OdbcWrapper *target_db_wrapper;
 
 public:
   DBTransferAction(std::string action);
   virtual ~DBTransferAction();
 
-  std::string getQuery() const { return query; }
-  std::string getStateAttributeName() const { return stateAttributeName; }
-  std::string getOdbcDSN() const { return odbcDSN; }
+  std::string get_query() const { return query; }
+  std::string get_state_attribute_name() const { return state_attribute_name; }
+  std::string get_odbc_dsn() const { return odbc_dsn; }
 
   virtual int execute(std::shared_ptr<IntermediateMessage>) override;
-  virtual int getNumConsumerThreads() const override { return 1; }
-  virtual std::string getType() const override;
+  virtual int get_num_consumer_threads() const override { return 1; }
+  virtual std::string get_type() const override;
   virtual std::string str() const override;
 };
 
@@ -188,29 +189,28 @@ private:
    * A single action can cover several log files (e.g. if the condition is a path regex). We
    * keep the state for each individual file that is watched by this action in this parsing state.
    */
-  parse_state_t parsingState;
-  std::string eventField;
-  std::regex matchingString;
+  parse_state_t parsing_state;
+  std::string event_field;
+  std::regex matching_string;
   std::string delimiter;
   std::vector<LogLoadField*> fields;
-  OdbcWrapper *targetDB;
-
-  // fields to store internal state to correctly parse broken lines
-  std::vector<char> lineFragment;
-  int lineOverflow = 0;
+  OdbcWrapper *target_db_wrapper;
+  /* Fields to store internal state to correctly parse broken lines. */
+  std::vector<char> line_fragment;
+  int line_overflow = 0;
 
 public:
   LogLoadAction(std::string action);
   virtual ~LogLoadAction();
 
-  std::string getEventField() const { return eventField; }
-  std::regex getMatchingString() const { return matchingString; }
-  std::string getDelimiter() const { return delimiter; }
-  std::vector<LogLoadField*> getFields() const { return fields; }
+  std::string get_event_field() const { return event_field; }
+  std::regex get_matching_string() const { return matching_string; }
+  std::string get_delimiter() const { return delimiter; }
+  std::vector<LogLoadField*> get_fields() const { return fields; }
 
   virtual int execute(std::shared_ptr<IntermediateMessage>) override;
-  virtual int getNumConsumerThreads() const override { return 1; }
-  virtual std::string getType() const override;
+  virtual int get_num_consumer_threads() const override { return 1; }
+  virtual std::string get_type() const override;
   virtual std::string str() const override;
 };
 
@@ -229,11 +229,10 @@ public:
  */
 class TrackAction: public Action {
 private:
-  std::regex pathRegex;
-  std::string pathRegexStr;
-  OdbcWrapper *targetDB;
-  hg_handle *repoHandle;
-
+  std::regex path_regex;
+  std::string path_regex_str;
+  OdbcWrapper *target_db_wrapper;
+  hg_handle *repo_handle;
   /*
    * This map stores the inode for a CLOSE WRITE event, for
    * which the copy to the hg repository has failed. If the
@@ -244,17 +243,17 @@ private:
    * content for tracking. However, in the second case, we can copy
    * the renamed version of the file to store its content.
    */
-  std::map<std::string, bool> failedCpState;
+  std::map<std::string, bool> failed_cp_state;
 
 public:
   TrackAction(std::string action);
   virtual ~TrackAction();
 
-  std::regex getPathRegex() const { return pathRegex; }
+  std::regex get_path_regex() const { return path_regex; }
   virtual int execute(std::shared_ptr<IntermediateMessage>) override;
   virtual std::string str() const override;
-  virtual std::string getType() const override;
-  virtual int getNumConsumerThreads() const override { return 1; }
+  virtual std::string get_type() const override;
+  virtual int get_num_consumer_threads() const override { return 1; }
 };
 
 /**
@@ -274,23 +273,23 @@ public:
  */
 class StdoutCaptureAction: public Action {
 private:
-  std::string matchingString;
-  std::regex matchingRegex;
+  std::string matching_string;
+  std::regex matching_regex;
   std::string delimiter;
   std::vector<LogLoadField*> fields;
 
 public:
   StdoutCaptureAction(std::string action);
-  virtual ~StdoutCaptureAction();
+  virtual ~StdoutCaptureAction() {};
 
-  std::string getMatchingString() const { return matchingString; }
-  std::regex getMatchingRegex() const { return matchingRegex; }
-  std::string getDelimiter() const { return delimiter; }
-  std::vector<LogLoadField*> getFields() const { return fields; }
+  std::string get_matching_string() const { return matching_string; }
+  std::regex get_matching_regex() const { return matching_regex; }
+  std::string get_delimiter() const { return delimiter; }
+  std::vector<LogLoadField*> get_fields() const { return fields; }
 
   virtual int execute(std::shared_ptr<IntermediateMessage>) override;
-  virtual int getNumConsumerThreads() const override { return 1000; }
-  virtual std::string getType() const override;
+  virtual int get_num_consumer_threads() const override { return 1000; }
+  virtual std::string get_type() const override;
   virtual std::string str() const override;
 };
 
@@ -306,28 +305,28 @@ public:
  */
 class LogLoadField {
 private:
-  int fieldID;
-  int untilFieldID;
+  int field_id;
+  int until_field_id;
   int timeoffset;
-  bool isRange;
-  bool isEventFieldName;
-  bool isTimestamp;
-  bool isComposite;
-  std::string fieldName;
-  std::vector<int> fieldIds;
+  bool is_range;
+  bool is_event_field_name;
+  bool is_timestamp;
+  bool is_composite;
+  std::string field_name;
+  std::vector<int> field_ids;
 
 public:
   LogLoadField(std::string field);
 
-  bool isRangeField() { return isRange; }
-  bool isEventField() { return isEventFieldName; }
-  bool isTimestampField() { return isTimestamp; }
-  bool isCompositeField() { return isComposite; }
-  int getFieldID() { return fieldID; }
-  int getUntilFieldID() { return untilFieldID; }
-  int getTimeoffset() { return timeoffset; }
-  std::string getFieldName() { return fieldName; }
-  std::vector<int> getFieldIds() { return fieldIds; }
+  bool is_range_field() { return is_range; }
+  bool is_event_field() { return is_event_field_name; }
+  bool is_timestamp_field() { return is_timestamp; }
+  bool is_composite_field() { return is_composite; }
+  int get_field_id() { return field_id; }
+  int get_until_field_id() { return until_field_id; }
+  int get_timeoffset() { return timeoffset; }
+  std::string get_field_name() { return field_name; }
+  std::vector<int> get_field_ids() { return field_ids; }
 };
 
 #endif /* RULES_ACTION_H_ */
