@@ -72,12 +72,11 @@ int lookup_state(OdbcWrapper *db_connection, char *state_buffer,
   }
 
   // we have existing state
-  odbc_rc odbcRc;
   std::string row;
-  odbcRc = db_connection->get_row(state_buffer);
-  if (odbcRc == ODBC_SUCCESS)
+  odbc_rc rc = db_connection->get_row(state_buffer);
+  if (rc == ODBC_SUCCESS)
     return NO_ERROR;
-  else if (odbcRc == ODBC_NO_DATA)
+  else if (rc == ODBC_NO_DATA)
     return ERROR_EOF;
   else
     return ERROR_NO_RETRY;
@@ -140,22 +139,21 @@ void Action::run_consumer() {
     std::shared_ptr<IntermediateMessage> msg = action_queue->pop();
     if (msg) {
       LOG_DEBUG(rule_id << " - Received new message, executing action");
-
 #ifdef PERF
       std::string val = msg->get_value("eventTime");
       LOG_DEBUG("Got event time " << val);
 
       // extract milliseconds from time
-      size_t dotPos = val.find(".", 0);
-      std::string timeNoMillis = val.substr(0, dotPos);
-      int millis = std::stoi(val.substr(dotPos + 1, 3));
+      size_t dot_pos = val.find(".", 0);
+      std::string time_no_millis = val.substr(0, dot_pos);
+      int millis = std::stoi(val.substr(dot_pos + 1, 3));
 
       // convert to timestamp
       std::tm t = { 0 };
-      std::istringstream ss(timeNoMillis);
+      std::istringstream ss(time_no_millis);
       ss >> std::get_time(&t, "%Y-%m-%d %H:%M:%S");
       time_t timestamp = std::mktime(&t);
-      long timestampMillis = timestamp * 1000 + millis;
+      long timestamp_millis = timestamp * 1000 + millis;
 
       // get current timestamp
       long ms = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -163,13 +161,13 @@ void Action::run_consumer() {
       LOG_DEBUG("Got current time " << ms);
 
       // compute difference and log it
-      long lat = ms - timestampMillis;
+      long lat = ms - timestamp_millis;
       LOG_PERF("Rulelatency: " << lat);
 #endif
-
       execute(std::move(msg));
     }
   }
+
   LOG_INFO(rule_id << " - finished");
 }
 
