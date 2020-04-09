@@ -46,9 +46,7 @@ private:
 
   /*
    * Defines how many records will be inserted into the database by one thread
-   * in a single INSERT statement.
-   *
-   * TODO make configurable
+   * in a single INSERT statement. Default value is 1000.
    */
   int batch_size = 1000;
   /* Indicates whether a timestamp should be added to each record before sending. */
@@ -100,6 +98,7 @@ public:
   virtual int send_batch(const std::vector<std::string> &msgs) override;
   virtual void flush() const override;
 
+  void set_batch_size(int size) { batch_size = size; };
   void set_header() { header = true; }
   void unset_header() { header = false; }
   void set_add_info() { add_info = true; }

@@ -87,6 +87,7 @@ TEST(db_output_stream_test, test_dummies) {
   std::string schema = "schema";
   std::string table = "table";
   DBOutputStream s(dsn, user, pw, schema, table, false);
+  s.set_batch_size(5);
 
   // does nothing
   s.open();
@@ -102,6 +103,7 @@ TEST(db_output_stream_test, DISABLED_test_send_batch_sync) {
   std::string schema = "col";
   std::string table = "testtable";
   DBOutputStream s(dsn, user, pw, schema, table, false);
+  s.set_batch_size(5);
 
   // create first batch
   std::vector<std::string> msgs;
@@ -118,6 +120,7 @@ TEST(db_output_stream_test, DISABLED_test_send_batch_sync_multiplexed) {
   std::string schema = "col";
   std::string table = "testtable";
   DBOutputStream s(dsn, user, pw, schema, table, false, true, 0);
+  s.set_batch_size(5);
 
   s.set_multiplex_group("tableA", "keyA,val", "A");
   s.set_multiplex_group("tableB", "keyB,val", "B");
@@ -140,6 +143,7 @@ TEST(db_output_stream_test, DISABLED_test_send_batch_async) {
   std::string schema = "col";
   std::string table = "testtable";
   DBOutputStream s(dsn, user, pw, schema, table, true);
+  s.set_batch_size(5);
 
   // create first batch
   std::vector<std::string> msgs;

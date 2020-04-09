@@ -107,7 +107,7 @@ void DBOutputStream::send_async(std::vector<std::string> records) {
 }
 
 int DBOutputStream::send_sync(const std::vector<std::string> &records) {
-  std::unordered_map<std::string, std::vector<std::vector<std::string>>> payloadContents;
+  std::unordered_map<std::string, std::vector<std::vector<std::string>>> payload_contents;
   std::unordered_map<std::string, std::vector<std::string>> tmp;
   std::string record_type;
   size_t pos;
@@ -115,7 +115,7 @@ int DBOutputStream::send_sync(const std::vector<std::string> &records) {
   // initialize payloadContents
   for (std::string value : attr_keys) {
     std::vector<std::vector<std::string>> vec;
-    payloadContents[value] = vec;
+    payload_contents[value] = vec;
   }
 
   // split records in batches of batchSize for each table
@@ -130,7 +130,7 @@ int DBOutputStream::send_sync(const std::vector<std::string> &records) {
         // TODO can we optimize this to omit a call to format_csv_line if record comes from consumer
         tmp[record_type].push_back(format_csv_line(record));
         if (tmp[record_type].size() % batch_size == 0) {
-          payloadContents[record_type].push_back(tmp[record_type]);
+          payload_contents[record_type].push_back(tmp[record_type]);
           tmp[record_type].clear();
         }
       } else {
@@ -149,7 +149,7 @@ int DBOutputStream::send_sync(const std::vector<std::string> &records) {
     for (std::string record : records) {
       tmp[record_type].push_back(format_csv_line(record));
       if (tmp[record_type].size() % batch_size == 0) {
-        payloadContents[record_type].push_back(tmp[record_type]);
+        payload_contents[record_type].push_back(tmp[record_type]);
         tmp[record_type].clear();
       }
     }
@@ -158,7 +158,7 @@ int DBOutputStream::send_sync(const std::vector<std::string> &records) {
   // add any unfinished batches for sending
   for (std::string value : attr_keys) {
     if (tmp[value].size() > 0) {
-      payloadContents[value].push_back(tmp[value]);
+      payload_contents[value].push_back(tmp[value]);
       tmp[value].clear();
     }
   }
@@ -166,7 +166,7 @@ int DBOutputStream::send_sync(const std::vector<std::string> &records) {
   // send batches for each table to DB
   int rc = NO_ERROR;
   for (unsigned int k = 0; k < attr_keys.size(); k++) {
-    rc = parallel_send_to_db(payloadContents[attr_keys[k]], tablenames[k], db_schemas[k]);
+    rc = parallel_send_to_db(payload_contents[attr_keys[k]], tablenames[k], db_schemas[k]);
     if (rc != NO_ERROR) {
       LOG_ERROR("Problems when sending auditd events for " << attr_keys[k]);
     }
@@ -176,17 +176,17 @@ int DBOutputStream::send_sync(const std::vector<std::string> &records) {
 
 int DBOutputStream::parallel_send_to_db(const std::vector<std::vector<std::string>> &batches,
     std::string table, std::string schema) {
-  std::vector<std::thread> insertThreads;
+  std::vector<std::thread> insert_threads;
   for (unsigned int i = 0; i < batches.size(); i++) {
     LOG_DEBUG("Sending stream of size " << batches[i].size() << " to DB for " << table);
-    insertThreads.push_back(std::thread(&DBOutputStream::send_to_db,
+    insert_threads.push_back(std::thread(&DBOutputStream::send_to_db,
         this, std::ref(batches[i]), table, schema));
     // TODO correct error handling using promises and futures
   }
 
   // wait for all threads to complete the insert
-  for (unsigned int i = 0; i < insertThreads.size(); i++) {
-    insertThreads[i].join();
+  for (unsigned int i = 0; i < insert_threads.size(); i++) {
+    insert_threads[i].join();
   }
 
   return NO_ERROR;
