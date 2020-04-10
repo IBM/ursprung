@@ -56,8 +56,6 @@ const std::regex CAPTURESOUT_SYNTAX = std::regex("CAPTURESOUT MATCH (.)* FIELDS 
 
 // string constants
 const std::string DATE_FORMAT = "%Y-%m-%d %H:%M:%S";
-// TODO make configurable
-const std::string REPO_LOCATION = "/opt/ibm/metaocean/contenttracking";
 const std::string DB_LOAD_RULE = "DBLOAD";
 const std::string DB_TRANSFER_RULE = "DBTRANSFER";
 const std::string LOG_LOAD_RULE = "LOGLOAD";

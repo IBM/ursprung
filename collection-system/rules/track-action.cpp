@@ -21,6 +21,9 @@
 
 #include "action.h"
 
+// TODO make configurable
+const std::string REPO_LOCATION = "/opt/ibm/metaocean/contenttracking";
+
 /**
  * Parse the return code of an hg command.
  */

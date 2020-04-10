@@ -222,6 +222,9 @@ Action::~Action() {
     out->flush();
     delete out;
   }
+  if (state_backend) {
+    state_backend->disconnect();
+  }
 }
 
 /*------------------------------
