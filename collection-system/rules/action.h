@@ -31,6 +31,7 @@
 #include "error.h"
 #include "logger.h"
 #include "sync-queue.h"
+#include "action-state.h"
 
 // libhg
 extern "C" {
@@ -96,6 +97,7 @@ protected:
   a_queue_t *action_queue;
   MsgOutputStream *out;
   std::string out_dest;
+  std::unique_ptr<ActionStateBackend> state_backend;
 
   void run_consumer();
   /*
@@ -105,6 +107,13 @@ protected:
    * part starts.
    */
   int init_output_stream(std::string dst, size_t from);
+  /*
+   * Takes the 'INTO' part of an action definition and parses it
+   * to create the correct state backend. The 'from' parameter
+   * specifies the index in the 'dst' string at which the 'INTO'
+   * part starts.
+   */
+  int init_state(std::string dst, size_t from);
   virtual int execute(std::shared_ptr<IntermediateMessage> msg) = 0;
 
 public:

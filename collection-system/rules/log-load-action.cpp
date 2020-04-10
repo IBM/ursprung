@@ -120,13 +120,11 @@ LogLoadAction::LogLoadAction(std::string action) {
     throw std::invalid_argument(action + " not specified correctly.");
   }
 
-  // TODO move this as part of action state
   // initialize action state
-  target_db_wrapper = nullptr;//new OdbcWrapper(DEFAULT_DSN, target_db.username, target_db.password);
-//  if (target_db_wrapper->connect() != ODBC_SUCCESS) {
-//    LOG_ERROR("Error while connecting to target DB " << DEFAULT_DSN);
-//    throw DBConnectionException();
-//  }
+  if (init_state(action, into_pos) != NO_ERROR) {
+    throw std::invalid_argument(action + " could not create state.");
+  }
+  target_db_wrapper = nullptr;
 }
 
 LogLoadAction::~LogLoadAction() {

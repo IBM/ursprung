@@ -208,7 +208,43 @@ int Action::init_output_stream(std::string dst, size_t from) {
   } else {
     // no valid destination specified
     LOG_ERROR("Action " << dst << " does not contain a valid output destination. Valid "
-        << "destination are " << DB_DST << " and " << FILE_DST << ".");
+        << "destinations are " << DB_DST << " and " << FILE_DST << ".");
+    return ERROR_NO_RETRY;
+  }
+
+  return NO_ERROR;
+}
+
+int Action::init_state(std::string dst, size_t from) {
+  size_t dst_pos;
+  if ((dst_pos = dst.find(DB_DST, from)) != std::string::npos) {
+    // parse target DB properties and create DB state backend
+    // the INTO portion looks like "INTO DB user:password@hostname/tablename USING schema"
+    size_t using_pos = dst.find("USING", 0);
+    std::string connection_string = dst.substr(from + 4 + 4, using_pos - (from + 4 + 5));
+    size_t at_pos = connection_string.find("@", 0);
+
+    std::string user_password = connection_string.substr(0, at_pos);
+    size_t colon_pos = user_password.find(":");
+    std::string server_table = connection_string.substr(at_pos + 1, connection_string.length());
+    size_t slash_pos = server_table.find("/");
+
+    std::string username = user_password.substr(0, colon_pos);
+    std::string password = user_password.substr(colon_pos + 1, user_password.length());
+    std::string dsn = server_table.substr(0, slash_pos);
+
+    state_backend = std::make_unique<DBStateBackend>(dsn, username, password);
+    state_backend->connect();
+  } else if ((dst_pos = dst.find(FILE_DST, from)) != std::string::npos) {
+    // create File state backend
+    // the INTO portion looks like "INTO FILE path"
+
+    state_backend = std::make_unique<FileStateBackend>();
+    state_backend->connect();
+  } else {
+    // no valid destination specified
+    LOG_ERROR("Action " << dst << " does not contain a valid output destination. Valid "
+        << "destinations are " << DB_DST << " and " << FILE_DST << ".");
     return ERROR_NO_RETRY;
   }
 

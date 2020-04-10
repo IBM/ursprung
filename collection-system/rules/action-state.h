@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <fstream>
 
 #include <odbc-wrapper.h>
 
@@ -32,23 +33,38 @@ public:
   ActionStateBackend() {};
   virtual ~ActionStateBackend() {};
 
+  virtual int connect() = 0;
+  virtual int disconnect() = 0;
+  /**
+   * Inserts a new record for the state of the specified
+   * rule into the backend store.
+   */
   virtual int insert_state(std::string rule_id, std::string state, std::string target = "") = 0;
+  /**
+   * Update the state of the specified rule in the backend store.
+   */
   virtual int update_state(std::string rule_id, std::string state, std::string target = "") = 0;
+  /**
+   * Read back the state of an action from the specified
+   * rule from the backend store.
+   */
   virtual int lookup_state(char *state_buffer, std::string rule_id, std::string target = "") = 0;
 };
 
 /**
- * A FileStateBackend manages state in a file. It requires the path
- * to the file in which state should be stored.
+ * A FileStateBackend manages state in a file. It will manage the
+ * state in a file called 'state' in the current directory.
  */
-class FileStateBackend: ActionStateBackend {
+class FileStateBackend: public ActionStateBackend {
 private:
-  std::string filename;
+  std::ofstream out_file;
 
 public:
-  FileStateBackend(std::string path);
+  FileStateBackend() {};
   virtual ~FileStateBackend() {}
 
+  virtual int connect() override;
+  virtual int disconnect() override;
   virtual int insert_state(std::string rule_id, std::string state,
       std::string target = "") override;
   virtual int update_state(std::string rule_id, std::string state,
@@ -70,18 +86,19 @@ public:
  *   primary key(id,target) enforced
  * );
  */
-class DBStateBackend: ActionStateBackend {
+class DBStateBackend: public ActionStateBackend {
 private:
   std::string dsn;
   std::string user;
   std::string pw;
-  std::unique_ptr<OdbcWrapper> db_conn;
+  OdbcWrapper db_conn;
 
 public:
-  DBStateBackend(std::string dsn_name, std::string username,
-      std::string password);
+  DBStateBackend(std::string dsn_name, std::string username, std::string password);
   virtual ~DBStateBackend() {}
 
+  virtual int connect() override;
+  virtual int disconnect() override;
   virtual int insert_state(std::string rule_id, std::string state,
       std::string target = "") override;
   virtual int update_state(std::string rule_id, std::string state,
