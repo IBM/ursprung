@@ -64,8 +64,13 @@ const std::string DB_TRANSFER_RULE = "DBTRANSFER";
 const std::string LOG_LOAD_RULE = "LOGLOAD";
 const std::string TRACK_RULE = "TRACK";
 const std::string CAPTURESOUT_RULE = "CAPTURESOUT";
+// possible destinations for provenance collected by actions
+const std::string DB_DST = "DB";
+const std::string FILE_DST = "FILE";
 
 class LogLoadField;
+
+// helper functions
 int insert_state(OdbcWrapper *db_connection, std::string rule_id,
     std::string state, std::string target = "");
 int update_state(OdbcWrapper *db_connection, std::string rule_id,
@@ -92,10 +97,17 @@ protected:
   std::string rule_id;
   std::vector<std::thread> consumer_threads;
   a_queue_t *action_queue;
-  // TODO template actions with output stream
   MsgOutputStream *out;
+  std::string out_dest;
 
   void run_consumer();
+  /*
+   * Takes the 'INTO' part of an action definition and parses it
+   * to create the correct output stream. The 'from' parameter
+   * specifies the index in the 'dst' string at which the 'INTO'
+   * part starts.
+   */
+  int init_output_stream(std::string dst, size_t from);
   virtual int execute(std::shared_ptr<IntermediateMessage> msg) = 0;
 
 public:
@@ -132,7 +144,7 @@ public:
 class DBLoadAction: public Action {
 private:
   std::string event_field;
-  bool header;
+  bool header = false;
 
 public:
   DBLoadAction(std::string action);
@@ -153,7 +165,7 @@ public:
  * as follows:
  *
  * DBTRANSFER query/queryStateAttribute FROMDSN dsn
- *   TO dbUser:dbPassword@dbHost:dbPort/targetTable USING schema
+ *   INTO dbUser:dbPassword@dbHost:dbPort/targetTable USING schema
  *
  * The query defines the query that should be run on the source table which is
  * accessed via ODBC and the specified DSN. The query is expected to explicitly

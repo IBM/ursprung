@@ -72,18 +72,9 @@ TrackAction::TrackAction(std::string action) {
       into_pos - (TRACK_RULE.length() + 2)));
   path_regex_str = action.substr(TRACK_RULE.length() + 1, into_pos - (TRACK_RULE.length() + 2));
 
-  std::string connection_string = action.substr(into_pos + 4 + 1,
-      action.length() - (into_pos + 4 + 2));
-  size_t at_pos = connection_string.find("@", 0);
-  std::string user_password = connection_string.substr(0, at_pos);
-  size_t colon_pos = user_password.find(":");
-  target_db.username = user_password.substr(0, colon_pos);
-  target_db.password = user_password.substr(colon_pos + 1, user_password.length());
-  target_db.hostname = connection_string.substr(at_pos + 1, connection_string.length());
-
-  // set up ODBC and repo connections
-  target_db_wrapper = new OdbcWrapper(DEFAULT_DSN, target_db.username,
-      target_db.password);
+  // TODO move this as part of action state
+  // initialize action state
+  target_db_wrapper = new OdbcWrapper(DEFAULT_DSN, target_db.username, target_db.password);
   if (target_db_wrapper->connect() != ODBC_SUCCESS) {
     LOG_ERROR("Error while connecting to target DB " << DEFAULT_DSN);
     throw DBConnectionException();

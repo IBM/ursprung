@@ -18,6 +18,7 @@
 #include <chrono>
 
 #include "action.h"
+#include "db-output-stream.h"
 
 /*------------------------------
  * Helper functions
@@ -169,6 +170,49 @@ void Action::run_consumer() {
   }
 
   LOG_INFO(rule_id << " - finished");
+}
+
+int Action::init_output_stream(std::string dst, size_t from) {
+  size_t dst_pos;
+  if ((dst_pos = dst.find(DB_DST, from)) != std::string::npos) {
+    // parse target DB properties and create DB output stream
+    // the INTO portion looks like "INTO DB user:password@hostname/tablename USING schema"
+    size_t using_pos = dst.find("USING", 0);
+    std::string connection_string = dst.substr(from + 4 + 4, using_pos - (from + 4 + 5));
+    size_t at_pos = connection_string.find("@", 0);
+
+    std::string user_password = connection_string.substr(0, at_pos);
+    size_t colon_pos = user_password.find(":");
+    std::string server_table = connection_string.substr(at_pos + 1, connection_string.length());
+    size_t slash_pos = server_table.find("/");
+
+    std::string username = user_password.substr(0, colon_pos);
+    std::string password = user_password.substr(colon_pos + 1, user_password.length());
+    std::string hostname = server_table.substr(0, slash_pos);
+    std::string tablename = server_table.substr(slash_pos + 1, server_table.length());
+    std::string db_schema = dst.substr(using_pos + 6, dst.length() - (using_pos + 6));
+
+    // set up output stream
+    out = new DBOutputStream(DEFAULT_DSN, username, password, db_schema, tablename, false);
+    out->open();
+    out_dest = DB_DST;
+  } else if ((dst_pos = dst.find(FILE_DST, from)) != std::string::npos) {
+    // parse file path and create File output stream
+    // the INTO portion looks like "INTO FILE path"
+    std::string path = dst.substr(from + 4 + 6, dst.length() - (from + 4 + 7));
+
+    // set up output stream
+    out = new FileOutputStream(path);
+    out->open();
+    out_dest = FILE_DST;
+  } else {
+    // no valid destination specified
+    LOG_ERROR("Action " << dst << " does not contain a valid output destination. Valid "
+        << "destination are " << DB_DST << " and " << FILE_DST << ".");
+    return ERROR_NO_RETRY;
+  }
+
+  return NO_ERROR;
 }
 
 void Action::start_action_consumers(int num_threads) {

@@ -50,25 +50,10 @@ StdoutCaptureAction::StdoutCaptureAction(std::string action) {
   size_t into_pos = action.find("INTO", delim_pos);
   delimiter = action.substr(delim_pos + 6, into_pos - (delim_pos + 5 + 2));
 
-  size_t using_pos = action.find("USING", into_pos);
-  std::string connection_string = action.substr(into_pos + 4 + 1,
-      using_pos - (into_pos + 4 + 2));
-  size_t at_pos = connection_string.find("@", 0);
-  std::string user_password = connection_string.substr(0, at_pos);
-  size_t colon_pos = user_password.find(":");
-  target_db.username = user_password.substr(0, colon_pos);
-  target_db.password = user_password.substr(colon_pos + 1, user_password.length());
-
-  std::string server_table = connection_string.substr(at_pos + 1, connection_string.length());
-  size_t slash_pos = server_table.find("/");
-  target_db.hostname = server_table.substr(0, slash_pos);
-  target_db.tablename = server_table.substr(slash_pos + 1, server_table.length());
-  target_db.db_schema = action.substr(using_pos + 6, action.length() - (using_pos + 6));
-
-  // set up output stream
-  out = new DBOutputStream(DEFAULT_DSN, target_db.username, target_db.password,
-      target_db.db_schema, target_db.tablename, false);
-  out->open();
+  // parse output destination and set up stream
+   if (init_output_stream(action, into_pos) != NO_ERROR) {
+     throw std::invalid_argument(action + " not specified correctly.");
+   }
 }
 
 int StdoutCaptureAction::execute(std::shared_ptr<IntermediateMessage> msg) {

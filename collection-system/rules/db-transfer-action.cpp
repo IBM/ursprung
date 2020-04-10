@@ -37,35 +37,28 @@ DBTransferAction::DBTransferAction(std::string action) {
   query = query_state_field.substr(0, slash_pos);
   state_attribute_name = query_state_field.substr(slash_pos + 1, query_state_field.length());
 
-  size_t to_pos = action.find("TO", 0);
-  odbc_dsn = action.substr(from_dsn_pos + 7 + 1, to_pos - (from_dsn_pos + 7 + 2));
+  size_t into_pos = action.find("INTO", 0);
+  odbc_dsn = action.substr(from_dsn_pos + 7 + 1, into_pos - (from_dsn_pos + 7 + 2));
 
-  size_t using_pos = action.find("USING", 0);
-  std::string connection_string = action.substr(to_pos + 2 + 1, using_pos - (to_pos + 2 + 2));
-  size_t at_pos = connection_string.find("@", 0);
+  // parse output destination and set up stream
+  if (init_output_stream(action, into_pos) != NO_ERROR) {
+    throw std::invalid_argument(action + " not specified correctly.");
+  }
 
-  std::string user_password = connection_string.substr(0, at_pos);
-  size_t colon_pos = user_password.find(":");
-  target_db.username = user_password.substr(0, colon_pos);
-  target_db.password = user_password.substr(colon_pos + 1, user_password.length());
-
-  std::string server_table = connection_string.substr(at_pos + 1, connection_string.length());
-  slash_pos = server_table.find("/");
-  target_db.hostname = server_table.substr(0, slash_pos);
-  target_db.tablename = server_table.substr(slash_pos + 1, server_table.length());
-  target_db.db_schema = action.substr(using_pos + 6, action.length() - (using_pos + 6));
-
-  // set up ODBC connections and output stream
-  source_db_wrapper = new OdbcWrapper(odbc_dsn, "", "");
+  // TODO move this as part of action state
+  // initialize action state
   target_db_wrapper = new OdbcWrapper(DEFAULT_DSN, target_db.username, target_db.password);
-  if (source_db_wrapper->connect() != ODBC_SUCCESS) {
+  if (target_db_wrapper->connect() != ODBC_SUCCESS) {
     LOG_ERROR("Error while connecting to source DB " << odbc_dsn);
     throw DBConnectionException();
   }
 
-  out = new DBOutputStream(DEFAULT_DSN, target_db.username, target_db.password,
-      target_db.db_schema, target_db.tablename, false);
-  out->open();
+  // set up ODBC connection to source database
+  source_db_wrapper = new OdbcWrapper(odbc_dsn, "", "");
+  if (source_db_wrapper->connect() != ODBC_SUCCESS) {
+    LOG_ERROR("Error while connecting to source DB " << odbc_dsn);
+    throw DBConnectionException();
+  }
 }
 
 DBTransferAction::~DBTransferAction() {
