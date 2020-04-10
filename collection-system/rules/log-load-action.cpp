@@ -124,15 +124,12 @@ LogLoadAction::LogLoadAction(std::string action) {
   if (init_state(action, into_pos) != NO_ERROR) {
     throw std::invalid_argument(action + " could not create state.");
   }
-  target_db_wrapper = nullptr;
 }
 
 LogLoadAction::~LogLoadAction() {
   for (unsigned int i = 0; i < fields.size(); i++) {
     delete fields.at(i);
   }
-  // destructor handles disconnection
-  delete target_db_wrapper;
 }
 
 int LogLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
@@ -156,7 +153,7 @@ int LogLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   if (parsing_state.find(path) == parsing_state.end()) {
     // check if we have state stored in the database
     char stateBuffer[1024];
-    rc = lookup_state(target_db_wrapper, stateBuffer, rule_id, path);
+    rc = state_backend->lookup_state(stateBuffer, rule_id, path);
     if (rc == ERROR_NO_RETRY) {
       LOG_ERROR("Problems while trying to restore state for " << this->str()
           << ". Will start" << " parsing " << path << " from 0.");
@@ -164,7 +161,7 @@ int LogLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
       state.second = inode;
       parsing_state[path] = state;
       // try to add state to DB
-      insert_state(target_db_wrapper, rule_id, std::to_string(parsing_state[path].first) + ","
+      state_backend->insert_state(rule_id, std::to_string(parsing_state[path].first) + ","
           + std::to_string(parsing_state[path].second), path);
     } else {
       std::string existing_state = (rc == NO_ERROR) ? std::string(stateBuffer) : "";
@@ -181,7 +178,7 @@ int LogLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
         state.first = 0;
         state.second = inode;
         parsing_state[path] = state;
-        rc = insert_state(target_db_wrapper, rule_id, std::to_string(parsing_state[path].first)
+        rc = state_backend->insert_state(rule_id, std::to_string(parsing_state[path].first)
             + "," + std::to_string(parsing_state[path].second), path);
         if (rc != NO_ERROR) {
           LOG_ERROR("Problems while adding state for new rule " << this->str()
@@ -288,7 +285,7 @@ int LogLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
     parsing_state[path].first = parsing_state[path].first + bytes_read;
   }
   // TODO this needs to be synchronized if we make action handling multi-threaded
-  rc = update_state(target_db_wrapper, rule_id, std::to_string(parsing_state[path].first) + ","
+  rc = state_backend->update_state(rule_id, std::to_string(parsing_state[path].first) + ","
       + std::to_string(parsing_state[path].second), path);
   if (rc != NO_ERROR) {
     LOG_ERROR("Problems while updating state for rule " << this->str()

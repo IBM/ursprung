@@ -49,7 +49,6 @@ DBTransferAction::DBTransferAction(std::string action) {
   if (init_state(action, into_pos) != NO_ERROR) {
     throw std::invalid_argument(action + " could not create state.");
   }
-  target_db_wrapper = nullptr;
 
   // set up ODBC connection to source database
   source_db_wrapper = new OdbcWrapper(odbc_dsn, "", "");
@@ -72,7 +71,7 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   if (query_state.empty()) {
     // check if there has been any state saved
     char state_buffer[1024];
-    rc = lookup_state(target_db_wrapper, state_buffer, rule_id);
+    rc = state_backend->lookup_state(state_buffer, rule_id);
     if (rc == ERROR_NO_RETRY) {
       LOG_ERROR("Problems while trying to restore state for " << this->str()
           << ". Will work" << " with existing query state " << query_state);
@@ -85,7 +84,7 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
         query_state = query_state_string;
       } else {
         // initialize state in the database
-        rc = insert_state(target_db_wrapper, rule_id, query_state);
+        rc = state_backend->insert_state(rule_id, query_state);
         if (rc != NO_ERROR) {
           LOG_ERROR("Problems while adding state for rule " << this->str()
               << ". State can't be backed up at the moment.");
@@ -125,7 +124,7 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
       getline(ss, item, ',');
       // TODO correctly synchronize on queryState once action handling is multi-threaded
       query_state = item;
-      rc = update_state(target_db_wrapper, rule_id, query_state);
+      rc = state_backend->update_state(rule_id, query_state);
       if (rc != NO_ERROR) {
         LOG_ERROR("Problems while updating state for rule " << this->str()
             << ". State can't be backed up at the moment.");

@@ -73,17 +73,15 @@ TrackAction::TrackAction(std::string action) {
   path_regex_str = action.substr(TRACK_RULE.length() + 1, into_pos - (TRACK_RULE.length() + 2));
 
   // initialize action state
-  if (init_state(action, into_pos) != NO_ERROR) {
+  if (init_output_stream(action, into_pos) != NO_ERROR) {
     throw std::invalid_argument(action + " could not create state.");
   }
-  target_db_wrapper = nullptr;
 
   repo_handle = hg_open(REPO_LOCATION.c_str(), NULL);
 }
 
 TrackAction::~TrackAction() {
   // destructor handles disconnection
-  delete target_db_wrapper;
   hg_close(&repo_handle);
 }
 
@@ -171,22 +169,22 @@ int TrackAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   std::string node_name = msg->get_value("nodeName");
   std::string fs_name = msg->get_value("fsName");
   std::string event_time = msg->get_value("eventTime");
-  std::ostringstream prepared_query;
-  prepared_query << "INSERT INTO versions ";
-  prepared_query << "(clusterName,nodeName,fsName,path,inode,eventTime,commitId) VALUES (";
-  prepared_query << "'" << cluster_name << "',";
-  prepared_query << "'" << node_name << "',";
-  prepared_query << "'" << fs_name << "',";
-  prepared_query << "'" << src << "',";
-  prepared_query << "'" << inode << "',";
-  prepared_query << "'" << event_time << "',";
-  prepared_query << "'" << std_out << "')";
-  if (target_db_wrapper->submit_query(prepared_query.str()) != ODBC_SUCCESS) {
-    LOG_ERROR("Error while inserting new version " << std_out << " for " << src);
-    return ERROR_NO_RETRY;
+  std::ostringstream record;
+  record << "'" << cluster_name << "',";
+  record << "'" << node_name << "',";
+  record << "'" << fs_name << "',";
+  record << "'" << src << "',";
+  record << "'" << inode << "',";
+  record << "'" << event_time << "',";
+  record << "'" << std_out << "')";
+  std::vector<std::string> records;
+  records.push_back(record.str());
+  int rc = out->send_batch(records);
+  if (rc != NO_ERROR) {
+    LOG_ERROR("Problems while bulk loading data into DB."
+        << " Provenance may be incomplete. Action: " << this->str());
   }
-
-  return NO_ERROR;
+  return rc;
 }
 
 std::string TrackAction::str() const {

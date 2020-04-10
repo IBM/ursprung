@@ -70,12 +70,6 @@ const std::string FILE_DST = "FILE";
 class LogLoadField;
 
 // helper functions
-int insert_state(OdbcWrapper *db_connection, std::string rule_id,
-    std::string state, std::string target = "");
-int update_state(OdbcWrapper *db_connection, std::string rule_id,
-   std::string state, std::string target = "");
-int lookup_state(OdbcWrapper *db_connection, char *state_buffer,
-    std::string rule_id, std::string target = "");
 std::string convert_date_field(std::string date, LogLoadField *field);
 
 typedef SynchronizedQueue<std::shared_ptr<IntermediateMessage>> a_queue_t;
@@ -193,7 +187,6 @@ private:
   std::string state_attribute_name;
   std::string odbc_dsn;
   OdbcWrapper *source_db_wrapper;
-  OdbcWrapper *target_db_wrapper;
 
 public:
   DBTransferAction(std::string action);
@@ -240,7 +233,6 @@ private:
   std::regex matching_string;
   std::string delimiter;
   std::vector<LogLoadField*> fields;
-  OdbcWrapper *target_db_wrapper;
   /* Fields to store internal state to correctly parse broken lines. */
   std::vector<char> line_fragment;
   int line_overflow = 0;
@@ -277,7 +269,6 @@ class TrackAction: public Action {
 private:
   std::regex path_regex;
   std::string path_regex_str;
-  OdbcWrapper *target_db_wrapper;
   hg_handle *repo_handle;
   /*
    * This map stores the inode for a CLOSE WRITE event, for
