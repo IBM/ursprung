@@ -74,7 +74,6 @@ int DBLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   std::vector<std::string> records;
   // TODO read all the values from the file at 'path' here and send them
   int rc = out->send_batch(records);
-
   if (rc != NO_ERROR) {
     LOG_ERROR("Problems while bulk loading data from " << path << " into DB."
         << " Provenance may be incomplete. Action: " << this->str());

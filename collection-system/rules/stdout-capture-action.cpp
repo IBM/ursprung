@@ -122,7 +122,18 @@ int StdoutCaptureAction::execute(std::shared_ptr<IntermediateMessage> msg) {
 }
 
 std::string StdoutCaptureAction::str() const {
-  return "CAPTURESOUT";
+  // convert the fields vector to a string
+  std::stringstream ss;
+  for (size_t i = 0; i < fields.size(); ++i) {
+    if (i != 0) {
+      ss << ",";
+    }
+    ss << fields[i];
+  }
+
+  return "CAPTURESOUT MATCH " + matching_string + " FIELDS " + ss.str() + " DELIM "
+      + delimiter + " INTO " + target_db.username + "@" + target_db.hostname
+      + "/" + target_db.tablename + " USING " + target_db.db_schema;
 }
 
 std::string StdoutCaptureAction::get_type() const {

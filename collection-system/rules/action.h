@@ -66,7 +66,6 @@ const std::string TRACK_RULE = "TRACK";
 const std::string CAPTURESOUT_RULE = "CAPTURESOUT";
 
 class LogLoadField;
-
 int insert_state(OdbcWrapper *db_connection, std::string rule_id,
     std::string state, std::string target = "");
 int update_state(OdbcWrapper *db_connection, std::string rule_id,

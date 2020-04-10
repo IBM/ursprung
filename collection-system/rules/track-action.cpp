@@ -144,7 +144,6 @@ int TrackAction::execute(std::shared_ptr<IntermediateMessage> msg) {
     return ERROR_NO_RETRY;
   }
 
-
   // run 'hg add .'
   std::string std_out;
   std::string std_err;
@@ -202,8 +201,7 @@ int TrackAction::execute(std::shared_ptr<IntermediateMessage> msg) {
 }
 
 std::string TrackAction::str() const {
-  return "TRACK " + path_regex_str + " INTO " + target_db.username + "@"
-      + target_db.hostname;
+  return "TRACK " + path_regex_str + " INTO " + target_db.username + "@" + target_db.hostname;
 }
 
 std::string TrackAction::get_type() const {

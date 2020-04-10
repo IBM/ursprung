@@ -23,7 +23,7 @@
 #include "db-output-stream.h"
 
 /**
- * Extract a record from a line based on a specified
+ * Helper function to extract a record from a line based on a specified
  * delimiter and a set of LogLoadFields.
  */
 std::string extract_record_from_line(std::string line, std::string delimiter,

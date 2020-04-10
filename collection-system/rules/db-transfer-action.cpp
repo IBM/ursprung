@@ -76,13 +76,8 @@ DBTransferAction::~DBTransferAction() {
 int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   LOG_DEBUG("Executing DBTransferAction " << this->str());
 
-  int rc = NO_ERROR;
-  char row_buffer[1024];
-  bool first_row = true;
-  std::string row;
-  std::string prepared_query = query;
-
   // restore any existing state
+  int rc;
   if (query_state.empty()) {
     // check if there has been any state saved
     char state_buffer[1024];
@@ -111,6 +106,7 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   }
 
   // construct query and send to database
+  std::string prepared_query = query;
   prepared_query.append(" where ").append(state_attribute_name).append(" is not null ");
   if (!query_state.empty()) {
     // there is state so we have to add the correct WHERE clause to the query
@@ -124,9 +120,12 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
     return ERROR_NO_RETRY;
   }
 
-  // extract rows and write to tmp file
+  // extract rows
   std::vector<std::string> records;
-  bool streamEmpty = true;
+  std::string row;
+  char row_buffer[1024];
+  bool stream_empty = true;
+  bool first_row = true;
   while (source_db_wrapper->get_row(row_buffer) == ODBC_SUCCESS) {
     row = std::string(row_buffer);
     if (first_row) {
@@ -143,8 +142,8 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
       first_row = false;
     }
     records.push_back(row);
-    if (streamEmpty) {
-      streamEmpty = false;
+    if (stream_empty) {
+      stream_empty = false;
     }
   }
 
@@ -152,7 +151,7 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   // any new data (e.g. when the action is triggered by a WRITE to a DB file
   // but when the WRITE is received, the data hasn't actually been flushed to
   // disk). Hence, we check here whether we have any data to send or not.
-  if (!streamEmpty) {
+  if (!stream_empty) {
     rc = out->send_batch(records);
     if (rc != NO_ERROR) {
       LOG_ERROR("Problems while adding newly retrieved db data to DB."
