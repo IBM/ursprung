@@ -56,9 +56,6 @@ DBLoadAction::DBLoadAction(std::string action) {
   // set up output stream
   out = new DBOutputStream(DEFAULT_DSN, target_db.username, target_db.password,
       target_db.db_schema, target_db.tablename, false);
-  ((DBOutputStream*) out)->set_add_info();
-  if (header)
-    ((DBOutputStream*) out)->set_header();
   out->open();
 }
 
@@ -73,6 +70,7 @@ int DBLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
 
   std::vector<std::string> records;
   // TODO read all the values from the file at 'path' here and send them
+  // TODO make sure to add info and remove header
   int rc = out->send_batch(records);
   if (rc != NO_ERROR) {
     LOG_ERROR("Problems while bulk loading data from " << path << " into DB."

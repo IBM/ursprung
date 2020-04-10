@@ -235,10 +235,6 @@ std::string DBOutputStream::format_csv_line(const std::string &line) {
   int i = 0;
   bool processing = true;
 
-  if (add_info) {
-    processed_line.append("'").append(get_utc_time()).append("',");
-  }
-
   while (processing) {
     // detect whether we've encountered a (single or double) quoted
     // entry or the entry is not quoted

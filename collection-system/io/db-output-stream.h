@@ -51,10 +51,6 @@ private:
    * in a single INSERT statement. Default value is 1000.
    */
   int batch_size = 1000;
-  /* Indicates whether a timestamp should be added to each record before sending. */
-  bool add_info = false;
-  /* Specifies whether the payload has a header line. */
-  bool header = false;
   /* Specifies whether DB insert should be run asynchronously. */
   bool async = false;
   /* Thread for asynchronous insertion into DB. */
@@ -101,10 +97,6 @@ public:
   virtual void flush() const override;
 
   void set_batch_size(int size) { batch_size = size; };
-  void set_header() { header = true; }
-  void unset_header() { header = false; }
-  void set_add_info() { add_info = true; }
-  void unset_add_info() { add_info = false; }
   /*
    * Adds a new multiplex group to the DB output stream. The group defines
    * the value of the key, which indicates that the record should be moved
