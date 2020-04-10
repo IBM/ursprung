@@ -12,7 +12,7 @@ add_executable(${TEST_BIN} ${tests} ${utils} ${io} ${sql} ${rules})
 add_test(NAME ${TEST_BIN} COMMAND ${TEST_BIN})
 
 target_include_directories(${TEST_BIN} PUBLIC /usr/local/include ../util ../io ../sql ../rules ../lib/c-hglib/hglib)
-target_link_directories(${TEST_BIN} PUBLIC /usr/local/lib ../lib/c-hglib)
+target_link_directories(${TEST_BIN} PUBLIC /usr/local/lib ${PROJECT_SOURCE_DIR}/lib/c-hglib)
 target_link_libraries(${TEST_BIN} PUBLIC gtest odbc boost_regex hg)
 
 add_custom_command(
