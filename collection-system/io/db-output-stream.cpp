@@ -29,7 +29,7 @@ DBOutputStream::DBOutputStream(const std::string &dsn,
     multiplex { multiplex_val },
     async { async_val } {
   if (async) {
-    batch_queue = new SynchronizedQueue<std::vector<std::string>>();
+    batch_queue = std::make_unique<SynchronizedQueue<std::vector<std::string>>>();
     inserter = std::thread(&DBOutputStream::run_inserter, this);
   }
   if (multiplex) {
@@ -48,7 +48,6 @@ DBOutputStream::~DBOutputStream() {
     std::vector<std::string> empty_batch;
     batch_queue->push(empty_batch);
     inserter.join();
-    delete batch_queue;
   }
 }
 

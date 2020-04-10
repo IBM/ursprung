@@ -23,6 +23,8 @@
 #include "sync-queue.h"
 #include "odbc-wrapper.h"
 
+typedef std::unique_ptr<SynchronizedQueue<std::vector<std::string>>> b_queue_t;
+
 /**
  * Output stream to send (insert) messages to a database via ODBC.
  * Inserts are batched.
@@ -57,7 +59,7 @@ private:
   bool async = false;
   /* Thread for asynchronous insertion into DB. */
   std::thread inserter;
-  SynchronizedQueue<std::vector<std::string>> *batch_queue;
+  b_queue_t batch_queue;
   bool running = true;
   dsn_t dsn;
 
