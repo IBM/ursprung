@@ -117,8 +117,7 @@ std::string StdoutCaptureAction::str() const {
   }
 
   return "CAPTURESOUT MATCH " + matching_string + " FIELDS " + ss.str() + " DELIM "
-      + delimiter + " INTO " + target_db.username + "@" + target_db.hostname
-      + "/" + target_db.tablename + " USING " + target_db.db_schema;
+      + delimiter + " INTO " + out->str();
 }
 
 std::string StdoutCaptureAction::get_type() const {

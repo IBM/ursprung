@@ -40,14 +40,6 @@ typedef struct dsn {
   std::string tablename;
 } dsn_t;
 
-typedef struct db_conn {
-  std::string hostname;
-  std::string username;
-  std::string password;
-  std::string db_schema;
-  std::string tablename;
-} db_conn_t;
-
 /**
  * This class defines a simple wrapper around ODBC to
  * connect to an existing DSN and submit queries to it.

@@ -56,3 +56,7 @@ int FileOutputStream::send_batch(const std::vector<std::string> &msg_batch) {
 void FileOutputStream::flush() const {
   out_file->flush();
 }
+
+std::string FileOutputStream::str() const {
+  return filename;
+}

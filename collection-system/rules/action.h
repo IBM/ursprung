@@ -57,8 +57,6 @@ const std::regex CAPTURESOUT_SYNTAX = std::regex("CAPTURESOUT MATCH (.)* FIELDS 
 const std::string DATE_FORMAT = "%Y-%m-%d %H:%M:%S";
 // TODO make configurable
 const std::string REPO_LOCATION = "/opt/ibm/metaocean/contenttracking";
-// TODO make configurable
-const std::string DEFAULT_DSN = "ursprung-dsn";
 const std::string DB_LOAD_RULE = "DBLOAD";
 const std::string DB_TRANSFER_RULE = "DBTRANSFER";
 const std::string LOG_LOAD_RULE = "LOGLOAD";
@@ -92,7 +90,6 @@ typedef std::map<std::string, std::pair<long long int, unsigned long long>> pars
  */
 class Action {
 protected:
-  db_conn_t target_db;
   bool running;
   std::string rule_id;
   std::vector<std::thread> consumer_threads;
@@ -121,7 +118,6 @@ public:
   void stop_action_consumers();
   void set_rule_iD(std::string rid) { rule_id = rid; }
   a_queue_t* get_action_queue() { return action_queue; }
-  db_conn_t get_target_db() const { return target_db; }
 
   // TODO make this configurable
   virtual int get_num_consumer_threads() const = 0;

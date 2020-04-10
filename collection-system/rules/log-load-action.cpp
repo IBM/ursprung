@@ -122,11 +122,11 @@ LogLoadAction::LogLoadAction(std::string action) {
 
   // TODO move this as part of action state
   // initialize action state
-  target_db_wrapper = new OdbcWrapper(DEFAULT_DSN, target_db.username, target_db.password);
-  if (target_db_wrapper->connect() != ODBC_SUCCESS) {
-    LOG_ERROR("Error while connecting to target DB " << DEFAULT_DSN);
-    throw DBConnectionException();
-  }
+  target_db_wrapper = nullptr;//new OdbcWrapper(DEFAULT_DSN, target_db.username, target_db.password);
+//  if (target_db_wrapper->connect() != ODBC_SUCCESS) {
+//    LOG_ERROR("Error while connecting to target DB " << DEFAULT_DSN);
+//    throw DBConnectionException();
+//  }
 }
 
 LogLoadAction::~LogLoadAction() {
@@ -320,8 +320,7 @@ std::string LogLoadAction::str() const {
   }
 
   return "LOGLOAD " + event_field + " MATCH " + " FIELDS " + ss.str() + " DELIM "
-      + delimiter + " INTO " + target_db.username + "@" + target_db.hostname
-      + "/" + target_db.tablename + " USING " + target_db.db_schema;
+      + delimiter + " INTO " + out->str();
 }
 
 std::string LogLoadAction::get_type() const {

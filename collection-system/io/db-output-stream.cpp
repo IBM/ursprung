@@ -76,6 +76,11 @@ void DBOutputStream::flush() const {
   // nothing to do for DBOutputStream
 }
 
+std::string DBOutputStream::str() const {
+  return dsn.username + ":" + "@" + dsn.dsn_name
+      + "/" + dsn.tablename + " USING " + dsn.db_schema;
+}
+
 int DBOutputStream::send(const std::string &msg_str, int partition, const std::string *key) {
   LOG_WARN("Call to not implemented DBOutputStream::send.");
   return NO_ERROR;

@@ -35,6 +35,7 @@ public:
       const std::string *key = nullptr) = 0;
   virtual int send_batch(const std::vector<std::string> &msg_batch) = 0;
   virtual void flush() const = 0;
+  virtual std::string str() const = 0;
 };
 
 /**
@@ -55,6 +56,7 @@ public:
       const std::string *key = nullptr) override;
   virtual int send_batch(const std::vector<std::string> &msg_batch) override;
   virtual void flush() const override;
+  virtual std::string str() const override;
 };
 
 #endif // MESSAGE_OUT_STREAM_H

@@ -188,12 +188,12 @@ int Action::init_output_stream(std::string dst, size_t from) {
 
     std::string username = user_password.substr(0, colon_pos);
     std::string password = user_password.substr(colon_pos + 1, user_password.length());
-    std::string hostname = server_table.substr(0, slash_pos);
+    std::string dsn = server_table.substr(0, slash_pos);
     std::string tablename = server_table.substr(slash_pos + 1, server_table.length());
     std::string db_schema = dst.substr(using_pos + 6, dst.length() - (using_pos + 6));
 
     // set up output stream
-    out = new DBOutputStream(DEFAULT_DSN, username, password, db_schema, tablename, false);
+    out = new DBOutputStream(dsn, username, password, db_schema, tablename, false);
     out->open();
     out_dest = DB_DST;
   } else if ((dst_pos = dst.find(FILE_DST, from)) != std::string::npos) {

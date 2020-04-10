@@ -74,11 +74,11 @@ TrackAction::TrackAction(std::string action) {
 
   // TODO move this as part of action state
   // initialize action state
-  target_db_wrapper = new OdbcWrapper(DEFAULT_DSN, target_db.username, target_db.password);
-  if (target_db_wrapper->connect() != ODBC_SUCCESS) {
-    LOG_ERROR("Error while connecting to target DB " << DEFAULT_DSN);
-    throw DBConnectionException();
-  }
+  target_db_wrapper = nullptr;//new OdbcWrapper(DEFAULT_DSN, target_db.username, target_db.password);
+//  if (target_db_wrapper->connect() != ODBC_SUCCESS) {
+//    LOG_ERROR("Error while connecting to target DB " << DEFAULT_DSN);
+//    throw DBConnectionException();
+//  }
 
   repo_handle = hg_open(REPO_LOCATION.c_str(), NULL);
 }
@@ -192,7 +192,7 @@ int TrackAction::execute(std::shared_ptr<IntermediateMessage> msg) {
 }
 
 std::string TrackAction::str() const {
-  return "TRACK " + path_regex_str + " INTO " + target_db.username + "@" + target_db.hostname;
+  return "TRACK " + path_regex_str;
 }
 
 std::string TrackAction::get_type() const {

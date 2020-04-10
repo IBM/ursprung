@@ -95,6 +95,7 @@ public:
         const std::string *key = nullptr) override;
   virtual int send_batch(const std::vector<std::string> &msgs) override;
   virtual void flush() const override;
+  virtual std::string str() const override;
 
   void set_batch_size(int size) { batch_size = size; };
   /*

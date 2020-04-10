@@ -47,11 +47,11 @@ DBTransferAction::DBTransferAction(std::string action) {
 
   // TODO move this as part of action state
   // initialize action state
-  target_db_wrapper = new OdbcWrapper(DEFAULT_DSN, target_db.username, target_db.password);
-  if (target_db_wrapper->connect() != ODBC_SUCCESS) {
-    LOG_ERROR("Error while connecting to source DB " << odbc_dsn);
-    throw DBConnectionException();
-  }
+  target_db_wrapper = nullptr;//new OdbcWrapper(DEFAULT_DSN, target_db.username, target_db.password);
+//  if (target_db_wrapper->connect() != ODBC_SUCCESS) {
+//    LOG_ERROR("Error while connecting to source DB " << odbc_dsn);
+//    throw DBConnectionException();
+//  }
 
   // set up ODBC connection to source database
   source_db_wrapper = new OdbcWrapper(odbc_dsn, "", "");
@@ -158,9 +158,7 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
 }
 
 std::string DBTransferAction::str() const {
-  return "DBTRANSFER " + query + " FROM " + odbc_dsn + " TO "
-      + target_db.username + "@" + target_db.hostname + "/"
-      + target_db.tablename + " USING " + target_db.db_schema;
+  return "DBTRANSFER " + query + " FROM " + odbc_dsn + " INTO " + out->str();
 }
 
 std::string DBTransferAction::get_type() const {

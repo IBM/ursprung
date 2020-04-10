@@ -57,8 +57,7 @@ int DBLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
 }
 
 std::string DBLoadAction::str() const {
-  return "DBLOAD " + event_field + " INTO " + target_db.username + ":" + "@" + target_db.hostname
-      + "/" + target_db.tablename + " USING " + target_db.db_schema + (header ? " HEADER" : "");
+  return "DBLOAD " + event_field + " INTO " + out->str();
 }
 
 std::string DBLoadAction::get_type() const {
