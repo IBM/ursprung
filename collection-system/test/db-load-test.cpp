@@ -47,3 +47,8 @@ TEST(db_load_action_test, test3) {
   EXPECT_EQ("a4,b4,c4", lines[3]);
   EXPECT_EQ("a5,b5,c5", lines[4]);
 }
+
+TEST(db_load_action_test, test4) {
+  DBLoadAction a("DBLOAD f1 INTO DB user1:password2@dsn3/table4 USING schema5");
+  EXPECT_EQ("DBLOAD f1 INTO user1:@dsn3/table4 USING schema5", a.str());
+}

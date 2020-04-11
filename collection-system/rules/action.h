@@ -39,21 +39,6 @@ extern "C" {
 #include "utils.h"
 }
 
-// 4KB buffer size to store log file lines (we assume that 4K
-// is enough to hold the longest line in any log file.
-#define MAX_LINE_LENGTH 4096
-
-// regex constants for each rule
-const std::regex DB_LOAD_SYNTAX = std::regex("DBLOAD (.*) INTO "
-    "(FILE (.*)|DB (.*):(.*)@(.*):[0-9]*/(.*) USING (.*))");
-const std::regex DB_TRANSFER_SYNTAX = std::regex("DBTRANSFER (.*)/[a-zA-Z0-9]* FROMDSN "
-    "[a-zA-Z0-9]* TO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
-const std::regex LOG_LOAD_SYNTAX = std::regex("LOGLOAD [a-zA-Z0-9]* MATCH (.)* FIELDS "
-    "(.)* DELIM (.*) INTO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
-const std::regex TRACK_SYNTAX = std::regex("TRACK (.*) INTO (.*):(.*)@(.*):[0-9]*");
-const std::regex CAPTURESOUT_SYNTAX = std::regex("CAPTURESOUT MATCH (.)* FIELDS "
-    "(.)* DELIM (.*) INTO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
-
 // string constants
 const std::string DATE_FORMAT = "%Y-%m-%d %H:%M:%S";
 const std::string DB_LOAD_RULE = "DBLOAD";

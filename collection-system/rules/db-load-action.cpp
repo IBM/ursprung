@@ -19,6 +19,9 @@
 #include "action.h"
 #include "db-output-stream.h"
 
+const std::regex DB_LOAD_SYNTAX = std::regex("DBLOAD (.*) INTO "
+    "(FILE (.*)|DB (.*):(.*)@(.*)/(.*) USING (.*))");
+
 DBLoadAction::DBLoadAction(std::string action) {
   // check that action has correct syntax
   if (!std::regex_match(action, DB_LOAD_SYNTAX)) {

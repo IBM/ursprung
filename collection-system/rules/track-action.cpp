@@ -23,6 +23,7 @@
 
 // TODO make configurable
 const std::string REPO_LOCATION = "/opt/ibm/metaocean/contenttracking";
+const std::regex TRACK_SYNTAX = std::regex("TRACK (.*) INTO (.*):(.*)@(.*):[0-9]*");
 
 /**
  * Parse the return code of an hg command.

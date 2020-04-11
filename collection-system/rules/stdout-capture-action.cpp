@@ -20,6 +20,9 @@
 #include "db-output-stream.h"
 //#include "provd-client.h"
 
+const std::regex CAPTURESOUT_SYNTAX = std::regex("CAPTURESOUT MATCH (.)* FIELDS "
+    "(.)* DELIM (.*) INTO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
+
 StdoutCaptureAction::StdoutCaptureAction(std::string action) {
   // check that the action has the right syntax
   if (!std::regex_match(action, CAPTURESOUT_SYNTAX)) {

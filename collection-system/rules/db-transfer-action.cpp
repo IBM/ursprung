@@ -19,6 +19,9 @@
 #include "action.h"
 #include "db-output-stream.h"
 
+const std::regex DB_TRANSFER_SYNTAX = std::regex("DBTRANSFER (.*)/[a-zA-Z0-9]* FROMDSN "
+    "[a-zA-Z0-9]* TO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
+
 DBTransferAction::DBTransferAction(std::string action) {
   // check that the action has the right syntax
   if (!std::regex_match(action, DB_TRANSFER_SYNTAX)) {

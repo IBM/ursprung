@@ -22,6 +22,13 @@
 #include "action.h"
 #include "db-output-stream.h"
 
+// 4KB buffer size to store log file lines (we assume that 4K
+// is enough to hold the longest line in any log file.
+#define MAX_LINE_LENGTH 4096
+
+const std::regex LOG_LOAD_SYNTAX = std::regex("LOGLOAD [a-zA-Z0-9]* MATCH (.)* FIELDS "
+    "(.)* DELIM (.*) INTO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
+
 /**
  * Helper function to extract a record from a line based on a specified
  * delimiter and a set of LogLoadFields.
