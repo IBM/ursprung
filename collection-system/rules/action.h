@@ -44,8 +44,8 @@ extern "C" {
 #define MAX_LINE_LENGTH 4096
 
 // regex constants for each rule
-const std::regex DB_LOAD_SYNTAX = std::regex("DBLOAD [a-zA-Z]* INTO "
-    "(.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
+const std::regex DB_LOAD_SYNTAX = std::regex("DBLOAD (.*) INTO "
+    "(FILE (.*)|DB (.*):(.*)@(.*):[0-9]*/(.*) USING (.*))");
 const std::regex DB_TRANSFER_SYNTAX = std::regex("DBTRANSFER (.*)/[a-zA-Z0-9]* FROMDSN "
     "[a-zA-Z0-9]* TO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
 const std::regex LOG_LOAD_SYNTAX = std::regex("LOGLOAD [a-zA-Z0-9]* MATCH (.)* FIELDS "
@@ -141,14 +141,12 @@ public:
 class DBLoadAction: public Action {
 private:
   std::string event_field;
-  bool header = false;
 
 public:
   DBLoadAction(std::string action);
   virtual ~DBLoadAction() {};
 
   std::string get_event_field() const { return event_field; }
-  bool has_header() const { return header; }
 
   virtual int execute(std::shared_ptr<IntermediateMessage>) override;
   virtual int get_num_consumer_threads() const override { return 10; }

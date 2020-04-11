@@ -46,8 +46,12 @@ int DBLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   }
 
   std::vector<std::string> records;
-  // TODO read all the values from the file at 'path' here and send them
   // TODO make sure to add info and remove header
+  std::ifstream in_file(path);
+  std::string line;
+  while (std::getline(in_file, line)) {
+    records.push_back(line);
+  }
   int rc = out->send_batch(records);
   if (rc != NO_ERROR) {
     LOG_ERROR("Problems while bulk loading data from " << path << " into DB."

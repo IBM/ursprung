@@ -50,6 +50,10 @@ int FileOutputStream::send(const std::string &msg_str, int partition,
 }
 
 int FileOutputStream::send_batch(const std::vector<std::string> &msg_batch) {
+  assert(out_file->is_open());
+  for (std::string msg : msg_batch) {
+    *out_file << msg << std::endl;
+  }
   return NO_ERROR;
 }
 

@@ -18,13 +18,6 @@ target_link_libraries(${TEST_BIN} PUBLIC gtest odbc boost_regex hg)
 add_custom_command(
   TARGET ${TEST_BIN}
   COMMAND ${CMAKE_COMMAND} -E copy
-  ${CMAKE_CURRENT_SOURCE_DIR}/resources/test.cfg
-  ${CMAKE_BINARY_DIR}/test/
-)
-
-add_custom_command(
-  TARGET ${TEST_BIN}
-  COMMAND ${CMAKE_COMMAND} -E copy
-  ${CMAKE_CURRENT_SOURCE_DIR}/resources/test-file-in-stream
+  ${CMAKE_CURRENT_SOURCE_DIR}/resources/*
   ${CMAKE_BINARY_DIR}/test/
 )

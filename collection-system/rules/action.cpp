@@ -140,7 +140,7 @@ int Action::init_output_stream(std::string dst, size_t from) {
   } else if ((dst_pos = dst.find(FILE_DST, from)) != std::string::npos) {
     // parse file path and create File output stream
     // the INTO portion looks like "INTO FILE path"
-    std::string path = dst.substr(from + 4 + 6, dst.length() - (from + 4 + 7));
+    std::string path = dst.substr(from + 4 + 6, dst.length() - (from + 4 + 6));
 
     // set up output stream
     out = new FileOutputStream(path);
