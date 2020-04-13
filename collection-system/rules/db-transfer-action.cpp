@@ -54,16 +54,11 @@ DBTransferAction::DBTransferAction(std::string action) {
   }
 
   // set up ODBC connection to source database
-  source_db_wrapper = new OdbcWrapper(odbc_dsn, "", "");
-  if (source_db_wrapper->connect() != ODBC_SUCCESS) {
+  source_db_wrapper = std::make_unique<OdbcConnector>(odbc_dsn, "", "");
+  if (source_db_wrapper->connect() != DB_SUCCESS) {
     LOG_ERROR("Error while connecting to source DB " << odbc_dsn);
     throw DBConnectionException();
   }
-}
-
-DBTransferAction::~DBTransferAction() {
-  // destructor handles disconnection
-  delete source_db_wrapper;
 }
 
 int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
@@ -107,7 +102,7 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
         query_state).append("'");
   }
   prepared_query.append(" order by ").append(state_attribute_name).append(" desc");
-  if (source_db_wrapper->submit_query(prepared_query) != ODBC_SUCCESS) {
+  if (source_db_wrapper->submit_query(prepared_query) != DB_SUCCESS) {
     LOG_ERROR("Error while submitting query to DB. Can't retrieve data from source db."
         << " Provenance may be incomplete. Action: " << this->str());
     return ERROR_NO_RETRY;
@@ -119,7 +114,7 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   char row_buffer[1024];
   bool stream_empty = true;
   bool first_row = true;
-  while (source_db_wrapper->get_row(row_buffer) == ODBC_SUCCESS) {
+  while (source_db_wrapper->get_row(row_buffer) == DB_SUCCESS) {
     row = std::string(row_buffer);
     if (first_row) {
       std::stringstream ss(row);

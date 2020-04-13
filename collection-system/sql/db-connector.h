@@ -29,6 +29,14 @@ typedef enum {
   DB_NO_DATA
 } db_rc;
 
+typedef struct dsn {
+  std::string dsn_name;
+  std::string username;
+  std::string password;
+  std::string db_schema;
+  std::string tablename;
+} dsn_t;
+
 
 /**
  * This class defines the interface for a database connector

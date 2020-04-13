@@ -21,7 +21,7 @@
 
 #include "msg-output-stream.h"
 #include "sync-queue.h"
-#include "odbc-wrapper.h"
+#include "db-connector.h"
 
 typedef std::unique_ptr<SynchronizedQueue<std::vector<std::string>>> b_queue_t;
 

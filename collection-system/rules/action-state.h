@@ -21,7 +21,7 @@
 #include <string>
 #include <fstream>
 
-#include <odbc-wrapper.h>
+#include "db-connector.h"
 
 /**
  * An action state backend manages operations on the state for an action, e.g.
@@ -91,7 +91,7 @@ private:
   std::string dsn;
   std::string user;
   std::string pw;
-  OdbcWrapper db_conn;
+  std::unique_ptr<DBConnector> db_conn;
 
 public:
   DBStateBackend(std::string dsn_name, std::string username, std::string password);

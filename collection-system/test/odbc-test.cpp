@@ -17,10 +17,10 @@
 #include <fstream>
 
 #include "gtest/gtest.h"
-#include "odbc-wrapper.h"
+#include "db-connector.h"
 #include "error.h"
 
 // TODO dummy test to check for compilation errors, remove later
 TEST(odbc_wrapper_test, test1) {
-  OdbcWrapper con("dsn", "user", "pw");
+  OdbcConnector con("dsn", "user", "pw");
 }

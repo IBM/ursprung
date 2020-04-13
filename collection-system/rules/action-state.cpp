@@ -53,10 +53,12 @@ int FileStateBackend::lookup_state(char *state_buffer, std::string rule_id, std:
 
 DBStateBackend::DBStateBackend(std::string dsn_name, std::string username,
     std::string password) :
-    dsn(dsn_name), user(username), pw(password), db_conn (dsn, user, pw) {}
+    dsn(dsn_name), user(username), pw(password) {
+  db_conn = std::make_unique<OdbcConnector>(dsn, user, pw);
+}
 
 int DBStateBackend::connect() {
-  if (db_conn.connect() != ODBC_SUCCESS) {
+  if (db_conn->connect() != DB_SUCCESS) {
     LOG_ERROR("Error while connecting to source DB " << dsn);
     return ERROR_NO_RETRY;
   }
@@ -64,7 +66,7 @@ int DBStateBackend::connect() {
 }
 
 int DBStateBackend::disconnect() {
-  db_conn.disconnect();
+  db_conn->disconnect();
   return NO_ERROR;
 }
 
@@ -72,7 +74,7 @@ int DBStateBackend::insert_state(std::string rule_id, std::string state, std::st
   // TODO either store prepared query as const or use actual prepared query
   std::string prepared_query = "INSERT INTO rulestate (id,target,state) values ('"
       + rule_id + "','" + target + "','" + state + "')";
-  if (db_conn.submit_query(prepared_query) != ODBC_SUCCESS) {
+  if (db_conn->submit_query(prepared_query) != DB_SUCCESS) {
     LOG_ERROR("Error while inserting new state: state " << state
         << ", rule " << rule_id << ", target " << target);
     return ERROR_NO_RETRY;
@@ -84,7 +86,7 @@ int DBStateBackend::update_state(std::string rule_id, std::string state, std::st
   // TODO either store prepared query as const or use actual prepared query
   std::string prepared_query = "UPDATE rulestate SET state='" + state
       + "' WHERE id='" + rule_id + "' AND target='" + target + "'";
-  if (db_conn.submit_query(prepared_query) != ODBC_SUCCESS) {
+  if (db_conn->submit_query(prepared_query) != DB_SUCCESS) {
     LOG_ERROR("Error while updating state: state " << state
         << ", rule " << rule_id << ", target " << target);
     return ERROR_NO_RETRY;
@@ -96,7 +98,7 @@ int DBStateBackend::lookup_state(char *state_buffer, std::string rule_id, std::s
   // TODO either store prepared query as const or use actual prepared query
   std::string prepared_query = "SELECT state FROM rulestate WHERE id='" + rule_id
       + "'" + " AND target='" + target + "'";
-  if (db_conn.submit_query(prepared_query) != ODBC_SUCCESS) {
+  if (db_conn->submit_query(prepared_query) != DB_SUCCESS) {
     LOG_ERROR("Error while retrieving state from DB: rule " << rule_id << ", target "
         << target << ". Can't retrieve existing state.");
     return ERROR_NO_RETRY;
@@ -104,10 +106,10 @@ int DBStateBackend::lookup_state(char *state_buffer, std::string rule_id, std::s
 
   // we have existing state
   std::string row;
-  odbc_rc rc = db_conn.get_row(state_buffer);
-  if (rc == ODBC_SUCCESS)
+  db_rc rc = db_conn->get_row(state_buffer);
+  if (rc == DB_SUCCESS)
     return NO_ERROR;
-  else if (rc == ODBC_NO_DATA)
+  else if (rc == DB_NO_DATA)
     return ERROR_EOF;
   else
     return ERROR_NO_RETRY;

@@ -205,7 +205,7 @@ int DBOutputStream::parallel_send_to_db(const std::vector<std::vector<std::strin
 int DBOutputStream::send_to_db(const std::vector<std::string> &batch,
     std::string table, std::string schema) {
   int rc = NO_ERROR;
-  odbc_rc err;
+  db_rc err;
 
   // prepare the query
   std::string query;
@@ -218,14 +218,14 @@ int DBOutputStream::send_to_db(const std::vector<std::string> &batch,
   LOG_DEBUG(query);
 
   // connect to the database and submit the query
-  OdbcWrapper odbc_wrapper(dsn.dsn_name, dsn.username, dsn.password);
+  OdbcConnector odbc_wrapper(dsn.dsn_name, dsn.username, dsn.password);
   err = odbc_wrapper.connect();
-  if (err != ODBC_SUCCESS) {
+  if (err != DB_SUCCESS) {
     LOG_ERROR("Error while connecting to target DB " << dsn.dsn_name);
     throw DBConnectionException();
   }
   err = odbc_wrapper.submit_query(query);
-  if (err != ODBC_SUCCESS) {
+  if (err != DB_SUCCESS) {
     LOG_ERROR("Problems when submitting query " << query << " to database: " << err);
     rc = ERROR_NO_RETRY;
   }

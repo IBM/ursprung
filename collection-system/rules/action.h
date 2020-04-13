@@ -27,7 +27,7 @@
 
 #include "intermediate-message.h"
 #include "msg-output-stream.h"
-#include "odbc-wrapper.h"
+#include "db-connector.h"
 #include "error.h"
 #include "logger.h"
 #include "sync-queue.h"
@@ -167,11 +167,11 @@ private:
   std::string query;
   std::string state_attribute_name;
   std::string odbc_dsn;
-  OdbcWrapper *source_db_wrapper;
+  std::unique_ptr<DBConnector> source_db_wrapper;
 
 public:
   DBTransferAction(std::string action);
-  virtual ~DBTransferAction();
+  virtual ~DBTransferAction() {};
 
   std::string get_query() const { return query; }
   std::string get_state_attribute_name() const { return state_attribute_name; }
