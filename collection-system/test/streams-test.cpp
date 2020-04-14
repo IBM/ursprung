@@ -68,16 +68,14 @@ TEST(file_output_stream_test, test1) {
 /*----------------------------------------------------------------------------------
  * DBOutputStream tests
  *
- * All tests, which test sending functionality of the stream are currently disabled
- * as with the current design, there's not really a good way of mocking/faking
- * the ODBC connection that is established in DBOutputStream::send_to_db. As
- * a quick and dirty way to semi-manually check whether the stream works as
- * expected is to comment out the ODBC related part in DBOutputStream::send_to_db,
- * enable the tests,  and then print and inspect the generated queries (that would
- * be submitted to the database) manually. This is not ideal but good enough for now.
+ * All tests, which test sending functionality of the stream are do currently
+ * use the MockConnector to not require a working connection to a database backend.
+ * There are no EXPECT calls in those tests as we cannot verify that the correct
+ * records have been inserted into the database (as there is no database).
+ * To verify the success of the tests, we have to manually verify that the
+ * query strings (printed by the MockConnector) are correct.
  *
- * Maybe we should decouple query generation fom query submission in the stream
- * and then somehow only test up to query generation but skip submission?
+ * TODO Needs improvement to test more reliably
  *-----------------------------------------------------------------------------------*/
 
 TEST(db_output_stream_test, test_dummies) {
