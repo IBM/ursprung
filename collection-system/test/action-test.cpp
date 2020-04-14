@@ -24,16 +24,16 @@
  * DBLoadAction
  *------------------------------*/
 
-TEST(db_load_action_test, test1) {
+TEST(db_load_action_test, test_invalid_creation) {
   EXPECT_THROW(DBLoadAction a(""), std::invalid_argument);
 }
 
-TEST(db_load_action_test, test2) {
+TEST(db_load_action_test, test_valid_creation) {
   DBLoadAction a("DBLOAD path INTO FILE dbload-out");
   EXPECT_EQ("path", a.get_event_field());
 }
 
-TEST(db_load_action_test, test3) {
+TEST(db_load_action_test, test_execute) {
   DBLoadAction a("DBLOAD f1 INTO FILE dbload-out");
   std::shared_ptr<IntermediateMessage> msg =
       std::make_shared<TestIntermediateMessage>(CS_PROV_AUDITD, "test-db-load-action,f2,f3");
@@ -54,7 +54,7 @@ TEST(db_load_action_test, test3) {
   EXPECT_EQ("a5,b5,c5", lines[4]);
 }
 
-TEST(db_load_action_test, test4) {
+TEST(db_load_action_test, test_str) {
   DBLoadAction a("DBLOAD f1 INTO DB user1:password2@dsn3 USING table4/schema5");
   EXPECT_EQ("DBLOAD f1 INTO user1:password2@dsn3 USING table4/schema5", a.str());
 }
@@ -63,14 +63,36 @@ TEST(db_load_action_test, test4) {
  * DBTransferAction
  *------------------------------*/
 
-TEST(db_transfer_action_test, test1) {
+TEST(db_transfer_action_test, test_invalid_creation) {
   EXPECT_THROW(DBTransferAction a(""), std::invalid_argument);
 }
 
-TEST(db_transfer_action_test, test2) {
+TEST(db_transfer_action_test, test_valid_creation) {
   DBTransferAction a("DBTRANSFER select * from table/attr FROM MOCK user:password@db INTO "
       "FILE dbtransfer-out");
   EXPECT_EQ("select * from table", a.get_query());
   EXPECT_EQ("attr", a.get_state_attribute_name());
   EXPECT_EQ("MOCK user:password@db", a.get_connection_string());
+}
+
+TEST(db_transfer_action_test, test_execute) {
+  DBTransferAction a("DBTRANSFER select * from table/attr FROM MOCK user:password@db INTO "
+      "FILE dbtransfer-out");
+  // this message is not used by the action execution
+  std::shared_ptr<IntermediateMessage> msg =
+      std::make_shared<TestIntermediateMessage>(CS_PROV_AUDITD, "test-db-transfer-action,f2,f3");
+  // execute three times to get three new rows
+  a.execute(msg);
+  a.execute(msg);
+  a.execute(msg);
+  std::ifstream in_file("dbtransfer-out");
+  std::string line;
+  std::vector<std::string> lines;
+  while (std::getline(in_file, line)) {
+    lines.push_back(line);
+  }
+  EXPECT_EQ(3, lines.size());
+  EXPECT_EQ("a0,b0,c0", lines[0]);
+  EXPECT_EQ("a1,b1,c1", lines[1]);
+  EXPECT_EQ("a2,b2,c2", lines[2]);
 }

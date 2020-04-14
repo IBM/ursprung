@@ -303,8 +303,18 @@ db_rc MockConnector::submit_query(std::string query) {
 }
 
 db_rc MockConnector::get_row(char *row_buffer) {
-  const char* row = "a,b,c";
+  if (called_once) {
+    called_once = false;
+    return DB_NO_DATA;
+  }
+
+  std::string row_str = "a" + std::to_string(num_calls)
+      + ",b" + std::to_string(num_calls)
+      + ",c" + std::to_string(num_calls);
+  const char *row = row_str.c_str();
   strcpy(row_buffer, row);
+  num_calls++;
+  called_once = true;
   return DB_SUCCESS;
 }
 

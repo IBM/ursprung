@@ -88,6 +88,10 @@ private:
  * testing.
  */
 class MockConnector: public DBConnector {
+private:
+  int num_calls = 0;
+  bool called_once = false;
+
 public:
   MockConnector() {};
   ~MockConnector() {};
@@ -96,6 +100,11 @@ public:
   virtual bool is_connected() override { return true; }
   virtual db_rc disconnect() override { return DB_SUCCESS; }
   virtual db_rc submit_query(std::string query) override;
+  /*
+   * This call always returns a row of 3 attributes (a,b,c)
+   * with the current value of num_calls appended to
+   * each attribute and then increments num_calls.
+   */
   virtual db_rc get_row(char *row_buffer) override;
 };
 

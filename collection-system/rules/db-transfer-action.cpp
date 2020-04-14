@@ -72,10 +72,9 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
     rc = state_backend->lookup_state(state_buffer, rule_id);
     if (rc == ERROR_NO_RETRY) {
       LOG_ERROR("Problems while trying to restore state for " << this->str()
-          << ". Will work" << " with existing query state " << query_state);
+          << ". Will work with existing query state " << query_state);
     } else {
-      std::string query_state_string =
-          (rc == NO_ERROR) ? std::string(state_buffer) : "";
+      std::string query_state_string = (rc == NO_ERROR) ? std::string(state_buffer) : "";
       if (!query_state_string.empty()) {
         LOG_INFO("DBTransferAction " << this->str() << ": restored "
             << query_state_string << " state from disk.");
