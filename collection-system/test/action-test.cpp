@@ -49,6 +49,6 @@ TEST(db_load_action_test, test3) {
 }
 
 TEST(db_load_action_test, test4) {
-  DBLoadAction a("DBLOAD f1 INTO DB user1:password2@dsn3/table4 USING schema5");
-  EXPECT_EQ("DBLOAD f1 INTO user1:@dsn3/table4 USING schema5", a.str());
+  DBLoadAction a("DBLOAD f1 INTO DB user1:password2@dsn3 USING table4/schema5");
+  EXPECT_EQ("DBLOAD f1 INTO user1:password2@dsn3 USING table4/schema5", a.str());
 }

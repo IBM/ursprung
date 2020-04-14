@@ -20,7 +20,7 @@
 #include "db-output-stream.h"
 
 const std::regex DB_LOAD_SYNTAX = std::regex("DBLOAD (.*) INTO "
-    "(FILE (.*)|DB (.*):(.*)@(.*)/(.*) USING (.*))");
+    "(FILE (.*)|DB (.*):(.*)@(.*) USING (.*)/(.*))");
 
 DBLoadAction::DBLoadAction(std::string action) {
   // check that action has correct syntax
