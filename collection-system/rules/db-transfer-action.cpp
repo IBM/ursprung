@@ -22,7 +22,7 @@
 const std::regex DB_TRANSFER_SYNTAX = std::regex("DBTRANSFER (.*)/[a-zA-Z0-9]* FROM "
     "(.*):(.*)@(.*) INTO (FILE (.*)|DB (.*):(.*)@(.*) USING (.*)/(.*))");
 
-DBTransferAction::DBTransferAction(std::string action, bool init_db_conn) {
+DBTransferAction::DBTransferAction(std::string action) {
   // check that the action has the right syntax
   if (!std::regex_match(action, DB_TRANSFER_SYNTAX)) {
     LOG_ERROR("DBTransferAction " << action << " is not specified correctly.");
@@ -54,12 +54,10 @@ DBTransferAction::DBTransferAction(std::string action, bool init_db_conn) {
   }
 
   // set up ODBC connection to source database
-  if (init_db_conn) {
-    source_db_wrapper = ConnectorFactory::create_connector(connection_string);
-    if (source_db_wrapper->connect() != DB_SUCCESS) {
-      LOG_ERROR("Error while connecting to source DB " << connection_string);
-      throw DBConnectionException();
-    }
+  source_db_wrapper = ConnectorFactory::create_connector(connection_string);
+  if (source_db_wrapper->connect() != DB_SUCCESS) {
+    LOG_ERROR("Error while connecting to source DB " << connection_string);
+    throw DBConnectionException();
   }
 }
 

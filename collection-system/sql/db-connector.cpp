@@ -297,20 +297,6 @@ db_rc OdbcConnector::get_row(char *row_buffer) {
  * MockConnector
  *------------------------------*/
 
-db_rc MockConnector::connect() {
-  LOG_INFO("Connecting to MockConnector");
-  return DB_SUCCESS;
-}
-
-bool MockConnector::is_connected() {
-  return true;
-}
-
-db_rc MockConnector::disconnect() {
-  LOG_INFO("Disconnecting from MockConnector");
-  return DB_SUCCESS;
-}
-
 db_rc MockConnector::submit_query(std::string query) {
   LOG_INFO(query);
   return DB_SUCCESS;

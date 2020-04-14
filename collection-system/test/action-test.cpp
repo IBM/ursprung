@@ -72,5 +72,5 @@ TEST(db_transfer_action_test, test2) {
       "FILE dbtransfer-out");
   EXPECT_EQ("select * from table", a.get_query());
   EXPECT_EQ("attr", a.get_state_attribute_name());
-  EXPECT_EQ("user:password@db", a.get_connection_string());
+  EXPECT_EQ("MOCK user:password@db", a.get_connection_string());
 }

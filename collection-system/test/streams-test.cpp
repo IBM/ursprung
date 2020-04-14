@@ -81,7 +81,7 @@ TEST(file_output_stream_test, test1) {
  *-----------------------------------------------------------------------------------*/
 
 TEST(db_output_stream_test, test_dummies) {
-  std::string conn = "user:password@dsn";
+  std::string conn = "MOCK user:password@dsn";
   std::string schema = "schema";
   std::string table = "table";
   DBOutputStream s(conn, schema, table, false);
@@ -94,8 +94,8 @@ TEST(db_output_stream_test, test_dummies) {
   EXPECT_EQ(NO_ERROR, s.send("msg", 0));
 }
 
-TEST(db_output_stream_test, DISABLED_test_send_batch_sync) {
-  std::string conn = "user:password@dsn";
+TEST(db_output_stream_test, test_send_batch_sync) {
+  std::string conn = "MOCK user:password@dsn";
   std::string schema = "col";
   std::string table = "testtable";
   DBOutputStream s(conn, schema, table, false);
@@ -109,8 +109,8 @@ TEST(db_output_stream_test, DISABLED_test_send_batch_sync) {
   s.send_batch(msgs);
 }
 
-TEST(db_output_stream_test, DISABLED_test_send_batch_sync_multiplexed) {
-  std::string conn = "user:password@dsn";
+TEST(db_output_stream_test, test_send_batch_sync_multiplexed) {
+  std::string conn = "MOCK user:password@dsn";
   std::string schema = "col";
   std::string table = "testtable";
   DBOutputStream s(conn, schema, table, false, true, 0);
@@ -130,8 +130,8 @@ TEST(db_output_stream_test, DISABLED_test_send_batch_sync_multiplexed) {
   s.send_batch(msgs);
 }
 
-TEST(db_output_stream_test, DISABLED_test_send_batch_async) {
-  std::string conn = "user:password@dsn";
+TEST(db_output_stream_test, test_send_batch_async) {
+  std::string conn = "MOCK user:password@dsn";
   std::string schema = "col";
   std::string table = "testtable";
   DBOutputStream s(conn, schema, table, true);

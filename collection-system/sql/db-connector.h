@@ -89,12 +89,12 @@ private:
  */
 class MockConnector: public DBConnector {
 public:
-  MockConnector(std::string dsn, std::string user, std::string pw);
-  ~MockConnector();
+  MockConnector() {};
+  ~MockConnector() {};
 
-  virtual db_rc connect() override;
-  virtual bool is_connected() override;
-  virtual db_rc disconnect() override;
+  virtual db_rc connect() override { return DB_SUCCESS; }
+  virtual bool is_connected() override { return true; }
+  virtual db_rc disconnect() override { return DB_SUCCESS; }
   virtual db_rc submit_query(std::string query) override;
   virtual db_rc get_row(char *row_buffer) override;
 };
