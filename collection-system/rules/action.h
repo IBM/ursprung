@@ -144,7 +144,7 @@ public:
  * the output of that query into a target table. The action is specified
  * as follows:
  *
- * DBTRANSFER query/queryStateAttribute FROMDSN dsn
+ * DBTRANSFER query/queryStateAttribute FROM dbconnection
  *   INTO dbUser:dbPassword@dbHost:dbPort/targetTable USING schema
  *
  * The query defines the query that should be run on the source table which is
@@ -166,7 +166,7 @@ private:
   std::string query_state;
   std::string query;
   std::string state_attribute_name;
-  std::string odbc_dsn;
+  std::string connection_string;
   std::unique_ptr<DBConnector> source_db_wrapper;
 
 public:
@@ -175,7 +175,7 @@ public:
 
   std::string get_query() const { return query; }
   std::string get_state_attribute_name() const { return state_attribute_name; }
-  std::string get_odbc_dsn() const { return odbc_dsn; }
+  std::string get_connection_string() const { return connection_string; }
 
   virtual int execute(std::shared_ptr<IntermediateMessage>) override;
   virtual int get_num_consumer_threads() const override { return 1; }

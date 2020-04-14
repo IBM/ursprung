@@ -120,21 +120,13 @@ int Action::init_output_stream(std::string dst, size_t from) {
     // the INTO portion looks like "INTO DB user:password@hostname/tablename USING schema"
     size_t using_pos = dst.find("USING", 0);
     std::string connection_string = dst.substr(from + 4 + 4, using_pos - (from + 4 + 5));
-    size_t at_pos = connection_string.find("@", 0);
-
-    std::string user_password = connection_string.substr(0, at_pos);
-    size_t colon_pos = user_password.find(":");
-    std::string server_table = connection_string.substr(at_pos + 1, connection_string.length());
-    size_t slash_pos = server_table.find("/");
-
-    std::string username = user_password.substr(0, colon_pos);
-    std::string password = user_password.substr(colon_pos + 1, user_password.length());
-    std::string dsn = server_table.substr(0, slash_pos);
-    std::string tablename = server_table.substr(slash_pos + 1, server_table.length());
-    std::string db_schema = dst.substr(using_pos + 6, dst.length() - (using_pos + 6));
+    std::string table_schema = dst.substr(using_pos + 6, dst.length() - (using_pos + 6));
+    size_t slash_pos = table_schema.find("/");
+    std::string tablename = table_schema.substr(0, slash_pos);
+    std::string db_schema = table_schema.substr(slash_pos + 1, table_schema.length());
 
     // set up output stream
-    out = new DBOutputStream(dsn, username, password, db_schema, tablename, false);
+    out = new DBOutputStream(connection_string, db_schema, tablename, false);
     out->open();
     out_dest = DB_DST;
   } else if ((dst_pos = dst.find(FILE_DST, from)) != std::string::npos) {
@@ -160,21 +152,11 @@ int Action::init_state(std::string dst, size_t from) {
   size_t dst_pos;
   if ((dst_pos = dst.find(DB_DST, from)) != std::string::npos) {
     // parse target DB properties and create DB state backend
-    // the INTO portion looks like "INTO DB user:password@hostname/tablename USING schema"
+    // the INTO portion looks like "INTO DB user:password@hostname USING tablename/schema"
     size_t using_pos = dst.find("USING", 0);
     std::string connection_string = dst.substr(from + 4 + 4, using_pos - (from + 4 + 5));
-    size_t at_pos = connection_string.find("@", 0);
 
-    std::string user_password = connection_string.substr(0, at_pos);
-    size_t colon_pos = user_password.find(":");
-    std::string server_table = connection_string.substr(at_pos + 1, connection_string.length());
-    size_t slash_pos = server_table.find("/");
-
-    std::string username = user_password.substr(0, colon_pos);
-    std::string password = user_password.substr(colon_pos + 1, user_password.length());
-    std::string dsn = server_table.substr(0, slash_pos);
-
-    state_backend = std::make_unique<DBStateBackend>(dsn, username, password);
+    state_backend = std::make_unique<DBStateBackend>(connection_string);
     state_backend->connect();
   } else if ((dst_pos = dst.find(FILE_DST, from)) != std::string::npos) {
     // create File state backend

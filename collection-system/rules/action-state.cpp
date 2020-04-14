@@ -51,15 +51,14 @@ int FileStateBackend::lookup_state(char *state_buffer, std::string rule_id, std:
  * DBStateBackend
  *------------------------------*/
 
-DBStateBackend::DBStateBackend(std::string dsn_name, std::string username,
-    std::string password) :
-    dsn(dsn_name), user(username), pw(password) {
-  db_conn = std::make_unique<OdbcConnector>(dsn, user, pw);
+DBStateBackend::DBStateBackend(std::string conn) :
+    connection_string (conn) {
+  db_conn = ConnectorFactory::create_connector(connection_string);
 }
 
 int DBStateBackend::connect() {
   if (db_conn->connect() != DB_SUCCESS) {
-    LOG_ERROR("Error while connecting to source DB " << dsn);
+    LOG_ERROR("Error while connecting to source DB " << connection_string);
     return ERROR_NO_RETRY;
   }
   return NO_ERROR;

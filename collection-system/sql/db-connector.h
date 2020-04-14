@@ -80,6 +80,11 @@ private:
   std::string pw;
 };
 
+class ConnectorFactory {
+public:
+  static std::unique_ptr<DBConnector> create_connector(std::string connection_string);
+};
+
 /**
  * Custom exception for DB connection failures.
  */

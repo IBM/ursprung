@@ -81,12 +81,10 @@ TEST(file_output_stream_test, test1) {
  *-----------------------------------------------------------------------------------*/
 
 TEST(db_output_stream_test, test_dummies) {
-  std::string dsn = "dsn";
-  std::string user = "user";
-  std::string pw = "pw";
+  std::string conn = "user:password@dsn";
   std::string schema = "schema";
   std::string table = "table";
-  DBOutputStream s(dsn, user, pw, schema, table, false);
+  DBOutputStream s(conn, schema, table, false);
   s.set_batch_size(5);
 
   // does nothing
@@ -97,12 +95,10 @@ TEST(db_output_stream_test, test_dummies) {
 }
 
 TEST(db_output_stream_test, DISABLED_test_send_batch_sync) {
-  std::string dsn = "dsn";
-  std::string user = "user";
-  std::string pw = "pw";
+  std::string conn = "user:password@dsn";
   std::string schema = "col";
   std::string table = "testtable";
-  DBOutputStream s(dsn, user, pw, schema, table, false);
+  DBOutputStream s(conn, schema, table, false);
   s.set_batch_size(5);
 
   // create first batch
@@ -114,12 +110,10 @@ TEST(db_output_stream_test, DISABLED_test_send_batch_sync) {
 }
 
 TEST(db_output_stream_test, DISABLED_test_send_batch_sync_multiplexed) {
-  std::string dsn = "dsn";
-  std::string user = "user";
-  std::string pw = "pw";
+  std::string conn = "user:password@dsn";
   std::string schema = "col";
   std::string table = "testtable";
-  DBOutputStream s(dsn, user, pw, schema, table, false, true, 0);
+  DBOutputStream s(conn, schema, table, false, true, 0);
   s.set_batch_size(5);
 
   s.set_multiplex_group("tableA", "keyA,val", "A");
@@ -137,12 +131,10 @@ TEST(db_output_stream_test, DISABLED_test_send_batch_sync_multiplexed) {
 }
 
 TEST(db_output_stream_test, DISABLED_test_send_batch_async) {
-  std::string dsn = "dsn";
-  std::string user = "user";
-  std::string pw = "pw";
+  std::string conn = "user:password@dsn";
   std::string schema = "col";
   std::string table = "testtable";
-  DBOutputStream s(dsn, user, pw, schema, table, true);
+  DBOutputStream s(conn, schema, table, true);
   s.set_batch_size(5);
 
   // create first batch

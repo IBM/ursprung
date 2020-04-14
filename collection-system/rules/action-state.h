@@ -88,13 +88,11 @@ public:
  */
 class DBStateBackend: public ActionStateBackend {
 private:
-  std::string dsn;
-  std::string user;
-  std::string pw;
+  std::string connection_string;
   std::unique_ptr<DBConnector> db_conn;
 
 public:
-  DBStateBackend(std::string dsn_name, std::string username, std::string password);
+  DBStateBackend(std::string conn);
   virtual ~DBStateBackend() {}
 
   virtual int connect() override;

@@ -57,7 +57,10 @@ private:
   std::thread inserter;
   b_queue_t batch_queue;
   bool running = true;
-  dsn_t dsn;
+  /* DB connection parameters. */
+  std::string connection_string;
+  std::string table;
+  std::string schema;
 
   /*
    * Takes a CSV string as input and returns a newly formatted string, ready
@@ -84,8 +87,7 @@ private:
   void send_async(std::vector<std::string> records);
 
 public:
-  DBOutputStream(const std::string &dsn, const std::string &username,
-      const std::string &passwd, const std::string &dbSchema,
+  DBOutputStream(const std::string &conn, const std::string &dbSchema,
       const std::string &tablename, bool async, bool multiplex = false, int pos = -1);
   ~DBOutputStream();
 

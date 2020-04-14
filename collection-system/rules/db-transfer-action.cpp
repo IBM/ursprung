@@ -19,7 +19,7 @@
 #include "action.h"
 #include "db-output-stream.h"
 
-const std::regex DB_TRANSFER_SYNTAX = std::regex("DBTRANSFER (.*)/[a-zA-Z0-9]* FROMDSN "
+const std::regex DB_TRANSFER_SYNTAX = std::regex("DBTRANSFER (.*)/[a-zA-Z0-9]* FROM "
     "[a-zA-Z0-9]* TO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
 
 DBTransferAction::DBTransferAction(std::string action) {
@@ -33,15 +33,15 @@ DBTransferAction::DBTransferAction(std::string action) {
   }
 
   // parse action
-  size_t from_dsn_pos = action.find("FROMDSN", 0);
+  size_t from_pos = action.find("FROM", 0);
   std::string query_state_field = action.substr(DB_TRANSFER_RULE.length() + 1,
-      from_dsn_pos - (DB_TRANSFER_RULE.length() + 2));
+      from_pos - (DB_TRANSFER_RULE.length() + 2));
   size_t slash_pos = query_state_field.find("/");
   query = query_state_field.substr(0, slash_pos);
   state_attribute_name = query_state_field.substr(slash_pos + 1, query_state_field.length());
 
   size_t into_pos = action.find("INTO", 0);
-  odbc_dsn = action.substr(from_dsn_pos + 7 + 1, into_pos - (from_dsn_pos + 7 + 2));
+  connection_string = action.substr(from_pos + 7 + 1, into_pos - (from_pos + 7 + 2));
 
   // parse output destination and set up stream
   if (init_output_stream(action, into_pos) != NO_ERROR) {
@@ -54,9 +54,9 @@ DBTransferAction::DBTransferAction(std::string action) {
   }
 
   // set up ODBC connection to source database
-  source_db_wrapper = std::make_unique<OdbcConnector>(odbc_dsn, "", "");
+  source_db_wrapper = ConnectorFactory::create_connector(connection_string);
   if (source_db_wrapper->connect() != DB_SUCCESS) {
-    LOG_ERROR("Error while connecting to source DB " << odbc_dsn);
+    LOG_ERROR("Error while connecting to source DB " << connection_string);
     throw DBConnectionException();
   }
 }
@@ -153,7 +153,7 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
 }
 
 std::string DBTransferAction::str() const {
-  return "DBTRANSFER " + query + " FROM " + odbc_dsn + " INTO " + out->str();
+  return "DBTRANSFER " + query + " FROM " + connection_string + " INTO " + out->str();
 }
 
 std::string DBTransferAction::get_type() const {

@@ -21,11 +21,11 @@
 #include "error.h"
 #include "logger.h"
 
-DBOutputStream::DBOutputStream(const std::string &dsn,
-    const std::string &username, const std::string &passwd,
-    const std::string &db_schema, const std::string &tablename, bool async_val,
-    bool multiplex_val, int pos) :
-    dsn { dsn, username, passwd, db_schema, tablename },
+DBOutputStream::DBOutputStream(const std::string &conn, const std::string &db_schema,
+    const std::string &tablename, bool async_val, bool multiplex_val, int pos) :
+    connection_string { conn },
+    schema { db_schema },
+    table { tablename },
     multiplex { multiplex_val },
     async { async_val } {
   if (async) {
@@ -77,8 +77,7 @@ void DBOutputStream::flush() const {
 }
 
 std::string DBOutputStream::str() const {
-  return dsn.username + ":" + "@" + dsn.dsn_name
-      + "/" + dsn.tablename + " USING " + dsn.db_schema;
+  return connection_string + " USING " + table + "/" + schema;
 }
 
 int DBOutputStream::send(const std::string &msg_str, int partition, const std::string *key) {
@@ -218,18 +217,18 @@ int DBOutputStream::send_to_db(const std::vector<std::string> &batch,
   LOG_DEBUG(query);
 
   // connect to the database and submit the query
-  OdbcConnector odbc_wrapper(dsn.dsn_name, dsn.username, dsn.password);
-  err = odbc_wrapper.connect();
+  std::unique_ptr<DBConnector> db_conn = ConnectorFactory::create_connector(connection_string);
+  err = db_conn->connect();
   if (err != DB_SUCCESS) {
-    LOG_ERROR("Error while connecting to target DB " << dsn.dsn_name);
+    LOG_ERROR("Error while connecting to target DB " << connection_string);
     throw DBConnectionException();
   }
-  err = odbc_wrapper.submit_query(query);
+  err = db_conn->submit_query(query);
   if (err != DB_SUCCESS) {
     LOG_ERROR("Problems when submitting query " << query << " to database: " << err);
     rc = ERROR_NO_RETRY;
   }
-  odbc_wrapper.disconnect();
+  db_conn->disconnect();
 
   return rc;
 }
