@@ -21,19 +21,6 @@
 #include "db-connector.h"
 
 /*------------------------------
- * MockConnector
- *------------------------------*/
-
-class MockConnector: public DBConnector {
-public:
-  MOCK_METHOD(db_rc, connect, (), (override));
-  MOCK_METHOD(bool, is_connected, (), (override));
-  MOCK_METHOD(db_rc, disconnect, (), (override));
-  MOCK_METHOD(db_rc, submit_query, (std::string query), (override));
-  MOCK_METHOD(db_rc, get_row, (char *row_buffer), (override));
-};
-
-/*------------------------------
  * DBLoadAction
  *------------------------------*/
 
@@ -81,8 +68,8 @@ TEST(db_transfer_action_test, test1) {
 }
 
 TEST(db_transfer_action_test, test2) {
-  DBTransferAction a("DBTRANSFER select * from table/attr FROM user:password@db INTO "
-      "FILE dbtransfer-out", false);
+  DBTransferAction a("DBTRANSFER select * from table/attr FROM MOCK user:password@db INTO "
+      "FILE dbtransfer-out");
   EXPECT_EQ("select * from table", a.get_query());
   EXPECT_EQ("attr", a.get_state_attribute_name());
   EXPECT_EQ("user:password@db", a.get_connection_string());

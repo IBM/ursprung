@@ -170,16 +170,7 @@ private:
   std::unique_ptr<DBConnector> source_db_wrapper;
 
 public:
-  /*
-   * Contructor to create a new DBTransferAction.
-   *
-   * The init_db_conn parameter specifies, whether the action should
-   * connect to the source database, from which provenance information
-   * should be extracted, in the constructor. The parameter is mainly
-   * exists for testing purposes to avoid connection when no source
-   * database is present.
-   */
-  DBTransferAction(std::string action, bool init_db_conn = true);
+  DBTransferAction(std::string action);
   virtual ~DBTransferAction() {};
 
   std::string get_query() const { return query; }

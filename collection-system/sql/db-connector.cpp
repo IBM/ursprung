@@ -294,6 +294,35 @@ db_rc OdbcConnector::get_row(char *row_buffer) {
 }
 
 /*------------------------------
+ * MockConnector
+ *------------------------------*/
+
+db_rc MockConnector::connect() {
+  LOG_INFO("Connecting to MockConnector");
+  return DB_SUCCESS;
+}
+
+bool MockConnector::is_connected() {
+  return true;
+}
+
+db_rc MockConnector::disconnect() {
+  LOG_INFO("Disconnecting from MockConnector");
+  return DB_SUCCESS;
+}
+
+db_rc MockConnector::submit_query(std::string query) {
+  LOG_INFO(query);
+  return DB_SUCCESS;
+}
+
+db_rc MockConnector::get_row(char *row_buffer) {
+  const char* row = "a,b,c";
+  strcpy(row_buffer, row);
+  return DB_SUCCESS;
+}
+
+/*------------------------------
  * ConnectorFactory
  *------------------------------*/
 
@@ -301,17 +330,23 @@ std::unique_ptr<DBConnector> ConnectorFactory::create_connector(
     std::string connection_string) {
   // TODO error handling if wrongly formatted string is received
 
-  // At the moment, we only support creating OdbcConnectors, expecting
-  // a connection string of username:password@dsn
-  size_t at_pos = connection_string.find("@", 0);
-  std::string user_password = connection_string.substr(0, at_pos);
-  size_t colon_pos = user_password.find(":");
+  size_t db_type_pos;
+  if ((db_type_pos = connection_string.find(MOCK_DB, 0)) != std::string::npos) {
+    return std::make_unique<MockConnector>();
+  } else if  ((db_type_pos = connection_string.find(ODBC_DB, 0)) != std::string::npos) {
+    size_t at_pos = connection_string.find("@", 0);
+    std::string user_password = connection_string.substr(5, at_pos);
+    size_t colon_pos = user_password.find(":");
 
-  std::string dsn = connection_string.substr(at_pos + 1,
-      connection_string.length());
-  std::string username = user_password.substr(0, colon_pos);
-  std::string password = user_password.substr(colon_pos + 1,
-      user_password.length());
+    std::string dsn = connection_string.substr(at_pos + 1,
+        connection_string.length());
+    std::string username = user_password.substr(0, colon_pos);
+    std::string password = user_password.substr(colon_pos + 1,
+        user_password.length());
 
-  return std::make_unique<OdbcConnector>(dsn, username, password);
+    return std::make_unique<OdbcConnector>(dsn, username, password);
+  } else {
+    LOG_ERROR("No valid database type found in connector string.");
+    throw DBConnectionException();
+  }
 }

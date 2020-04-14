@@ -37,6 +37,9 @@ typedef struct dsn {
   std::string tablename;
 } dsn_t;
 
+// possible DB types
+const std::string MOCK_DB = "MOCK";
+const std::string ODBC_DB = "ODBC";
 
 /**
  * This class defines the interface for a database connector
@@ -78,6 +81,22 @@ private:
   std::string dsn_name;
   std::string user;
   std::string pw;
+};
+
+/**
+ * This is a mock connector and should only be used for
+ * testing.
+ */
+class MockConnector: public DBConnector {
+public:
+  MockConnector(std::string dsn, std::string user, std::string pw);
+  ~MockConnector();
+
+  virtual db_rc connect() override;
+  virtual bool is_connected() override;
+  virtual db_rc disconnect() override;
+  virtual db_rc submit_query(std::string query) override;
+  virtual db_rc get_row(char *row_buffer) override;
 };
 
 class ConnectorFactory {
