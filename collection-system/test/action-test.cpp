@@ -55,8 +55,8 @@ TEST(db_load_action_test, test_execute) {
 }
 
 TEST(db_load_action_test, test_str) {
-  DBLoadAction a("DBLOAD f1 INTO DB user1:password2@dsn3 USING table4/schema5");
-  EXPECT_EQ("DBLOAD f1 INTO user1:password2@dsn3 USING table4/schema5", a.str());
+  DBLoadAction a("DBLOAD f1 INTO DB ODBC user1:password2@dsn3 USING table4/schema5");
+  EXPECT_EQ("DBLOAD f1 INTO ODBC user1:password2@dsn3 USING table4/schema5", a.str());
 }
 
 /*------------------------------
@@ -95,4 +95,11 @@ TEST(db_transfer_action_test, test_execute) {
   EXPECT_EQ("a0,b0,c0", lines[0]);
   EXPECT_EQ("a1,b1,c1", lines[1]);
   EXPECT_EQ("a2,b2,c2", lines[2]);
+}
+
+TEST(db_transfer_action_test, test_str) {
+  DBTransferAction a("DBTRANSFER select a,b,c from table/attr FROM MOCK user:password@db INTO "
+      "DB ODBC user1:password2@dsn3 USING table4/schema5");
+  EXPECT_EQ("DBTRANSFER select a,b,c from table/attr FROM MOCK user:password@db INTO "
+      "ODBC user1:password2@dsn3 USING table4/schema5", a.str());
 }

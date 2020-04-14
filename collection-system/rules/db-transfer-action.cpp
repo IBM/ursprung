@@ -152,7 +152,8 @@ int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
 }
 
 std::string DBTransferAction::str() const {
-  return "DBTRANSFER " + query + " FROM " + connection_string + " INTO " + out->str();
+  return "DBTRANSFER " + query + "/" + state_attribute_name + " FROM "
+      + connection_string + " INTO " + out->str();
 }
 
 std::string DBTransferAction::get_type() const {
