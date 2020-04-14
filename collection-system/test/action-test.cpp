@@ -15,8 +15,27 @@
  */
 
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 #include "action.h"
 #include "error.h"
+#include "db-connector.h"
+
+/*------------------------------
+ * MockConnector
+ *------------------------------*/
+
+class MockConnector: public DBConnector {
+public:
+  MOCK_METHOD(db_rc, connect, (), (override));
+  MOCK_METHOD(bool, is_connected, (), (override));
+  MOCK_METHOD(db_rc, disconnect, (), (override));
+  MOCK_METHOD(db_rc, submit_query, (std::string query), (override));
+  MOCK_METHOD(db_rc, get_row, (char *row_buffer), (override));
+};
+
+/*------------------------------
+ * DBLoadAction
+ *------------------------------*/
 
 TEST(db_load_action_test, test1) {
   EXPECT_THROW(DBLoadAction a(""), std::invalid_argument);
@@ -51,4 +70,20 @@ TEST(db_load_action_test, test3) {
 TEST(db_load_action_test, test4) {
   DBLoadAction a("DBLOAD f1 INTO DB user1:password2@dsn3 USING table4/schema5");
   EXPECT_EQ("DBLOAD f1 INTO user1:password2@dsn3 USING table4/schema5", a.str());
+}
+
+/*------------------------------
+ * DBTransferAction
+ *------------------------------*/
+
+TEST(db_transfer_action_test, test1) {
+  EXPECT_THROW(DBTransferAction a(""), std::invalid_argument);
+}
+
+TEST(db_transfer_action_test, test2) {
+  DBTransferAction a("DBTRANSFER select * from table/attr FROM user:password@db INTO "
+      "FILE dbtransfer-out", false);
+  EXPECT_EQ("select * from table", a.get_query());
+  EXPECT_EQ("attr", a.get_state_attribute_name());
+  EXPECT_EQ("user:password@db", a.get_connection_string());
 }

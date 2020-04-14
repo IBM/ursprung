@@ -20,9 +20,9 @@
 #include "db-output-stream.h"
 
 const std::regex DB_TRANSFER_SYNTAX = std::regex("DBTRANSFER (.*)/[a-zA-Z0-9]* FROM "
-    "[a-zA-Z0-9]* TO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
+    "(.*):(.*)@(.*) INTO (FILE (.*)|DB (.*):(.*)@(.*) USING (.*)/(.*))");
 
-DBTransferAction::DBTransferAction(std::string action) {
+DBTransferAction::DBTransferAction(std::string action, bool init_db_conn) {
   // check that the action has the right syntax
   if (!std::regex_match(action, DB_TRANSFER_SYNTAX)) {
     LOG_ERROR("DBTransferAction " << action << " is not specified correctly.");
@@ -41,7 +41,7 @@ DBTransferAction::DBTransferAction(std::string action) {
   state_attribute_name = query_state_field.substr(slash_pos + 1, query_state_field.length());
 
   size_t into_pos = action.find("INTO", 0);
-  connection_string = action.substr(from_pos + 7 + 1, into_pos - (from_pos + 7 + 2));
+  connection_string = action.substr(from_pos + 4 + 1, into_pos - (from_pos + 4 + 2));
 
   // parse output destination and set up stream
   if (init_output_stream(action, into_pos) != NO_ERROR) {
@@ -54,10 +54,12 @@ DBTransferAction::DBTransferAction(std::string action) {
   }
 
   // set up ODBC connection to source database
-  source_db_wrapper = ConnectorFactory::create_connector(connection_string);
-  if (source_db_wrapper->connect() != DB_SUCCESS) {
-    LOG_ERROR("Error while connecting to source DB " << connection_string);
-    throw DBConnectionException();
+  if (init_db_conn) {
+    source_db_wrapper = ConnectorFactory::create_connector(connection_string);
+    if (source_db_wrapper->connect() != DB_SUCCESS) {
+      LOG_ERROR("Error while connecting to source DB " << connection_string);
+      throw DBConnectionException();
+    }
   }
 }
 
