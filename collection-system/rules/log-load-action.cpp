@@ -27,7 +27,7 @@
 #define MAX_LINE_LENGTH 4096
 
 const std::regex LOG_LOAD_SYNTAX = std::regex("LOGLOAD [a-zA-Z0-9]* MATCH (.)* FIELDS "
-    "(.)* DELIM (.*) INTO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
+    "(.)* DELIM (.*) INTO (FILE (.*)|DB (.*):(.*)@(.*) USING (.*)/(.*))");
 
 /**
  * Helper function to extract a record from a line based on a specified
@@ -102,8 +102,9 @@ LogLoadAction::LogLoadAction(std::string action) {
       match_pos - (LOG_LOAD_RULE.length() + 2));
 
   size_t fields_pos = action.find("FIELDS", match_pos);
-  matching_string = std::regex("(.*)" + action.substr(
-      match_pos + 6, fields_pos - (match_pos + 5 + 2)) + "(.*)");
+  matching_string_str = "(.*)" + action.substr(
+      match_pos + 6, fields_pos - (match_pos + 5 + 2)) + "(.*)";
+  matching_string = std::regex(matching_string_str);
 
   size_t delim_pos = action.find("DELIM", fields_pos);
   std::string fields_string = action.substr(fields_pos + 7, delim_pos - (fields_pos + 6 + 2));
@@ -318,11 +319,11 @@ std::string LogLoadAction::str() const {
     if (i != 0) {
       ss << ",";
     }
-    ss << fields[i];
+    ss << fields[i]->str();
   }
 
-  return "LOGLOAD " + event_field + " MATCH " + " FIELDS " + ss.str() + " DELIM "
-      + delimiter + " INTO " + out->str();
+  return "LOGLOAD " + event_field + " MATCH " + matching_string_str + " FIELDS " + ss.str()
+      + " DELIM " + delimiter + " INTO " + out->str();
 }
 
 std::string LogLoadAction::get_type() const {

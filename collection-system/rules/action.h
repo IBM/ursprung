@@ -211,6 +211,7 @@ private:
    */
   parse_state_t parsing_state;
   std::string event_field;
+  std::string matching_string_str;
   std::regex matching_string;
   std::string delimiter;
   std::vector<LogLoadField*> fields;
@@ -223,7 +224,7 @@ public:
   virtual ~LogLoadAction();
 
   std::string get_event_field() const { return event_field; }
-  std::regex get_matching_string() const { return matching_string; }
+  std::string get_matching_string() const { return matching_string_str; }
   std::string get_delimiter() const { return delimiter; }
   std::vector<LogLoadField*> get_fields() const { return fields; }
 
@@ -345,6 +346,7 @@ public:
   int get_timeoffset() { return timeoffset; }
   std::string get_field_name() { return field_name; }
   std::vector<int> get_field_ids() { return field_ids; }
+  std::string str();
 };
 
 #endif /* RULES_ACTION_H_ */

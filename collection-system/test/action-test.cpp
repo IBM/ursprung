@@ -103,3 +103,30 @@ TEST(db_transfer_action_test, test_str) {
   EXPECT_EQ("DBTRANSFER select a,b,c from table/attr FROM MOCK user:password@db INTO "
       "ODBC user1:password2@dsn3 USING table4/schema5", a.str());
 }
+
+/*------------------------------
+ * LogLoadAction
+ *------------------------------*/
+
+TEST(log_load_action_test, test_invalid_creation) {
+  EXPECT_THROW(LogLoadAction a(""), std::invalid_argument);
+}
+
+TEST(log_load_action_test, test_valid_creation) {
+  LogLoadAction a("LOGLOAD path MATCH some-entry FIELDS 0,1,3-5 DELIM , INTO "
+      "FILE logload-out");
+  EXPECT_EQ("path", a.get_event_field());
+  EXPECT_EQ("(.*)some-entry(.*)", a.get_matching_string());
+  EXPECT_EQ(",", a.get_delimiter());
+}
+
+TEST(log_load_action_test, test_execute) {
+
+}
+
+TEST(log_load_action_test, test_str) {
+  LogLoadAction a("LOGLOAD path MATCH some-entry FIELDS 0,1,3-5 DELIM , INTO "
+      "DB ODBC user1:password2@dsn3 USING table4/schema5");
+  EXPECT_EQ("LOGLOAD path MATCH (.*)some-entry(.*) FIELDS 0,1,3-5 DELIM , INTO ODBC "
+      "user1:password2@dsn3 USING table4/schema5", a.str());
+}

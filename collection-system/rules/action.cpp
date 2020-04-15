@@ -269,3 +269,21 @@ LogLoadField::LogLoadField(std::string field) {
     throw;
   }
 }
+
+std::string LogLoadField::str() {
+  if (is_timestamp) {
+    return std::to_string(field_id) + "/" + std::to_string(timeoffset);
+  } else if (is_event_field_name) {
+    return field_name;
+  } else if (is_range) {
+    return std::to_string(field_id) + "-" + std::to_string(until_field_id);
+  } else if (is_composite) {
+    std::stringstream ss;
+    for (size_t i = 0; i < field_ids.size(); i++) {
+      ss << field_ids[i] << (i == field_ids.size() - 1 ? "" : "+");
+    }
+    return ss.str();
+  } else {
+    return std::to_string(field_id);
+  }
+}
