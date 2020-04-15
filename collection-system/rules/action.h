@@ -251,6 +251,7 @@ class TrackAction: public Action {
 private:
   std::regex path_regex;
   std::string path_regex_str;
+  std::string repo_path;
   hg_handle *repo_handle;
   /*
    * This map stores the inode for a CLOSE WRITE event, for
@@ -268,7 +269,8 @@ public:
   TrackAction(std::string action);
   virtual ~TrackAction();
 
-  std::regex get_path_regex() const { return path_regex; }
+  std::string get_path_regex() const { return path_regex_str; }
+  std::string get_repo_path() const { return repo_path; }
   virtual int execute(std::shared_ptr<IntermediateMessage>) override;
   virtual std::string str() const override;
   virtual std::string get_type() const override;

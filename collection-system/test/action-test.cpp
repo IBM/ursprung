@@ -185,3 +185,30 @@ TEST(log_load_action_test, test_str) {
   EXPECT_EQ("LOGLOAD path MATCH (.*)some-entry(.*) FIELDS 0,1,3-5 DELIM , INTO MOCK "
       "user1:password2@dsn3 USING table4/schema5", a.str());
 }
+
+/*------------------------------
+ * TrackAction
+ *------------------------------*/
+
+TEST(track_action_test, test_invalid_creation) {
+  EXPECT_THROW(TrackAction a(""), std::invalid_argument);
+}
+
+TEST(track_action_test, test_valid_creation) {
+  TrackAction a("TRACK /tmp/(.*).py AT /my/repo INTO FILE track-out");
+  EXPECT_EQ("/tmp/(.*).py", a.get_path_regex());
+  EXPECT_EQ("/my/repo", a.get_repo_path());
+}
+
+// TODO add test for TrackAction.execute()
+
+TEST(track_action_test, test_str) {
+  TrackAction a("TRACK /tmp/(.*).py AT /my/repo INTO DB MOCK user1:password2@dsn3 "
+      "USING table4/schema5");
+  EXPECT_EQ("TRACK /tmp/(.*).py AT /my/repo INTO MOCK user1:password2@dsn3 "
+      "USING table4/schema5", a.str());
+}
+
+/*------------------------------
+ * StdoutCaptureAction
+ *------------------------------*/

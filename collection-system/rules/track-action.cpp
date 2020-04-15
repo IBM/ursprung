@@ -21,9 +21,9 @@
 
 #include "action.h"
 
-// TODO make configurable
-const std::string REPO_LOCATION = "/opt/ibm/metaocean/contenttracking";
-const std::regex TRACK_SYNTAX = std::regex("TRACK (.*) INTO (.*):(.*)@(.*):[0-9]*");
+const std::string DEFAULT_REPO_LOCATION = "/tmp/ursprung/contenttracking";
+const std::regex TRACK_SYNTAX = std::regex("TRACK (.*) AT (.*) "
+    "INTO (FILE (.*)|DB (.*):(.*)@(.*) USING (.*)/(.*))");
 
 /**
  * Parse the return code of an hg command.
@@ -71,26 +71,47 @@ TrackAction::TrackAction(std::string action) {
   }
 
   // parse action
+  size_t at_pos = action.find("AT", 0);
   size_t into_pos = action.find("INTO", 0);
-  path_regex = std::regex(action.substr(TRACK_RULE.length() + 1,
-      into_pos - (TRACK_RULE.length() + 2)));
-  path_regex_str = action.substr(TRACK_RULE.length() + 1, into_pos - (TRACK_RULE.length() + 2));
+  size_t regex_end;
+  if (at_pos == action.npos) {
+    repo_path = DEFAULT_REPO_LOCATION;
+    regex_end = into_pos;
+  } else {
+    repo_path = action.substr(at_pos + 3, into_pos - 1 - (at_pos + 3));
+    regex_end = at_pos;
+  }
+  path_regex_str = action.substr(TRACK_RULE.length() + 1, regex_end - (TRACK_RULE.length() + 2));
+  path_regex = std::regex(path_regex_str);
 
   // initialize action state
   if (init_output_stream(action, into_pos) != NO_ERROR) {
     throw std::invalid_argument(action + " could not create state.");
   }
 
-  repo_handle = hg_open(REPO_LOCATION.c_str(), NULL);
+  repo_handle = hg_open(repo_path.c_str(), NULL);
+  if (!repo_handle) {
+    // TODO should we initialize the repo if it doesn't exist?
+    LOG_ERROR("Couldn't establish connection to target repo at " << repo_path
+        << ". Content tracking will not be available.");
+  }
 }
 
 TrackAction::~TrackAction() {
   // destructor handles disconnection
-  hg_close(&repo_handle);
+  if (repo_handle) {
+    hg_close(&repo_handle);
+  }
 }
 
 int TrackAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   LOG_DEBUG("Executing TrackAction " << this->str());
+
+  // check if we have a connection to the target repo
+  if (!repo_handle) {
+    LOG_WARN("Not executing " << this->str() << " as no repo connection established.");
+    return ERROR_NO_RETRY;
+  }
 
   std::string src = msg->get_value("path");
   std::string inode = msg->get_value("inode");
@@ -115,7 +136,7 @@ int TrackAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   }
 
   // TODO can we improve this and replace the system() call?
-  std::string cmd = "cp " + src + " " + REPO_LOCATION + "/" + inode;
+  std::string cmd = "cp " + src + " " + repo_path + "/" + inode;
 
   // FIXME Without stat'ing the src file, it can happen that there's an error during copying:
   // "cp: skipping file ‘/path/to/example’, as it was replaced while being copied"
@@ -138,7 +159,7 @@ int TrackAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   // run 'hg add .'
   std::string std_out;
   std::string std_err;
-  const char *add[] = { "add", ".", "--cwd", REPO_LOCATION.c_str(), NULL };
+  const char *add[] = { "add", ".", "--cwd", repo_path.c_str(), NULL };
   hg_rawcommand(repo_handle, (char**) add);
   if (parse_hg_return_code(repo_handle, std_out, std_err) != 0) {
     LOG_ERROR("Problems while running hg add: " << std_err
@@ -149,7 +170,7 @@ int TrackAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   // run 'hg commit'
   std_out = "";
   std_err = "";
-  const char *commit[] = { "commit", "-m", "commit", "--cwd", REPO_LOCATION.c_str(), NULL };
+  const char *commit[] = { "commit", "-m", "commit", "--cwd", repo_path.c_str(), NULL };
   hg_rawcommand(repo_handle, (char**) commit);
   if (parse_hg_return_code(repo_handle, std_out, std_err) != 0) {
     LOG_ERROR("Problems while running hg commit: " << std_err
@@ -160,7 +181,7 @@ int TrackAction::execute(std::shared_ptr<IntermediateMessage> msg) {
   // get the commit ID from the last commit
   std_out = "";
   std_err = "";
-  const char *identify[] = { "--debug", "identify", "-i", "--cwd", REPO_LOCATION.c_str(), NULL };
+  const char *identify[] = { "--debug", "identify", "-i", "--cwd", repo_path.c_str(), NULL };
   hg_rawcommand(repo_handle, (char**) identify);
   if (parse_hg_return_code(repo_handle, std_out, std_err) != 0) {
     LOG_ERROR("Problems while running hg identify: " << std_err
@@ -192,7 +213,7 @@ int TrackAction::execute(std::shared_ptr<IntermediateMessage> msg) {
 }
 
 std::string TrackAction::str() const {
-  return "TRACK " + path_regex_str;
+  return "TRACK " + path_regex_str + " AT " + repo_path + " INTO " + out->str();
 }
 
 std::string TrackAction::get_type() const {
