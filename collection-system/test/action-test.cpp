@@ -232,3 +232,46 @@ TEST(stdoutcapture_action_test, test_str) {
   EXPECT_EQ("CAPTURESOUT MATCH (.*)train.py FIELDS 0,1,2 DELIM , INTO "
       "MOCK user1:password2@dsn3 USING table4/schema5", a.str());
 }
+
+/*------------------------------
+ * LogLoadField
+ *------------------------------*/
+
+TEST(logloadfield_test, test_plain_field) {
+  LogLoadField f("1");
+  EXPECT_EQ(1, f.get_field_id());
+}
+
+TEST(logloadfield_test, test_timestamp_field) {
+  LogLoadField f("1/8");
+  EXPECT_TRUE(f.is_timestamp_field());
+  EXPECT_EQ(1, f.get_field_id());
+  EXPECT_EQ(8, f.get_timeoffset());
+}
+
+TEST(logloadfield_test, test_range_field) {
+  LogLoadField f1("1-3");
+  EXPECT_TRUE(f1.is_range_field());
+  EXPECT_EQ(1, f1.get_field_id());
+  EXPECT_EQ(3, f1.get_until_field_id());
+
+  LogLoadField f2("1-e");
+  EXPECT_TRUE(f2.is_range_field());
+  EXPECT_EQ(1, f2.get_field_id());
+  EXPECT_EQ(-1, f2.get_until_field_id());
+}
+
+TEST(logloadfield_test, test_event_field) {
+  LogLoadField f("path");
+  EXPECT_TRUE(f.is_event_field());
+  EXPECT_EQ("path", f.get_field_name());
+}
+
+TEST(logloadfield_test, test_composite_field) {
+  LogLoadField f("1+3+5");
+  EXPECT_TRUE(f.is_composite_field());
+  std::vector<int> ids = f.get_field_ids();
+  EXPECT_EQ(1, ids[0]);
+  EXPECT_EQ(3, ids[1]);
+  EXPECT_EQ(5, ids[2]);
+}
