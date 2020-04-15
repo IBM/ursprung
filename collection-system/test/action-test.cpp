@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <cstdio>
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "action.h"
@@ -99,14 +101,24 @@ TEST(db_transfer_action_test, test_execute) {
 
 TEST(db_transfer_action_test, test_str) {
   DBTransferAction a("DBTRANSFER select a,b,c from table/attr FROM MOCK user:password@db INTO "
-      "DB ODBC user1:password2@dsn3 USING table4/schema5");
+      "DB MOCK user1:password2@dsn3 USING table4/schema5");
   EXPECT_EQ("DBTRANSFER select a,b,c from table/attr FROM MOCK user:password@db INTO "
-      "ODBC user1:password2@dsn3 USING table4/schema5", a.str());
+      "MOCK user1:password2@dsn3 USING table4/schema5", a.str());
 }
 
 /*------------------------------
  * LogLoadAction
  *------------------------------*/
+
+std::vector<std::string> read_file(std::string path) {
+  std::ifstream in_file(path);
+  std::string line;
+  std::vector<std::string> lines;
+  while (std::getline(in_file, line)) {
+    lines.push_back(line);
+  }
+  return lines;
+}
 
 TEST(log_load_action_test, test_invalid_creation) {
   EXPECT_THROW(LogLoadAction a(""), std::invalid_argument);
@@ -121,12 +133,55 @@ TEST(log_load_action_test, test_valid_creation) {
 }
 
 TEST(log_load_action_test, test_execute) {
+  LogLoadAction a("LOGLOAD f1 MATCH some-entry FIELDS 0,1,3-5 DELIM , INTO "
+      "FILE logload-out");
+  std::ofstream out_file("test-log-load-action");
+  std::shared_ptr<IntermediateMessage> msg =
+      std::make_shared<TestIntermediateMessage>(CS_PROV_AUDITD, "test-log-load-action,f2,f3");
 
+  // first line
+  out_file << "first log line, no match" << std::endl;
+  a.execute(msg);
+  std::vector<std::string> lines = read_file("logload-out");
+  EXPECT_TRUE(lines.empty());
+
+  // second line
+  out_file << "second line,some-entry,matches,3,4,5" << std::endl;
+  a.execute(msg);
+  lines = read_file("logload-out");
+  EXPECT_EQ(1, lines.size());
+  EXPECT_EQ("second line,some-entry,3 4 5", lines[0]);
+
+  // third line, partial
+  out_file << "third line,some-";
+  a.execute(msg);
+  lines = read_file("logload-out");
+  EXPECT_EQ(1, lines.size());
+  EXPECT_EQ("second line,some-entry,3 4 5", lines[0]);
+  out_file << "entry,matches again,6,7,8" << std::endl;
+  a.execute(msg);
+  lines = read_file("logload-out");
+  EXPECT_EQ(2, lines.size());
+  EXPECT_EQ("second line,some-entry,3 4 5", lines[0]);
+  EXPECT_EQ("third line,some-entry,6 7 8", lines[1]);
+
+  // log rotation
+  out_file.close();
+  std::rename("test-log-load-action", "test-log-load-action.1");
+  std::ofstream out_file2("test-log-load-action");
+  out_file2 << "first log line, no match" << std::endl;
+  out_file2 << "second line,some-entry,matches,3,4,5" << std::endl;
+  a.execute(msg);
+  lines = read_file("logload-out");
+  EXPECT_EQ(3, lines.size());
+  EXPECT_EQ("second line,some-entry,3 4 5", lines[0]);
+  EXPECT_EQ("third line,some-entry,6 7 8", lines[1]);
+  EXPECT_EQ("second line,some-entry,3 4 5", lines[2]);
 }
 
 TEST(log_load_action_test, test_str) {
   LogLoadAction a("LOGLOAD path MATCH some-entry FIELDS 0,1,3-5 DELIM , INTO "
-      "DB ODBC user1:password2@dsn3 USING table4/schema5");
-  EXPECT_EQ("LOGLOAD path MATCH (.*)some-entry(.*) FIELDS 0,1,3-5 DELIM , INTO ODBC "
+      "DB MOCK user1:password2@dsn3 USING table4/schema5");
+  EXPECT_EQ("LOGLOAD path MATCH (.*)some-entry(.*) FIELDS 0,1,3-5 DELIM , INTO MOCK "
       "user1:password2@dsn3 USING table4/schema5", a.str());
 }

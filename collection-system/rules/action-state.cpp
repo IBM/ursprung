@@ -43,8 +43,8 @@ int FileStateBackend::update_state(std::string rule_id, std::string state, std::
 }
 
 int FileStateBackend::lookup_state(char *state_buffer, std::string rule_id, std::string target) {
-  // TODO implement
-  return NO_ERROR;
+  // TODO implement, for now just return no state exists
+  return ERROR_EOF;
 }
 
 /*------------------------------

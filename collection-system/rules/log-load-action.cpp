@@ -84,7 +84,6 @@ std::string extract_record_from_line(std::string line, std::string delimiter,
       }
     }
   }
-  record << std::endl;
 
   return record.str();
 }
@@ -205,6 +204,7 @@ int LogLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
     parsing_state[path].first = 0;
     parsing_state[path].second = inode;
     // TODO could there still be unread data in the old file?
+    LOG_INFO("It seems like log file " << path << " has been rotated. Extracting from new file.");
   }
 
   // open log file and seek to last parsed position
