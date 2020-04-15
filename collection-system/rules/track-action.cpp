@@ -84,7 +84,7 @@ TrackAction::TrackAction(std::string action) {
   path_regex_str = action.substr(TRACK_RULE.length() + 1, regex_end - (TRACK_RULE.length() + 2));
   path_regex = std::regex(path_regex_str);
 
-  // initialize action state
+  // parse output destination and set up stream
   if (init_output_stream(action, into_pos) != NO_ERROR) {
     throw std::invalid_argument(action + " could not create state.");
   }
