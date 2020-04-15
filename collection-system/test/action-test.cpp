@@ -212,3 +212,23 @@ TEST(track_action_test, test_str) {
 /*------------------------------
  * StdoutCaptureAction
  *------------------------------*/
+
+TEST(stdoutcapture_action_test, test_invalid_creation) {
+  EXPECT_THROW(StdoutCaptureAction a(""), std::invalid_argument);
+}
+
+TEST(stdoutcapture_action_test, test_valid_creation) {
+  StdoutCaptureAction a("CAPTURESOUT MATCH (.*)train.py FIELDS 0,1,2 DELIM , INTO "
+      "FILE stdout-capture-out");
+  EXPECT_EQ("(.*)train.py", a.get_matching_string());
+  EXPECT_EQ(",", a.get_delimiter());
+}
+
+// TODO add test for StdoutCaptureAction.execute()
+
+TEST(stdoutcapture_action_test, test_str) {
+  StdoutCaptureAction a("CAPTURESOUT MATCH (.*)train.py FIELDS 0,1,2 DELIM , INTO "
+      "DB MOCK user1:password2@dsn3 USING table4/schema5");
+  EXPECT_EQ("CAPTURESOUT MATCH (.*)train.py FIELDS 0,1,2 DELIM , INTO "
+      "MOCK user1:password2@dsn3 USING table4/schema5", a.str());
+}

@@ -21,7 +21,7 @@
 //#include "provd-client.h"
 
 const std::regex CAPTURESOUT_SYNTAX = std::regex("CAPTURESOUT MATCH (.)* FIELDS "
-    "(.)* DELIM (.*) INTO (.*):(.*)@(.*):[0-9]*/(.*) USING (.*)");
+    "(.)* DELIM (.*) INTO (FILE (.*)|DB (.*):(.*)@(.*) USING (.*)/(.*))");
 
 StdoutCaptureAction::StdoutCaptureAction(std::string action) {
   // check that the action has the right syntax
@@ -116,7 +116,7 @@ std::string StdoutCaptureAction::str() const {
     if (i != 0) {
       ss << ",";
     }
-    ss << fields[i];
+    ss << fields[i]->str();
   }
 
   return "CAPTURESOUT MATCH " + matching_string + " FIELDS " + ss.str() + " DELIM "
