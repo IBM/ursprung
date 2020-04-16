@@ -16,11 +16,39 @@
 
 #include <iostream>
 #include <getopt.h>
-#include <librdkafka/rdkafkacpp.h>
+#include <signal.h>
 
 #include "error.h"
 #include "config.h"
 #include "logger.h"
+
+// signal handling
+namespace signal_handling {
+static volatile sig_atomic_t running = 1;
+
+void term_handler(int sig) {
+  LOG_INFO("Shutting down...");
+  running = 0;
+}
+
+static void setup_handlers() {
+  struct sigaction sa;
+  // unblock all signals
+  sigfillset(&sa.sa_mask);
+  sigprocmask(SIG_UNBLOCK, &sa.sa_mask, 0);
+  sa.sa_flags = 0;
+  sigemptyset(&sa.sa_mask);
+  // by default, set ignore handler for all signals
+  sa.sa_handler = SIG_IGN;
+  for (int i = 1; i < NSIG; i++)
+    sigaction(i, &sa, NULL);
+  // now set the handlers for SIGTERM and SIGINT
+  sa.sa_handler = term_handler;
+  sigaction(SIGTERM, &sa, NULL);
+  sa.sa_handler = term_handler;
+  sigaction(SIGINT, &sa, NULL);
+}
+}
 
 void print_usage() {
   std::cout << "Usage :\n"
@@ -86,7 +114,7 @@ int main(int argc, char **argv) {
   if (parse_args(argc, argv)) {
     exit(-1);
   }
-
   // configure Logger
   Logger::set_log_file_name(Config::config[Config::CKEY_LOG_FILE]);
+  signal_handling::setup_handlers();
 }
