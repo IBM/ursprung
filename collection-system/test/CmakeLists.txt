@@ -23,7 +23,7 @@ if (APPLE)
   target_link_directories(${TEST_BIN} PUBLIC /usr/local/Cellar/openssl@1.1/1.1.1d/lib)
 endif (APPLE)
 
-target_link_libraries(${TEST_BIN} PUBLIC gtest gmock odbc boost_regex hg crypto)
+target_link_libraries(${TEST_BIN} PUBLIC gtest gmock odbc boost_regex hg crypto rdkafka++)
 
 add_custom_command(
   TARGET ${TEST_BIN}

@@ -10,4 +10,4 @@ add_executable(prov-consumer prov-consumer.cpp ${util-deps} ${io-deps} ${sql-dep
 # required on MacOS as it is not searched by default
 target_include_directories(prov-consumer PUBLIC /usr/local/include ../util ../io ../sql)
 target_link_directories(prov-consumer PUBLIC /usr/local/lib)
-target_link_libraries(prov-consumer rdkafka odbc)
+target_link_libraries(prov-consumer rdkafka++ odbc)
