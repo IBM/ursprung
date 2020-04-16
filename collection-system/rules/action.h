@@ -99,10 +99,10 @@ public:
   Action(const Action&) = delete;
   Action& operator=(const Action &x) = delete;
 
-  static std::shared_ptr<Action> parse_action(std::string action);
+  static std::unique_ptr<Action> parse_action(std::string action);
   void start_action_consumers(int numThreads);
   void stop_action_consumers();
-  void set_rule_iD(std::string rid) { rule_id = rid; }
+  void set_rule_id(std::string rid) { rule_id = rid; }
   a_queue_t* get_action_queue() { return action_queue; }
 
   // TODO make this configurable

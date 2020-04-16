@@ -52,18 +52,18 @@ std::string convert_date_field(std::string date, LogLoadField *field) {
  * Action
  *------------------------------*/
 
-std::shared_ptr<Action> Action::parse_action(std::string action) {
+std::unique_ptr<Action> Action::parse_action(std::string action) {
   try {
     if (action.substr(0, 6) == DB_LOAD_RULE) {
-      return std::make_shared<DBLoadAction>(action);
+      return std::make_unique<DBLoadAction>(action);
     } else if (action.substr(0, 10) == DB_TRANSFER_RULE) {
-      return std::make_shared<DBTransferAction>(action);
+      return std::make_unique<DBTransferAction>(action);
     } else if (action.substr(0, 7) == LOG_LOAD_RULE) {
-      return std::make_shared<LogLoadAction>(action);
+      return std::make_unique<LogLoadAction>(action);
     } else if (action.substr(0, 5) == TRACK_RULE) {
-      return std::make_shared<TrackAction>(action);
+      return std::make_unique<TrackAction>(action);
     } else if (action.substr(0, 11) == CAPTURESOUT_RULE) {
-      return std::make_shared<StdoutCaptureAction>(action);
+      return std::make_unique<StdoutCaptureAction>(action);
     } else {
       LOG_WARN("No action matched for provided action " << action);
       return nullptr;
