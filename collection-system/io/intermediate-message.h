@@ -26,7 +26,8 @@ enum ConsumerSource {
 
 enum ConsumerDestination {
   CD_DB2 = 0,
-  CD_POSTGRES = 1
+  CD_POSTGRES = 1,
+  CD_ODBC
 };
 
 /**
