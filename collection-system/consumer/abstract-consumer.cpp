@@ -90,13 +90,13 @@ int AbstractConsumer::run() {
         signal_handling::running = false;
       } else {
         // log and ignore error
-        LOG_DEBUG("Got error " < rc << " during receive. Continuing.");
+        LOG_WARN("Got error " < rc << " during receive. Continuing.");
       }
 
-      // check if the batch has timed out and if so, send it
       if (msg_buffer.size() > batch_size) {
         batch_done = true;
       } else {
+      // check if the batch has timed out and if so, send it
         auto curr_time = std::chrono::steady_clock::now();
         long elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 batch_start - curr_time).count();
