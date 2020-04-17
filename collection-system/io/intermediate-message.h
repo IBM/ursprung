@@ -81,4 +81,51 @@ public:
   virtual std::string get_value(std::string field) const override;
 };
 
+/**
+ * IntermedateMessage implementation representing a message received
+ * from a Spectrum Scale provenance source.
+ */
+class ScaleIntermediateMessage: public IntermediateMessage {
+private:
+  // message attributes
+  std::string event;
+  std::string cluster_name;
+  std::string node_name;
+  std::string fs_name;
+  std::string path;
+  std::string inode;
+  std::string bytes_read;
+  std::string bytes_written;
+  std::string pid;
+  std::string event_time;
+  std::string dst_path;
+  std::string mode;
+  std::string version_hash;
+
+public:
+  ScaleIntermediateMessage(ConsumerSource ist, const std::string &msgin);
+  ~ScaleIntermediateMessage() {}
+
+  virtual std::string normalize(ConsumerDestination cdst, std::string delim = ",") const override;
+  virtual std::string get_value(std::string field) const override;
+};
+
+/**
+ * IntermediateMessage implementation representing a message received
+ * from a auditd provenance source.
+ */
+class AuditdIntermediateMessage: public IntermediateMessage {
+private:
+  std::string node_name;
+  std::string send_time;
+
+public:
+  AuditdIntermediateMessage(std::string nodeName, std::string sendTime) :
+      node_name { nodeName }, send_time { sendTime } {}
+  ~AuditdIntermediateMessage() {}
+
+  virtual std::string normalize(ConsumerDestination cdst, std::string delim = ",") const override;
+  virtual std::string get_value(std::string field) const override;
+};
+
 #endif /* CONSUMER_INTERMEDIATE_MESSAGE_H_ */

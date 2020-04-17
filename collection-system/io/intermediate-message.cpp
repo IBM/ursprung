@@ -114,3 +114,89 @@ std::string TestIntermediateMessage::get_value(std::string field) const {
   else if (field == "f3") return f3;
   else return "";
 }
+
+/*------------------------------
+ * ScaleIntermediateMessage
+ *------------------------------*/
+
+ScaleIntermediateMessage::ScaleIntermediateMessage(ConsumerSource csrc,
+    const std::string &msgin) {
+  assert(csrc == CS_PROV_GPFS);
+  const int num_fields = 12;
+
+  // split on commas
+  std::stringstream ss(msgin);
+  std::string item;
+  std::vector<std::string> tokens;
+  while (getline(ss, item, ',')) {
+    tokens.push_back(item);
+  }
+
+  if (tokens.size() != num_fields) {
+    LOG_ERROR("Got " << tokens.size() << " tokens but expected " << num_fields
+        << " tokens in message <" << msgin << ">");
+    assert(0 == 1);
+  }
+
+  int i = 0;
+  event = tokens.at(i++);
+  cluster_name = tokens.at(i++);
+  node_name = tokens.at(i++);
+  fs_name = tokens.at(i++);
+  path = tokens.at(i++);
+  inode = tokens.at(i++);
+  bytes_read = tokens.at(i++);
+  bytes_written = tokens.at(i++);
+  pid = tokens.at(i++);
+  event_time = tokens.at(i++);
+  dst_path = tokens.at(i++);
+  mode = tokens.at(i++);
+}
+
+std::string ScaleIntermediateMessage::normalize(ConsumerDestination cdest,
+    std::string delim) const {
+  std::string normalized;
+  if (cdest == CD_DB2 || CD_POSTGRES) {
+    normalized = format_as_varchar(event, 20) + delim
+        + format_as_varchar(cluster_name, 32) + delim
+        + format_as_varchar(node_name, 128) + delim
+        + format_as_varchar(fs_name, 32) + delim + format_as_varchar(path, 256)
+        + delim + inode + delim + bytes_read + delim + bytes_written + delim
+        + pid + delim + format_as_varchar(event_time) + delim
+        + format_as_varchar(dst_path, 256) + delim
+        + format_as_varchar(version_hash, 32);
+  } else {
+    LOG_ERROR("Unsupported destination, can't normalize record.");
+  }
+
+  return normalized;
+}
+
+std::string ScaleIntermediateMessage::get_value(std::string field) const {
+  if (field == "event")
+    return event;
+  else if (field == "clusterName")
+    return cluster_name;
+  else if (field == "nodeName")
+    return node_name;
+  else if (field == "fsName")
+    return fs_name;
+  else if (field == "path")
+    return path;
+  else if (field == "inode")
+    return inode;
+  else if (field == "bytesRead")
+    return bytes_read;
+  else if (field == "bytesWritten")
+    return bytes_written;
+  else if (field == "pid")
+    return pid;
+  else if (field == "eventTime")
+    return event_time;
+  else if (field == "dstPath")
+    return dst_path;
+  else if (field == "versionHash")
+    return version_hash;
+
+  return "";
+}
