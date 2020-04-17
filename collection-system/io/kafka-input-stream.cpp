@@ -99,43 +99,34 @@ void KafkaInputStream::close() {
 
 int KafkaInputStream::recv(std::string &next_msg) {
   RdKafka::Message *msg;
-  bool done = false;
   int rc;
 
   // get next message from Kafka
   consumer->consume(TIMEOUT_MS);
-  while (!done) {
-    switch (msg->err()) {
-    case RdKafka::ERR__TIMED_OUT:
-      // try again
-      break;
-    case RdKafka::ERR_NO_ERROR:
-      if (static_cast<int>(msg->len()) > 0) {
-        next_msg = static_cast<const char*>(msg->payload());
-        done = true;
-        rc = NO_ERROR;
-      } else {
-        // try again
-        LOG_WARN("Received empty message.");
-      }
-      break;
-    case RdKafka::ERR__PARTITION_EOF:
-      LOG_INFO("Reached EOF.");
-      done = true;
-      rc = ERROR_EOF;
-      break;
-    case RdKafka::ERR__UNKNOWN_TOPIC:
-    case RdKafka::ERR__UNKNOWN_PARTITION:
-      LOG_ERROR("Consume failed with: " << msg->errstr());
+  switch (msg->err()) {
+  case RdKafka::ERR__TIMED_OUT:
+    rc = ERROR_RETRY;
+    break;
+  case RdKafka::ERR_NO_ERROR:
+    if (static_cast<int>(msg->len()) > 0) {
+      next_msg = static_cast<const char*>(msg->payload());
+      rc = NO_ERROR;
+    } else {
       rc = ERROR_RETRY;
-      done = true;
-      break;
-    default:
-      LOG_ERROR("Consume failed with: " << msg->errstr());
-      rc = ERROR_RETRY;
-      done = true;
-      break;
+      LOG_WARN("Received empty message.");
     }
+    break;
+  case RdKafka::ERR__UNKNOWN_TOPIC:
+  case RdKafka::ERR__UNKNOWN_PARTITION:
+    LOG_ERROR("Consume failed with: " << msg->errstr());
+    rc = ERROR_NO_RETRY;
+    break;
+  default:
+    // TODO Check whether ERROR_RETRY is ok for all other error codes (see rdkafkacpp.h).
+    // Can they be fixed through retry?
+    LOG_ERROR("Consume failed with: " << msg->errstr());
+    rc = ERROR_RETRY;
+    break;
   }
 
   delete msg;

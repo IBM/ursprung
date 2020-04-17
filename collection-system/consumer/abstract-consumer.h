@@ -24,7 +24,8 @@
 #include "msg-output-stream.h"
 #include "rule-engine.h"
 
-typedef std::vector<std::string> msgs_t;
+typedef std::shared_ptr<IntermediateMessage> im_t;
+typedef std::vector<im_t> msgs_t;
 
 /**
  * The AbstractConsumer is the base class for any provenance-source
@@ -33,52 +34,38 @@ typedef std::vector<std::string> msgs_t;
  */
 class AbstractConsumer {
 private:
+  static const int BATCH_TIMEOUT = 5000;
+
   /* Build an intermediate message from the message specified in the string. */
-  virtual std::shared_ptr<IntermediateMessage> build_intermediate_message(
-      ConsumerSource csrc, const std::string &msgin) =0;
-  /*
-   * Build an intermediate message from the message specified in the string.
-   * In some cases, an incoming message can trigger multiple messages to be generated
-   * (e.g. in case of a directory rename event, a new rename event for each individual
-   * file in that directory has to be generated). Hence, this method returns a list of
-   * IntermediateMessages.
-   */
-  virtual std::vector<std::shared_ptr<IntermediateMessage>> build_intermediate_messages(
-      ConsumerSource csrc, const std::string &msgin) =0;
+  virtual im_t build_intermediate_message(ConsumerSource csrc, const std::string &msgin) =0;
   /*
    * Action handler, which takes a received message and evaluates its set of rules
    * on the message. If the conditions of a rule are met, the corresponding
    * actions will be triggered.
    */
-  virtual int evaluate_rules(std::shared_ptr<IntermediateMessage> msg);
-
-  /* Receive messages from Kafka and build message batch. */
-  int recv();
-  /* Normalize the batch of messages to correctly format them for their target destination. */
-  int normalize_batch();
-  /* Commit message batch to the destination provenance store (e.g. DB2 or Postgres). */
-  int send();
+  virtual int evaluate_rules(im_t msg);
 
 protected:
-  uint32_t max_batch_size;
   uint32_t batch_size;
 
   ConsumerSource c_src;
-  ConsumerDestination c_dest;
-  std::unique_ptr<MsgInputStream> inStream;
-  std::unique_ptr<MsgOutputStream> outStream;
+  ConsumerDestination c_dst;
+  std::unique_ptr<MsgInputStream> in_stream;
+  std::unique_ptr<MsgOutputStream> out_stream;
   std::unique_ptr<RuleEngine> rule_engine;
   msgs_t msg_buffer;
 
 public:
-  AbstractConsumer(ConsumerSource csrc, MsgInputStream *in,
-      ConsumerDestination cdest, MsgOutputStream *out,
+  AbstractConsumer(ConsumerSource csrc, std::unique_ptr<MsgInputStream> in,
+      ConsumerDestination cdest, std::unique_ptr<MsgOutputStream> out,
       uint32_t batchsize = 10000);
   virtual ~AbstractConsumer();
 
+  /*
+   * Run the main consumer loop, i.e. receive message batch from input
+   * source, normalize batch for output destination, and send.
+   */
   int run();
-  int initRuleEngine(std::string rules_file);
-  int shutdownRuleEngine();
 };
 
 #endif /* CONSUMER_ABSTRACT_CONSUMER_H_ */
