@@ -109,10 +109,14 @@ std::string TestIntermediateMessage::normalize(ConsumerDestination cdst,
 }
 
 std::string TestIntermediateMessage::get_value(std::string field) const {
-  if (field == "f1") return f1;
-  else if (field == "f2") return f2;
-  else if (field == "f3") return f3;
-  else return "";
+  if (field == "f1")
+    return f1;
+  else if (field == "f2")
+    return f2;
+  else if (field == "f3")
+    return f3;
+  else
+    return "";
 }
 
 /*------------------------------
@@ -197,6 +201,6 @@ std::string ScaleIntermediateMessage::get_value(std::string field) const {
     return dst_path;
   else if (field == "versionHash")
     return version_hash;
-
-  return "";
+  else
+    return "";
 }
