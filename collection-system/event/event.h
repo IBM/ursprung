@@ -73,7 +73,7 @@ public:
   Event() {}
   virtual ~Event() {}
 
-  static evt_t deserialize(const std::string &event);
+  static evt_t deserialize_event(const std::string &event);
 
   virtual std::string serialize() const =0;
   virtual std::string format_for_dst(ConsumerDestination c_dst) const =0;
@@ -102,6 +102,7 @@ private:
   std::string f3;
 
 public:
+  TestEvent(const std::string &serialized_Event);
   TestEvent(std::string f1, std::string f2, std::string f3);
   ~TestEvent() {}
 

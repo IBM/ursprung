@@ -29,7 +29,7 @@ TEST(event_test, test_event_test) {
   EXPECT_EQ("8,node1,time1,1,abc,hello world,", e_serialized);
 
   // test deserialization
-  std::shared_ptr<Event> e_deserialized = Event::deserialize(e_serialized);
+  std::shared_ptr<Event> e_deserialized = Event::deserialize_event(e_serialized);
   EXPECT_EQ(TEST_EVENT, e_deserialized->get_type());
   EXPECT_EQ("node1", e_deserialized->get_node_name());
   EXPECT_EQ("time1", e_deserialized->get_send_time());

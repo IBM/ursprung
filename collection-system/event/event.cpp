@@ -31,31 +31,6 @@
  * Event
  *------------------------------*/
 
-std::shared_ptr<TestEvent> deserialize_test_event(std::stringstream& evt_ss,
-    const std::string &node_name, const std::string &send_time,
-    const std::string &event) {
-  // we expect another three fields containing f1, f2, and f3 (in that order)
-  std::string f1, f2, f3;
-  if (!getline(evt_ss, f1, ',')) {
-    LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
-    return nullptr;
-  }
-  if (!getline(evt_ss, f2, ',')) {
-    LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
-    return nullptr;
-  }
-  if (!getline(evt_ss, f3, ',')) {
-    LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
-    return nullptr;
-  }
-
-  // create and return event
-  std::shared_ptr<TestEvent> evt = std::make_shared<TestEvent>(f1, f2, f3);
-  evt->set_node_name(node_name);
-  evt->set_send_time(send_time);
-  return evt;
-}
-
 std::string Event::format_as_varchar(const std::string &str, int limit) const {
   std::string escaped_str = "";
   escaped_str.reserve(0 <= limit ? limit : 256);
@@ -100,7 +75,7 @@ std::string Event::format_as_varchar(const std::string &str, int limit) const {
   return "'" + escaped_str + "'";
 }
 
-evt_t Event::deserialize(const std::string &event) {
+evt_t Event::deserialize_event(const std::string &event) {
   std::stringstream ss(event);
   std::string evt_type;
   // first field is the event type
@@ -108,23 +83,12 @@ evt_t Event::deserialize(const std::string &event) {
     LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
     return nullptr;
   }
-  // second and third field are node name and send time
-  std::string node_name;
-  std::string send_time;
-  if (!getline(ss, node_name, ',')) {
-    LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
-    return nullptr;
-  }
-  if (!getline(ss, send_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
-    return nullptr;
-  }
 
   // now deserialize the event specific content
   switch (std::stoi(evt_type)) {
-  case TEST_EVENT: return deserialize_test_event(ss, node_name, send_time, event); break;
+  case TEST_EVENT: return std::make_shared<TestEvent>(event); break;
   default:
-    LOG_ERROR("Received invalid event " << event << " Dropping event.");
+    LOG_ERROR("Received invalid event " << event << " Not deserializing.");
     return nullptr;
   }
 
@@ -134,6 +98,36 @@ evt_t Event::deserialize(const std::string &event) {
 /*------------------------------
  * TestEvent
  *------------------------------*/
+
+TestEvent::TestEvent(const std::string &serialized_event) {
+  // we expect another three fields containing f1, f2, and f3 (in that order)
+  std::stringstream evt_ss(serialized_event);
+  std::string evt_type;
+  if (!getline(evt_ss, evt_type, ',')) {
+    LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a TestEvent.");
+  }
+  if (!getline(evt_ss, node_name, ',')) {
+    LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a TestEvent.");
+  }
+  if (!getline(evt_ss, send_time, ',')) {
+    LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a TestEvent.");
+  }
+  if (!getline(evt_ss, f1, ',')) {
+    LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a TestEvent.");
+  }
+  if (!getline(evt_ss, f2, ',')) {
+    LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a TestEvent.");
+  }
+  if (!getline(evt_ss, f3, ',')) {
+    LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a TestEvent.");
+  }
+}
 
 TestEvent::TestEvent(std::string f1, std::string f2, std::string f3) :
     f1 { f1 },
