@@ -59,7 +59,7 @@ StdoutCaptureAction::StdoutCaptureAction(std::string action) {
    }
 }
 
-int StdoutCaptureAction::execute(std::shared_ptr<IntermediateMessage> msg) {
+int StdoutCaptureAction::execute(evt_t msg) {
   // retrieve name and pid of node and process to trace
   std::string node_name = msg->get_value("nodeName");
   std::string pid_str = msg->get_value("pid");

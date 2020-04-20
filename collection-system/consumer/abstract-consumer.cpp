@@ -77,7 +77,7 @@ int AbstractConsumer::run() {
     while (!batch_done && signal_handling::running) {
       rc = in_stream->recv(next_msg);
       if (rc == NO_ERROR) {
-        im_t im = build_intermediate_message(c_src, next_msg);
+        evt_t im = build_intermediate_message(c_src, next_msg);
         msg_buffer.push_back(im);
 
         // TODO deal with directory renames here
@@ -109,8 +109,8 @@ int AbstractConsumer::run() {
 
     // normalize messages for destination
     std::vector<std::string> normalized_msgs;
-    for (im_t im : msg_buffer) {
-      normalized_msgs.push_back(im->normalize(c_dst, ","));
+    for (evt_t im : msg_buffer) {
+      normalized_msgs.push_back(im->format_for_dst(c_dst));
     }
 
     // send messages
@@ -129,7 +129,7 @@ int AbstractConsumer::run() {
  * the incoming message against all rules and executes all
  * matching rules.
  */
-int AbstractConsumer::evaluate_rules(im_t msg) {
+int AbstractConsumer::evaluate_rules(evt_t msg) {
   if (rule_engine) {
     std::vector<uint32_t> rules_to_execute = rule_engine->evaluate_conditions(msg);
     return rule_engine->run_actions(rules_to_execute, msg);

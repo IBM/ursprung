@@ -26,6 +26,7 @@
 #include <regex>
 
 #include "intermediate-message.h"
+#include "event.h"
 #include "msg-output-stream.h"
 #include "db-connector.h"
 #include "error.h"
@@ -55,7 +56,7 @@ class LogLoadField;
 // helper functions
 std::string convert_date_field(std::string date, LogLoadField *field);
 
-typedef SynchronizedQueue<std::shared_ptr<IntermediateMessage>> a_queue_t;
+typedef SynchronizedQueue<evt_t> a_queue_t;
 typedef std::map<std::string, std::pair<long long int, unsigned long long>> parse_state_t;
 
 /**
@@ -91,7 +92,7 @@ protected:
    * part starts.
    */
   int init_state(std::string dst, size_t from);
-  virtual int execute(std::shared_ptr<IntermediateMessage> msg) = 0;
+  virtual int execute(evt_t msg) = 0;
 
 public:
   Action();
@@ -133,7 +134,7 @@ public:
 
   std::string get_event_field() const { return event_field; }
 
-  virtual int execute(std::shared_ptr<IntermediateMessage>) override;
+  virtual int execute(evt_t msg) override;
   virtual int get_num_consumer_threads() const override { return 10; }
   virtual std::string get_type() const override;
   virtual std::string str() const override;
@@ -177,7 +178,7 @@ public:
   std::string get_state_attribute_name() const { return state_attribute_name; }
   std::string get_connection_string() const { return connection_string; }
 
-  virtual int execute(std::shared_ptr<IntermediateMessage>) override;
+  virtual int execute(evt_t msg) override;
   virtual int get_num_consumer_threads() const override { return 1; }
   virtual std::string get_type() const override;
   virtual std::string str() const override;
@@ -228,7 +229,7 @@ public:
   std::string get_delimiter() const { return delimiter; }
   std::vector<LogLoadField*> get_fields() const { return fields; }
 
-  virtual int execute(std::shared_ptr<IntermediateMessage>) override;
+  virtual int execute(evt_t msg) override;
   virtual int get_num_consumer_threads() const override { return 1; }
   virtual std::string get_type() const override;
   virtual std::string str() const override;
@@ -271,7 +272,7 @@ public:
 
   std::string get_path_regex() const { return path_regex_str; }
   std::string get_repo_path() const { return repo_path; }
-  virtual int execute(std::shared_ptr<IntermediateMessage>) override;
+  virtual int execute(evt_t msg) override;
   virtual std::string str() const override;
   virtual std::string get_type() const override;
   virtual int get_num_consumer_threads() const override { return 1; }
@@ -308,7 +309,7 @@ public:
   std::string get_delimiter() const { return delimiter; }
   std::vector<LogLoadField*> get_fields() const { return fields; }
 
-  virtual int execute(std::shared_ptr<IntermediateMessage>) override;
+  virtual int execute(evt_t msg) override;
   virtual int get_num_consumer_threads() const override { return 1000; }
   virtual std::string get_type() const override;
   virtual std::string str() const override;

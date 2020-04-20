@@ -83,6 +83,50 @@ Event* Event::deserialize(const std::string &event) {
 }
 
 /*------------------------------
+ * TestEvent
+ *------------------------------*/
+
+TestEvent::TestEvent(std::string f1, std::string f2, std::string f3) :
+    f1 { f1 },
+    f2 { f2 },
+    f3 { f3 } {
+}
+
+std::string TestEvent::serialize() const {
+  std::stringstream evt;
+  evt << get_type() << SER_DELIM
+      << f1 << SER_DELIM
+      << f2 << SER_DELIM
+      << f3 << SER_DELIM;
+
+  return evt.str();
+}
+
+std::string TestEvent::format_for_dst(ConsumerDestination c_dst) const {
+  std::string normalized;
+  if (c_dst == CD_DB2 || c_dst == CD_POSTGRES) {
+    normalized = format_as_varchar(f1, 20)
+        + "," + format_as_varchar(f2, 32)
+        + "," + format_as_varchar(f3, 128);
+  } else {
+    assert(!"Error, unsupported cdest\n");
+  }
+
+  return normalized;
+}
+
+std::string TestEvent::get_value(std::string field) const {
+  if (field == "f1")
+    return f1;
+  else if (field == "f2")
+    return f2;
+  else if (field == "f3")
+    return f3;
+  else
+    return "";
+}
+
+/*------------------------------
  * FSEvent
  *------------------------------*/
 

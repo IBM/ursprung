@@ -37,8 +37,8 @@ TEST(db_load_action_test, test_valid_creation) {
 
 TEST(db_load_action_test, test_execute) {
   DBLoadAction a("DBLOAD f1 INTO FILE dbload-out");
-  std::shared_ptr<IntermediateMessage> msg =
-      std::make_shared<TestIntermediateMessage>(CS_PROV_AUDITD, "test-db-load-action,f2,f3");
+  std::shared_ptr<Event> msg =
+      std::make_shared<TestEvent>("test-db-load-action","f2","f3");
   a.execute(msg);
 
   std::ifstream in_file("dbload-out");
@@ -81,8 +81,8 @@ TEST(db_transfer_action_test, test_execute) {
   DBTransferAction a("DBTRANSFER select * from table/attr FROM MOCK user:password@db INTO "
       "FILE dbtransfer-out");
   // this message is not used by the action execution
-  std::shared_ptr<IntermediateMessage> msg =
-      std::make_shared<TestIntermediateMessage>(CS_PROV_AUDITD, "test-db-transfer-action,f2,f3");
+  std::shared_ptr<Event> msg =
+      std::make_shared<TestEvent>("test-db-transfer-action","f2","f3");
   // execute three times to get three new rows
   a.execute(msg);
   a.execute(msg);
@@ -136,8 +136,8 @@ TEST(log_load_action_test, test_execute) {
   LogLoadAction a("LOGLOAD f1 MATCH some-entry FIELDS 0,1,3-5 DELIM , INTO "
       "FILE logload-out");
   std::ofstream out_file("test-log-load-action");
-  std::shared_ptr<IntermediateMessage> msg =
-      std::make_shared<TestIntermediateMessage>(CS_PROV_AUDITD, "test-log-load-action,f2,f3");
+  std::shared_ptr<Event> msg =
+      std::make_shared<TestEvent>("test-log-load-action","f2","f3");
 
   // first line
   out_file << "first log line, no match" << std::endl;

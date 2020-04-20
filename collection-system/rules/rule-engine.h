@@ -23,6 +23,7 @@
 
 #include "action.h"
 #include "condition.h"
+#include "event.h"
 
 class Rule;
 typedef std::vector<std::unique_ptr<Rule>> Rules;
@@ -56,8 +57,8 @@ public:
    * action consumers.
    */
   void remove_actions();
-  bool eval_condition_expr(std::shared_ptr<IntermediateMessage> msg) const;
-  void run_actions(std::shared_ptr<IntermediateMessage> msg) const;
+  bool eval_condition_expr(evt_t msg) const;
+  void run_actions(evt_t msg) const;
 
   void set_rule_id(std::string rid) { rule_id = rid; }
   std::string get_rule_id() { return rule_id; }
@@ -86,9 +87,9 @@ public:
    * and determines the indexes of every rules whose conditions match
    * the incoming message.
    */
-  std::vector<uint32_t> evaluate_conditions(std::shared_ptr<IntermediateMessage> msg);
+  std::vector<uint32_t> evaluate_conditions(evt_t msg);
   /* Runs the actions for the rules at the specified indexes. */
-  int run_actions(std::vector<uint32_t> rule_ids, std::shared_ptr<IntermediateMessage> msg);
+  int run_actions(std::vector<uint32_t> rule_ids, evt_t msg);
   int shutdown();
 
   int add_rule(std::string rule);

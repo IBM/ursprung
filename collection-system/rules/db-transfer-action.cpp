@@ -61,7 +61,7 @@ DBTransferAction::DBTransferAction(std::string action) {
   }
 }
 
-int DBTransferAction::execute(std::shared_ptr<IntermediateMessage> msg) {
+int DBTransferAction::execute(evt_t msg) {
   LOG_DEBUG("Executing DBTransferAction " << this->str());
 
   // restore any existing state

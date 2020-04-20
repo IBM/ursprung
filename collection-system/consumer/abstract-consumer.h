@@ -20,12 +20,12 @@
 #include <vector>
 
 #include "intermediate-message.h"
+#include "event.h"
 #include "msg-input-stream.h"
 #include "msg-output-stream.h"
 #include "rule-engine.h"
 
-typedef std::shared_ptr<IntermediateMessage> im_t;
-typedef std::vector<im_t> msgs_t;
+typedef std::vector<evt_t> msgs_t;
 
 /**
  * The AbstractConsumer is the base class for any provenance-source
@@ -37,13 +37,13 @@ private:
   static const int BATCH_TIMEOUT = 5000;
 
   /* Build an intermediate message from the message specified in the string. */
-  virtual im_t build_intermediate_message(ConsumerSource csrc, const std::string &msgin) =0;
+  virtual evt_t build_intermediate_message(ConsumerSource csrc, const std::string &msgin) =0;
   /*
    * Action handler, which takes a received message and evaluates its set of rules
    * on the message. If the conditions of a rule are met, the corresponding
    * actions will be triggered.
    */
-  virtual int evaluate_rules(im_t msg);
+  virtual int evaluate_rules(evt_t msg);
 
 protected:
   uint32_t batch_size;

@@ -78,7 +78,7 @@ std::unique_ptr<Action> Action::parse_action(std::string action) {
 void Action::run_consumer() {
   while (running) {
     LOG_DEBUG(rule_id << " - waiting for action to consume");
-    std::shared_ptr<IntermediateMessage> msg = action_queue->pop();
+    evt_t msg = action_queue->pop();
     if (msg) {
       LOG_DEBUG(rule_id << " - Received new message, executing action");
 #ifdef PERF
@@ -185,7 +185,7 @@ void Action::stop_action_consumers() {
   running = false;
   // push a nullptr for each active thread to unblock pop()
   for (unsigned int i = 0; i < consumer_threads.size(); i++) {
-    action_queue->push(std::unique_ptr<IntermediateMessage>(nullptr));
+    action_queue->push(std::unique_ptr<Event>(nullptr));
   }
   for (std::thread &t : consumer_threads) {
     t.join();
@@ -193,7 +193,7 @@ void Action::stop_action_consumers() {
 }
 
 Action::Action() :
-    action_queue(new SynchronizedQueue<std::shared_ptr<IntermediateMessage>>()),
+    action_queue(new SynchronizedQueue<evt_t>()),
     running(true),
     out() {}
 

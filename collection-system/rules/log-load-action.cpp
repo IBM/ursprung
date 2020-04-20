@@ -34,7 +34,7 @@ const std::regex LOG_LOAD_SYNTAX = std::regex("LOGLOAD [a-zA-Z0-9]* MATCH (.)* F
  * delimiter and a set of LogLoadFields.
  */
 std::string extract_record_from_line(std::string line, std::string delimiter,
-    std::vector<LogLoadField*> fields, std::shared_ptr<IntermediateMessage> msg) {
+    std::vector<LogLoadField*> fields, evt_t msg) {
   size_t pos = 0;
   std::stringstream record;
   std::string token;
@@ -139,7 +139,7 @@ LogLoadAction::~LogLoadAction() {
   }
 }
 
-int LogLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
+int LogLoadAction::execute(evt_t msg) {
   LOG_DEBUG("Executing LogLoadAction " << this->str());
   int rc = NO_ERROR;
 
@@ -150,7 +150,7 @@ int LogLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
     LOG_ERROR("stat() failed with " << strerror(errno) << "."
         << " Can't retrieve inode for " << path << ". "
         << "Exiting LogLoadAction " << this->str()
-        << " for received message " << msg->normalize(CD_DB2));
+        << " for received message " << msg->format_for_dst(CD_DB2));
     return ERROR_NO_RETRY;
   }
   unsigned long long inode = sb.st_ino;

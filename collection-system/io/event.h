@@ -25,9 +25,13 @@
 #endif
 
 #include "intermediate-message.h"
+#include "event.h"
+
+class Event;
 
 typedef uint32_t osm_pid_t;
 typedef uint32_t osm_pgid_t;
+typedef std::shared_ptr<Event> evt_t;
 
 // different event types
 enum EventType : int {
@@ -37,7 +41,19 @@ enum EventType : int {
   SYSCALL_EVENT =         0x4,
   IPC_EVENT =             0x5,
   SOCKET_EVENT =          0x6,
-  SOCKET_CONNECT_EVENT =  0x7
+  SOCKET_CONNECT_EVENT =  0x7,
+  TEST_EVENT =            0x8
+};
+
+enum ConsumerSource {
+  CS_PROV_GPFS = 0,
+  CS_PROV_AUDITD = 1
+};
+
+enum ConsumerDestination {
+  CD_DB2 = 0,
+  CD_POSTGRES = 1,
+  CD_ODBC
 };
 
 /**
@@ -73,6 +89,25 @@ public:
 
 };
 
+class TestEvent: public Event {
+private:
+  static const int NUM_FIELDS = 3;
+  std::string f1;
+  std::string f2;
+  std::string f3;
+
+public:
+  TestEvent(std::string f1, std::string f2, std::string f3);
+  ~TestEvent() {}
+
+  virtual std::string serialize() const override;
+  virtual std::string format_for_dst(ConsumerDestination c_dst) const override;
+  virtual std::string get_value(std::string field) const override;
+  virtual EventType get_type() const override {
+    return TEST_EVENT;
+  }
+};
+
 class FSEvent: public Event {
 private:
   osm_pid_t pid;
@@ -90,7 +125,6 @@ private:
   std::string version_hash;
 
 public:
-  FSEvent(const std::string &serialized_event);
   FSEvent(osm_pid_t pid, int inode, size_t bytes_read, size_t bytes_written,
       std::string event, std::string event_time, std::string cluster_name,
       std::string fs_name, std::string path, std::string dst_path,

@@ -79,7 +79,7 @@ int RuleEngine::add_rule(std::string rule) {
   return NO_ERROR;
 }
 
-std::vector<uint32_t> RuleEngine::evaluate_conditions(std::shared_ptr<IntermediateMessage> msg) {
+std::vector<uint32_t> RuleEngine::evaluate_conditions(evt_t msg) {
   std::string value;
   std::vector<uint32_t> idx;
 
@@ -92,8 +92,7 @@ std::vector<uint32_t> RuleEngine::evaluate_conditions(std::shared_ptr<Intermedia
   return idx;
 }
 
-int RuleEngine::run_actions(std::vector<uint32_t> rule_ids,
-    std::shared_ptr<IntermediateMessage> msg) {
+int RuleEngine::run_actions(std::vector<uint32_t> rule_ids, evt_t msg) {
   for (uint32_t id : rule_ids) {
     rules[id]->run_actions(msg);
   }
@@ -132,11 +131,11 @@ int Rule::add_action(std::string action) {
   }
 }
 
-bool Rule::eval_condition_expr(std::shared_ptr<IntermediateMessage> msg) const {
+bool Rule::eval_condition_expr(evt_t msg) const {
   return condition_expr->eval(*msg);
 }
 
-void Rule::run_actions(std::shared_ptr<IntermediateMessage> msg) const {
+void Rule::run_actions(evt_t msg) const {
   for (size_t i; i < actions.size(); i++) {
     actions[i]->get_action_queue()->push(msg);
   }

@@ -104,7 +104,7 @@ TrackAction::~TrackAction() {
   }
 }
 
-int TrackAction::execute(std::shared_ptr<IntermediateMessage> msg) {
+int TrackAction::execute(evt_t msg) {
   LOG_DEBUG("Executing TrackAction " << this->str());
 
   // check if we have a connection to the target repo

@@ -106,7 +106,7 @@ void ConditionExpr::parse() {
   ast_root = expr(tokens, curr_token_idx);
 }
 
-bool ConditionExpr::eval(const IntermediateMessage &msg) {
+bool ConditionExpr::eval(const Event &msg) {
   return eval_rec(ast_root, msg);
 }
 
@@ -161,7 +161,7 @@ Node* ConditionExpr::expr(std::vector<Token*> tokens, unsigned int &curr_token_i
   return latest;
 }
 
-bool ConditionExpr::eval_rec(Node *node, const IntermediateMessage &msg) const {
+bool ConditionExpr::eval_rec(Node *node, const Event &msg) const {
   if (!node->is_leaf()) {
     OpNode *op = (OpNode*) node;
     if (op->get_op() == "&&") {

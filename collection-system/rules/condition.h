@@ -22,6 +22,7 @@
 #include <map>
 
 #include "intermediate-message.h"
+#include "event.h"
 
 /**
  * A condition consists of an fieldname on which the condition
@@ -148,7 +149,7 @@ private:
   Node* expr(std::vector<Token*> tokens, unsigned int &currTokenIdx) const;
   Node* term(std::vector<Token*> tokens, unsigned int &currTokenIdx) const;
   Node* factor(std::vector<Token*> tokens, unsigned int &currTokenIdx) const;
-  bool eval_rec(Node *node, const IntermediateMessage &msg) const;
+  bool eval_rec(Node *node, const Event &msg) const;
   void lex();
   void parse();
 
@@ -168,7 +169,7 @@ public:
   ConditionExpr(const ConditionExpr &other) = delete;
   ConditionExpr& operator=(const ConditionExpr &other) = delete;
 
-  bool eval(const IntermediateMessage &msg);
+  bool eval(const Event &msg);
 };
 
 #endif /* RULES_CONDITION_H_ */

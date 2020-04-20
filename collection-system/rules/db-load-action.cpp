@@ -39,7 +39,7 @@ DBLoadAction::DBLoadAction(std::string action) {
   }
 }
 
-int DBLoadAction::execute(std::shared_ptr<IntermediateMessage> msg) {
+int DBLoadAction::execute(evt_t msg) {
   LOG_DEBUG("Executing DBLoadAction " << this->str());
 
   std::string path = msg->get_value(event_field);
