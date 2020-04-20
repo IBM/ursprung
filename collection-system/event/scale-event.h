@@ -48,6 +48,8 @@ public:
   virtual EventType get_type() const override {
     return FS_EVENT;
   }
+
+  void set_version_hash(std::string hash) { version_hash = hash; }
 };
 
 #endif /* EVENT_SCALE_EVENT_H_ */

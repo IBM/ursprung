@@ -77,7 +77,15 @@ int AbstractConsumer::run() {
     while (!batch_done && signal_handling::running) {
       rc = in_stream->recv(next_msg);
       if (rc == NO_ERROR) {
-        evt_t im = build_intermediate_message(c_src, next_msg);
+        evt_t im = Event::deserialize(next_msg);
+        if (!im) {
+          LOG_ERROR("Problems while receiving event " << next_msg << " Skipping event.");
+          continue;
+        }
+        if (!receive_event(c_src, im)) {
+          LOG_ERROR("Problems while processing event " << next_msg << " Skipping event.");
+          continue;
+        }
         msg_buffer.push_back(im);
 
         // TODO deal with directory renames here

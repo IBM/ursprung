@@ -14,9 +14,62 @@
  * limitations under the License.
  */
 
-#include "scale-consumer.h"
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <openssl/md5.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
-std::shared_ptr<IntermediateMessage> ScaleConsumer::buildIntermediateMessage(
-    ConsumerSource csrc, const std::string &msgin) {
-  return std::make_shared<IntermediateMessage>(new ScaleIntermediateMessage(csrc, msgin));
+#include "scale-consumer.h"
+#include "scale-event.h"
+
+int ScaleConsumer::receive_event(ConsumerSource csrc, evt_t event) {
+  // TODO add processing of directory renames here
+  assert(csrc == CS_PROV_GPFS);
+  // if assert passes, we can safely cast event and call get_value() with FSEvent attributes
+  assert(event->get_type() == FS_EVENT);
+
+  if (event->get_value("event") == "CLOSE"
+      && std::stoi(event->get_value("bytes_written")) > 0 && trackVersions) {
+    // if the event updated a file and version tracking is enabled, compute version hash
+    // open file, check that it exists and compute file size
+    int fd = open(event->get_value("path").c_str(), O_RDONLY);
+    if (fd < 0) {
+      LOG_WARN("Couldn't open file " << event->get_value("path") << " for version tracking. "
+          << "No hash computed.");
+      return NO_ERROR;
+    }
+    struct stat statbuf;
+    if (fstat(fd, &statbuf) < 0) {
+      LOG_WARN("Couldn't open file " << event->get_value("path") << " for version tracking. "
+          << "No hash computed.");
+      return NO_ERROR;
+    }
+    unsigned long file_size = statbuf.st_size;
+
+    // compute hash over the content
+    unsigned char file_hash[MD5_DIGEST_LENGTH];
+    char *file_buffer = (char*) mmap(0, file_size, PROT_READ, MAP_SHARED, fd, 0);
+    if (file_buffer == MAP_FAILED) {
+      LOG_WARN("Couldn't mmap file for version tracking due to " << strerror(errno));
+      close(fd);
+      return NO_ERROR;
+    }
+    MD5((unsigned char*) file_buffer, file_size, file_hash);
+    if (munmap(file_buffer, file_size) != 0) {
+      LOG_WARN("Problems while unmapping " << event->get_value("path") << ".");
+    }
+    close(fd);
+
+    // convert hash to hex
+    std::ostringstream sout;
+    sout << std::hex << std::setfill('0');
+    for (long long c : file_hash) {
+      sout << std::setw(2) << (long long) c;
+    }
+    ((FSEvent*) event)->set_version_hash(sout.str());
+    LOG_DEBUG("Computed hash for " << primaryMsg->getPath());
+  }
+
+  return NO_ERROR;
 }

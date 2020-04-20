@@ -35,12 +35,19 @@ class AbstractConsumer {
 private:
   static const int BATCH_TIMEOUT = 5000;
 
-  /* Build an intermediate message from the message specified in the string. */
-  virtual evt_t build_intermediate_message(ConsumerSource csrc, const std::string &msgin) =0;
+  /*
+   * Any consumer-specific processing that should happen on event
+   * receiving needs to go in here.
+   */
+  virtual int receive_event(ConsumerSource csrc, evt_t event) =0;
   /*
    * Action handler, which takes a received message and evaluates its set of rules
    * on the message. If the conditions of a rule are met, the corresponding
    * actions will be triggered.
+   *
+   * The base clase provides a base implementation of this method (that just
+   * goes through all the rules for the received event and executes the
+   * matching ones) but inheriting classes can override it to add custom processing.
    */
   virtual int evaluate_rules(evt_t msg);
 

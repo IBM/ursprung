@@ -23,14 +23,14 @@
 class ScaleConsumer: public AbstractConsumer {
 private:
   bool trackVersions = false;
-  virtual im_t buildIntermediateMessage(ConsumerSource csrc, const std::string &msgin) override;
+  virtual int receive_event(ConsumerSource csrc, evt_t event) override;
 
 public:
   ScaleConsumer(ConsumerSource csrc, std::unique_ptr<MsgInputStream> in,
       ConsumerDestination cdst, std::unique_ptr<MsgOutputStream> out,
       uint32_t batchsize = 10000, bool trackVersions) :
       AbstractConsumer(csrc, in, cdst, out, batchsize),
-      trackVersions( trackVersions) {}
+      trackVersions { trackVersions } {}
   virtual ~ScaleConsumer() {};
 };
 
