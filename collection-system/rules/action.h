@@ -25,7 +25,6 @@
 #include <thread>
 #include <regex>
 
-#include "intermediate-message.h"
 #include "event.h"
 #include "msg-output-stream.h"
 #include "db-connector.h"

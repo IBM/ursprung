@@ -19,7 +19,6 @@
 
 #include <vector>
 
-#include "intermediate-message.h"
 #include "event.h"
 #include "msg-input-stream.h"
 #include "msg-output-stream.h"

@@ -21,7 +21,6 @@
 #include <vector>
 #include <map>
 
-#include "intermediate-message.h"
 #include "event.h"
 
 /**

@@ -24,7 +24,6 @@
 #include <auparse.h>
 #endif
 
-#include "intermediate-message.h"
 #include "event.h"
 
 class Event;
