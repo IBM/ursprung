@@ -77,20 +77,20 @@ int AbstractConsumer::run() {
     while (!batch_done && signal_handling::running) {
       rc = in_stream->recv(next_msg);
       if (rc == NO_ERROR) {
-        evt_t im = Event::deserialize(next_msg);
-        if (!im) {
+        evt_t evt = Event::deserialize(next_msg);
+        if (!evt) {
           LOG_ERROR("Problems while receiving event " << next_msg << " Skipping event.");
           continue;
         }
-        if (!receive_event(c_src, im)) {
+        if (!receive_event(c_src, evt)) {
           LOG_ERROR("Problems while processing event " << next_msg << " Skipping event.");
           continue;
         }
-        msg_buffer.push_back(im);
+        msg_buffer.push_back(evt);
 
         // TODO deal with directory renames here
         // find and execute any matching rules
-        if (evaluate_rules(im) != NO_ERROR) {
+        if (evaluate_rules(evt) != NO_ERROR) {
           LOG_ERROR("Problems while executing rules, some provenance " <<
               "might be lost");
         }
@@ -117,8 +117,8 @@ int AbstractConsumer::run() {
 
     // normalize messages for destination
     std::vector<std::string> normalized_msgs;
-    for (evt_t im : msg_buffer) {
-      normalized_msgs.push_back(im->format_for_dst(c_dst));
+    for (evt_t evt : msg_buffer) {
+      normalized_msgs.push_back(evt->format_for_dst(c_dst));
     }
 
     // send messages
