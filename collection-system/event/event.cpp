@@ -25,6 +25,7 @@
 #include <errno.h>
 
 #include "event.h"
+#include "scale-event.h"
 #include "logger.h"
 
 /*------------------------------
@@ -87,6 +88,7 @@ evt_t Event::deserialize_event(const std::string &event) {
   // now deserialize the event specific content
   switch (std::stoi(evt_type)) {
   case TEST_EVENT: return std::make_shared<TestEvent>(event); break;
+  case FS_EVENT: return std::make_shared<FSEvent>(event); break;
   default:
     LOG_ERROR("Received invalid event " << event << " Not deserializing.");
     return nullptr;
