@@ -111,10 +111,6 @@ public:
   virtual EventType get_type() const override {
     return TEST_EVENT;
   }
-
-  const std::string& get_f1() const { return f1; }
-  const std::string& get_f2() const { return f2; }
-  const std::string& get_f3() const { return f3; }
 };
 
 #endif // OS_EVENT_H

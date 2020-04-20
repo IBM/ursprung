@@ -33,7 +33,7 @@ TEST(event_test, test_event_test) {
   EXPECT_EQ(TEST_EVENT, e_deserialized->get_type());
   EXPECT_EQ("node1", e_deserialized->get_node_name());
   EXPECT_EQ("time1", e_deserialized->get_send_time());
-  EXPECT_EQ("1", ((TestEvent*) e_deserialized.get())->get_f1());
-  EXPECT_EQ("abc", ((TestEvent*) e_deserialized.get())->get_f2());
-  EXPECT_EQ("hello world", ((TestEvent*) e_deserialized.get())->get_f3());
+  EXPECT_EQ("1",  e_deserialized->get_value("f1"));
+  EXPECT_EQ("abc", e_deserialized->get_value("f2"));
+  EXPECT_EQ("hello world", e_deserialized->get_value("f3"));
 }
