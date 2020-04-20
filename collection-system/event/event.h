@@ -31,14 +31,14 @@ const std::string SER_DELIM = ",";
 
 // different event types
 enum EventType : int {
-  FS_EVENT =              0x1,
-  PROCESS_EVENT =         0x2,
-  PROCESS_GROUP_EVENT =   0x3,
-  SYSCALL_EVENT =         0x4,
-  IPC_EVENT =             0x5,
-  SOCKET_EVENT =          0x6,
-  SOCKET_CONNECT_EVENT =  0x7,
-  TEST_EVENT =            0x8
+  FS_EVENT =              1,
+  PROCESS_EVENT =         2,
+  PROCESS_GROUP_EVENT =   3,
+  SYSCALL_EVENT =         4,
+  IPC_EVENT =             5,
+  SOCKET_EVENT =          6,
+  SOCKET_CONNECT_EVENT =  7,
+  TEST_EVENT =            8
 };
 
 enum ConsumerSource {
@@ -53,9 +53,11 @@ enum ConsumerDestination {
 };
 
 /**
- * Base class for any operating system related event.
- * Implementations need to provide conversion from/to
- * CSV format for (de)serialization.
+ * An event is the unit of communication between provenance
+ * sources and consumers. Provenance sources create events,
+ * serialize them, and emit them. Consumers receive and
+ * deserialize events, execute rules based on the data in
+ * the events, and add events to the provenance store.
  */
 class Event {
 protected:
@@ -71,7 +73,7 @@ public:
   Event() {}
   virtual ~Event() {}
 
-  static Event* deserialize(const std::string &event);
+  static evt_t deserialize(const std::string &event);
 
   virtual std::string serialize() const =0;
   virtual std::string format_for_dst(ConsumerDestination c_dst) const =0;
@@ -83,6 +85,10 @@ public:
   virtual std::string get_value(std::string field) const = 0;
   virtual EventType get_type() const =0;
 
+  void set_node_name(std::string name) { node_name = name; }
+  std::string get_node_name() { return node_name; }
+  void set_send_time(std::string time) { send_time = time; }
+  std::string get_send_time() { return send_time; }
 };
 
 /**
@@ -105,6 +111,10 @@ public:
   virtual EventType get_type() const override {
     return TEST_EVENT;
   }
+
+  const std::string& get_f1() const { return f1; }
+  const std::string& get_f2() const { return f2; }
+  const std::string& get_f3() const { return f3; }
 };
 
 #endif // OS_EVENT_H

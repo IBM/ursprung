@@ -25,10 +25,36 @@
 #include <errno.h>
 
 #include "event.h"
+#include "logger.h"
 
 /*------------------------------
  * Event
  *------------------------------*/
+
+std::shared_ptr<TestEvent> deserialize_test_event(std::stringstream& evt_ss,
+    const std::string &node_name, const std::string &send_time,
+    const std::string &event) {
+  // we expect another three fields containing f1, f2, and f3 (in that order)
+  std::string f1, f2, f3;
+  if (!getline(evt_ss, f1, ',')) {
+    LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
+    return nullptr;
+  }
+  if (!getline(evt_ss, f2, ',')) {
+    LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
+    return nullptr;
+  }
+  if (!getline(evt_ss, f3, ',')) {
+    LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
+    return nullptr;
+  }
+
+  // create and return event
+  std::shared_ptr<TestEvent> evt = std::make_shared<TestEvent>(f1, f2, f3);
+  evt->set_node_name(node_name);
+  evt->set_send_time(send_time);
+  return evt;
+}
 
 std::string Event::format_as_varchar(const std::string &str, int limit) const {
   std::string escaped_str = "";
@@ -74,10 +100,35 @@ std::string Event::format_as_varchar(const std::string &str, int limit) const {
   return "'" + escaped_str + "'";
 }
 
-Event* Event::deserialize(const std::string &event) {
-  Event *e = nullptr;
-  // TODO implement deserialization
-  return e;
+evt_t Event::deserialize(const std::string &event) {
+  std::stringstream ss(event);
+  std::string evt_type;
+  // first field is the event type
+  if(!getline(ss, evt_type, ',')) {
+    LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
+    return nullptr;
+  }
+  // second and third field are node name and send time
+  std::string node_name;
+  std::string send_time;
+  if (!getline(ss, node_name, ',')) {
+    LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
+    return nullptr;
+  }
+  if (!getline(ss, send_time, ',')) {
+    LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
+    return nullptr;
+  }
+
+  // now deserialize the event specific content
+  switch (std::stoi(evt_type)) {
+  case TEST_EVENT: return deserialize_test_event(ss, node_name, send_time, event); break;
+  default:
+    LOG_ERROR("Received invalid event " << event << " Dropping event.");
+    return nullptr;
+  }
+
+  return nullptr;
 }
 
 /*------------------------------
@@ -93,7 +144,10 @@ TestEvent::TestEvent(std::string f1, std::string f2, std::string f3) :
 std::string TestEvent::serialize() const {
   std::stringstream evt;
   evt << get_type() << SER_DELIM
-      << f1 << SER_DELIM
+      << node_name << SER_DELIM
+      << send_time << SER_DELIM;
+
+  evt << f1 << SER_DELIM
       << f2 << SER_DELIM
       << f3 << SER_DELIM;
 
