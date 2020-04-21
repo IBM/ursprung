@@ -62,6 +62,7 @@ public:
 
   void set_rule_id(std::string rid) { rule_id = rid; }
   std::string get_rule_id() { return rule_id; }
+  std::vector<std::string> get_action_types();
 };
 
 /**
@@ -94,6 +95,10 @@ public:
 
   int add_rule(std::string rule);
   bool has_rules() const { return (rules.size() > 0) ? true : false; }
+  /* Return a list of action types for each action associated with the specified rule. */
+  std::vector<std::string> get_action_types(int rule_idx) {
+    return rules[rule_idx]->get_action_types();
+  }
 };
 
 #endif

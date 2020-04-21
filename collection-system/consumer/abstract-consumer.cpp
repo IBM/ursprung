@@ -77,7 +77,7 @@ int AbstractConsumer::run() {
     while (!batch_done && signal_handling::running) {
       rc = in_stream->recv(next_msg);
       if (rc == NO_ERROR) {
-        evt_t evt = Event::deserialize(next_msg);
+        evt_t evt = Event::deserialize_event(next_msg);
         if (!evt) {
           LOG_ERROR("Problems while receiving event " << next_msg << " Skipping event.");
           continue;
@@ -88,7 +88,6 @@ int AbstractConsumer::run() {
         }
         msg_buffer.push_back(evt);
 
-        // TODO deal with directory renames here
         // find and execute any matching rules
         if (evaluate_rules(evt) != NO_ERROR) {
           LOG_ERROR("Problems while executing rules, some provenance " <<

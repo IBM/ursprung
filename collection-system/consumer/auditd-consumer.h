@@ -17,21 +17,30 @@
 #ifndef PROV_GPFS_CONSUMER_H
 #define PROV_GPFS_CONSUMER_H
 
+#include <unordered_set>
+
 #include "abstract-consumer.h"
 #include "rule-engine.h"
 
-class ScaleConsumer: public AbstractConsumer {
+class AuditdConsumer: public AbstractConsumer {
 private:
-  bool trackVersions = false;
+  /*
+   * List of tracees that are actively traced by this consumer through
+   * a standardout capture rule.
+   *
+   * TODO std::string should be replaced by a custom object such as Tracee
+   */
+  std::unordered_set<std::string> active_tracees;
+
   virtual int receive_event(ConsumerSource csrc, evt_t event) override;
+  virtual int evaluate_rules(evt_t msg) override;
 
 public:
-  ScaleConsumer(ConsumerSource csrc, std::unique_ptr<MsgInputStream> in,
+  AuditdConsumer(ConsumerSource csrc, std::unique_ptr<MsgInputStream> in,
       ConsumerDestination cdst, std::unique_ptr<MsgOutputStream> out,
       uint32_t batchsize = 10000, bool trackVersions) :
-      AbstractConsumer(csrc, in, cdst, out, batchsize),
-      trackVersions { trackVersions } {}
-  ~ScaleConsumer() {};
+      AbstractConsumer(csrc, in, cdst, out, batchsize) {}
+  ~AuditdConsumer() {};
 };
 
 #endif

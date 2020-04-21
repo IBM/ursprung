@@ -147,3 +147,11 @@ void Rule::remove_actions() {
   }
   actions.clear();
 }
+
+std::vector<std::string> Rule::get_action_types() {
+  std::vector<std::string> types;
+  for (size_t i; i < actions.size(); i++) {
+    types.push_back(actions[i]->get_type());
+  }
+  return types;
+}
