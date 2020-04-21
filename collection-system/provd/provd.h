@@ -34,83 +34,96 @@
 
 class ReqHandler;
 
-class ProvdConfig {
-private:
-    std::string logFileName;
-    uint16_t port;
-public:
-    ProvdConfig(std::string configFile);
-    ~ProvdConfig() {};
-    std::string getLogFileName() const { return logFileName; };
-    uint16_t getPort() const { return port; };
-};
-
 class ProvdServer {
 private:
-    bool running = true;
-    int socketfd;
-    struct sockaddr_in address;
-    std::map<int32_t, ReqHandler*> workers;
+  bool running = true;
+  int socketfd;
+  struct sockaddr_in address;
+  std::map<int32_t, ReqHandler*> workers;
 
-    void dispatchTraceProcessReq(int sock);
-    void dispatchTraceProcessStopReq(int sock);
+  /*
+   * Receives and dispatches a REQ_TRACE_PROCESS request according to
+   * its protocol. The protocol is:
+   *
+   * 4 bytes containing pid
+   * 4 bytes containing msg length (N)
+   *   (we assume that the length includes the \0 character at the end of the regex)
+   * N bytes containing the regex to search for in the process' stdout
+   */
+  void dispatch_trace_process_req(int sock);
+  /*
+   * Receives and handles a REQ_TRACE_PROCESS_STOP request according
+   * to its protocol. The protocol is:
+   *
+   * 4 bytes containing pid
+   *
+   * This function does not dispatch a thread itself but rather just send a
+   * signal to the corresponding worker thread to signal it to stop.
+   */
+  void dispatch_trace_process_stop_req(int sock);
+
 public:
-    ProvdServer(const ProvdConfig& conf);
-    ~ProvdServer();
-    ProvdServer(const ProvdServer&) = delete;
-    ProvdServer& operator=(const ProvdServer& x) = delete;
-    void start();
-    void stop() { running = false; };
+  ProvdServer();
+  ~ProvdServer();
+  ProvdServer(const ProvdServer&) = delete;
+  ProvdServer& operator=(const ProvdServer &x) = delete;
+
+  /*
+   * Main request server loop which waits for incoming client connections,
+   * reads the request and its corresponding arguments, and dispatches a thread
+   * to handle the request.
+   */
+  void start();
+  void stop() { running = false; }
 };
 
 class ReqHandler {
 private:
-    std::thread thr;
+  std::thread thr;
+
 protected:
-    bool running = true;
-    int sock;
+  bool running = true;
+  int sock;
+
 public:
-    /**
-     * A request handler receives a socket descriptor as a constructor
-     * argument to be able to communicate with the corresponding client.
-     * The request handler is responsible for closing the socket once
-     * no more communication is required.
-     */
-    ReqHandler(int sock) : sock {sock} {};
-    void run() {
-        thr = std::thread(&ReqHandler::handle, this);
-    }
-    void stop() {
-        running = false;
-    }
-    bool isRunning() {
-        return running;
-    }
-    std::string getThreadId() const {
-        auto id = thr.get_id();
-        std::stringstream ss;
-        ss << id;
-        return ss.str();
-    }
-    void join() { thr.join(); }
-    virtual void handle()=0;
-    virtual ~ReqHandler() {};
+  /*
+   * A request handler receives a socket descriptor as a constructor
+   * argument to be able to communicate with the corresponding client.
+   * The request handler is responsible for closing the socket once
+   * no more communication is required.
+   */
+  ReqHandler(int sock) : sock { sock } {}
+  virtual ~ReqHandler() {}
+
+  virtual void handle() =0;
+
+  void run() { thr = std::thread(&ReqHandler::handle, this); }
+  void stop() { running = false; }
+  bool is_running() { return running; }
+  std::string get_thread_id() const {
+    auto id = thr.get_id();
+    std::stringstream ss;
+    ss << id;
+    return ss.str();
+  }
+  void join() { thr.join(); }
 };
 
-class TraceProcessReqHandler : public ReqHandler {
+class TraceProcessReqHandler: public ReqHandler {
 private:
-    int32_t traceePid;
-    std::string regexStr;
-    std::regex matchingStr;
+  const std::string tracee_out_base_path = "/tmp/stdout";
+  int32_t tracee_pid;
+  std::string regex_str;
+  std::regex matching_str;
+
 public:
-    TraceProcessReqHandler(int sock, int32_t pid, std::string regexStr) :
-            ReqHandler(sock),
-            traceePid {pid},
-            regexStr {regexStr} {
-        matchingStr = std::regex(regexStr);
-    }
-    virtual ~TraceProcessReqHandler() {};
-    virtual void handle() override;
+  TraceProcessReqHandler(int sock, int32_t pid, std::string regexStr) :
+      ReqHandler(sock), tracee_pid { pid }, regex_str { regexStr } {
+    matching_str = std::regex(regexStr);
+  }
+  virtual ~TraceProcessReqHandler() {}
+
+  virtual void handle() override;
 };
 
 #endif /* PROVD_PROVD_H_ */
