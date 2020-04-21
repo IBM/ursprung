@@ -190,5 +190,3 @@ std::string FSEvent::get_value(std::string field) const {
   else
     return "";
 }
-
-

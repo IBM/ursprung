@@ -199,7 +199,7 @@ public:
   virtual std::string format_for_dst(ConsumerDestination c_dst) const override;
   virtual std::string get_value(std::string field) const override;
   virtual EventType get_type() const override {
-    return SOCKET_EVENT;
+    return SOCKET_CONNECT_EVENT;
   }
 };
 
