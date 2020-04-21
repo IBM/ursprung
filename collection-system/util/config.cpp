@@ -37,6 +37,7 @@ const std::string Config::CKEY_KAFKA_SASL_PASS = "sasl-password";
 const std::string Config::CKEY_LOG_FILE = "log-file";
 const std::string Config::CKEY_RULES_FILE = "rules-file";
 const std::string Config::CKEY_TRACK_VERSIONS = "enable-versioning";
+const std::string Config::CKEY_PROVD_PORT = "port";
 
 config_opts_t Config::config;
 
@@ -112,7 +113,8 @@ void Config::print_config() {
       << Config::CKEY_KAFKA_SASL_PASS << " = "  << Config::config[Config::CKEY_KAFKA_SASL_PASS] << std::endl
       << Config::CKEY_LOG_FILE << " = "  << Config::config[Config::CKEY_LOG_FILE] << std::endl
       << Config::CKEY_RULES_FILE << " = "  << Config::config[Config::CKEY_RULES_FILE] << std::endl
-      << Config::CKEY_TRACK_VERSIONS << " = "  << Config::config[Config::CKEY_TRACK_VERSIONS]
+      << Config::CKEY_TRACK_VERSIONS << " = "  << Config::config[Config::CKEY_TRACK_VERSIONS]  << std::endl
+      << Config::CKEY_PROVD_PORT << " = "  << Config::config[Config::CKEY_PROVD_PORT]
       << std::endl;
 }
 
@@ -146,6 +148,8 @@ bool Config::is_conf_key_valid(std::string key) {
   if (key == Config::CKEY_RULES_FILE)
     return true;
   if (key == Config::CKEY_TRACK_VERSIONS)
+    return true;
+  if (key == Config::CKEY_PROVD_PORT)
     return true;
 
   return false;

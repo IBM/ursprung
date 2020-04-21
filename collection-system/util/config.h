@@ -45,6 +45,7 @@ public:
   static const std::string CKEY_LOG_FILE;
   static const std::string CKEY_RULES_FILE;
   static const std::string CKEY_TRACK_VERSIONS;
+  static const std::string CKEY_PROVD_PORT;
 
   static config_opts_t config;
   static int parse_config(std::string path);
