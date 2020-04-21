@@ -31,9 +31,11 @@
 #include "config.h"
 #include "signal-handling.h"
 
+#ifdef __linux__
 extern "C" {
 #include <libptrace_do.h>
 }
+#endif
 
 #define ESC 27
 
@@ -62,7 +64,7 @@ ProvdServer::ProvdServer() {
 
 ProvdServer::~ProvdServer() {
   for (std::pair<int32_t, ReqHandler*> worker : workers) {
-    LOG_INFO("Waiting for worker " << worker.second->getThreadId() << " to finish...");
+    LOG_INFO("Waiting for worker " << worker.second->get_thread_id() << " to finish...");
     if (worker.second->is_running()) {
       // signal the thread to stop in case it is still running
       worker.second->stop();
@@ -158,8 +160,14 @@ void ProvdServer::dispatch_trace_process_stop_req(int sock) {
  * TraceProcessReqHandler
  *------------------------------*/
 
+/**
+ * This method is only available on Linux and will just return
+ * on any other platform.
+ */
 void TraceProcessReqHandler::handle() {
-  LOG_INFO("Read pid " << tracee_pid << " and regex " << regexStr);
+  LOG_INFO("Read pid " << tracee_pid << " and regex " << regex_str);
+
+#ifdef __linux__
   uint buffer_size = 1024;
   char *buffer;
   char buffer_cpy[buffer_size];
@@ -296,6 +304,7 @@ void TraceProcessReqHandler::handle() {
     LOG_ERROR("Problems while deleting file " << buffer_cpy << ": " << strerror(errno));
   }
   close(sock);
+#endif
 }
 
 /*------------------------------
@@ -324,9 +333,8 @@ int main(int argc, char **argv) {
   signal_handling::setup_handlers();
 
   // start the main loop
-  ProvdServer server = ProvdServer();
-  server.start();
-
+  ProvdServer *server = new ProvdServer();
+  server->start();
   delete server;
   return 0;
 }
