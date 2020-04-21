@@ -26,6 +26,7 @@
 
 #include "event.h"
 #include "scale-event.h"
+#include "auditd-event.h"
 #include "logger.h"
 
 /*------------------------------
@@ -86,15 +87,24 @@ evt_t Event::deserialize_event(const std::string &event) {
   }
 
   // now deserialize the event specific content
-  switch (std::stoi(evt_type)) {
-  case TEST_EVENT: return std::make_shared<TestEvent>(event); break;
-  case FS_EVENT: return std::make_shared<FSEvent>(event); break;
-  default:
-    LOG_ERROR("Received invalid event " << event << " Not deserializing.");
-    return nullptr;
+  try {
+    switch (std::stoi(evt_type)) {
+    case FS_EVENT: return std::make_shared<FSEvent>(event); break;
+    case PROCESS_EVENT: return std::make_shared<ProcessEvent>(event); break;
+    case PROCESS_GROUP_EVENT: return std::make_shared<ProcessGroupEvent>(event); break;
+    case SYSCALL_EVENT: return std::make_shared<SyscallEvent>(event); break;
+    case IPC_EVENT: return std::make_shared<IPCEvent>(event); break;
+    case SOCKET_EVENT: return std::make_shared<SocketEvent>(event); break;
+    case SOCKET_CONNECT_EVENT: return std::make_shared<SocketConnectEvent>(event); break;
+    case TEST_EVENT: return std::make_shared<TestEvent>(event); break;
+    default:
+      LOG_ERROR("Received invalid event " << event << " Not deserializing.");
+      return nullptr;
+    }
+  } catch (const std::invalid_argument &e) {
+      LOG_ERROR("Received invalid event " << event << " Not deserializing.");
+      return nullptr;
   }
-
-  return nullptr;
 }
 
 /*------------------------------

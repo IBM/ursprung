@@ -78,6 +78,7 @@ public:
 #ifdef __linux__
   SyscallEvent(auparse_state_t *au);
 #endif
+  SyscallEvent(const std::string &serialized_event);
   ~SyscallEvent() {};
 
   virtual std::string serialize() const override;
@@ -102,7 +103,12 @@ private:
   std::string start_time_utc;
   std::string finish_time_utc;
 
+  /* Format cmd line strings to fit in limit. */
+  std::string format_cmd_line(int limit) const;
+  bool will_cmd_line_fit(const std::vector<std::string> &cmd_line, int limit) const;
+
 public:
+  ProcessEvent(const std::string &serialized_event);
   ProcessEvent(osm_pid_t pid, osm_pid_t ppid, osm_pgid_t pgid,
       std::string exec_cwd, std::vector<std::string> exec_cmd_line,
       std::string start_time_utc, std::string finish_time_utc);
@@ -123,6 +129,7 @@ private:
   std::string finish_time_utc;
 
 public:
+  ProcessGroupEvent(const std::string &serialized_event);
   ProcessGroupEvent(osm_pgid_t pgid, std::string start_time_utc, std::string finish_time_utc);
   ~ProcessGroupEvent() {}
 
