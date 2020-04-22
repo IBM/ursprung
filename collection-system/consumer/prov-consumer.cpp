@@ -20,6 +20,9 @@
 #include "error.h"
 #include "config.h"
 #include "logger.h"
+#include "abstract-consumer.h"
+#include "scale-consumer.h"
+#include "auditd-consumer.h"
 
 void print_usage() {
   std::cout << "Usage :\n"

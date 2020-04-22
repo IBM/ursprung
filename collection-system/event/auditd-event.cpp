@@ -23,7 +23,7 @@
  * SyscallEvent
  *------------------------------*/
 
-#ifdef __linux
+#ifdef __linux__
 SyscallEvent::SyscallEvent(auparse_state_t *au) :
     pid {-1 },
     ppid { -1 },
