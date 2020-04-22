@@ -21,15 +21,13 @@
 TEST(parse_config_test, test1) {
   int rc = Config::parse_config("test.cfg");
   EXPECT_EQ(NO_ERROR, rc);
-  EXPECT_TRUE((Config::config.find("db-host") != Config::config.end()));
-  EXPECT_TRUE((Config::config.find("db-port") != Config::config.end()));
-  EXPECT_TRUE((Config::config.find("db-user") != Config::config.end()));
-  EXPECT_TRUE((Config::config.find("db-password") != Config::config.end()));
-  EXPECT_EQ(4, Config::config.size());
-  EXPECT_EQ("val1", Config::config["db-host"]);
-  EXPECT_EQ("val2", Config::config["db-port"]);
-  EXPECT_EQ("val3", Config::config["db-user"]);
-  EXPECT_EQ("val4", Config::config["db-password"]);
+  EXPECT_TRUE((Config::config.find("odbc-dsn") != Config::config.end()));
+  EXPECT_TRUE((Config::config.find("odbc-user") != Config::config.end()));
+  EXPECT_TRUE((Config::config.find("odbc-pass") != Config::config.end()));
+  EXPECT_EQ(3, Config::config.size());
+  EXPECT_EQ("val1", Config::config["odbc-dsn"]);
+  EXPECT_EQ("val3", Config::config["odbc-user"]);
+  EXPECT_EQ("val4", Config::config["odbc-pass"]);
 }
 
 TEST(parse_config_test, test2) {
