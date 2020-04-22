@@ -18,6 +18,7 @@
 
 #include "auditd-consumer.h"
 #include "logger.h"
+#include "provd-client.h"
 
 int AuditdConsumer::receive_event(ConsumerSource csrc, evt_t event) {
   // nothing specific to do for the auditd consumer
@@ -36,12 +37,12 @@ int AuditdConsumer::evaluate_rules(evt_t msg) {
         LOG_DEBUG("Received exit syscall for " tracee);
         if (active_tracees.find(tracee) != active_tracees.end()) {
           // we're tracing the process that just exited, signal the tracer
-          // TODO implement provd client
-          //int err;
-          //ProvdClient client;
-          //if ((err = client.connectToServer(nodeName)) < 0) return ERR_NO_RETRY;
-          //if ((err = client.submitStopTraceProcRequest((uint32_t) std::stoi(pidStr))) < 0) return ERR_NO_RETRY;
-          //if ((err = client.disconnectFromServer()) < 0) return ERR_NO_RETRY;
+          int err;
+          ProvdClient client;
+          if ((err = client.connect_to_server(node_name)) < 0) return ERROR_NO_RETRY;
+          if ((err = client.submit_stop_trace_proc_request(
+              (uint32_t) std::stoi(pid_str))) < 0) return ERROR_NO_RETRY;
+          if ((err = client.disconnect_from_server()) < 0) return ERROR_NO_RETRY;
           // remove tracee from list of active tracees
           active_tracees.erase(tracee);
           LOG_DEBUG("Removed " << tracee << " from active tracees.");
