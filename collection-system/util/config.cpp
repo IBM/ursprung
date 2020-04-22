@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "config.h"
-#include "error.h"
-
 #include <fstream>
 #include <iostream>
 
 #include <string.h>
 #include <errno.h>
+
+#include "config.h"
+#include "error.h"
 
 // define config keys
 const std::string Config::CKEY_ODBC_DSN = "odbc-dsn";
@@ -39,6 +39,8 @@ const std::string Config::CKEY_PROVD_PORT = "port";
 const std::string Config::CKEY_PROV_SRC = "prov-src";
 const std::string Config::CKEY_INPUT_SRC = "in-src";
 const std::string Config::CKEY_OUTPUT_DST = "out-dst";
+const std::string Config::CKEY_IN_FILE = "in-file";
+const std::string Config::CKEY_OUT_FILE = "out-file";
 
 config_opts_t Config::config;
 
@@ -111,7 +113,9 @@ void Config::print_config() {
       << Config::CKEY_PROVD_PORT << " = "  << Config::config[Config::CKEY_PROVD_PORT] << std::endl
       << Config::CKEY_PROV_SRC << " = "  << Config::config[Config::CKEY_PROV_SRC] << std::endl
       << Config::CKEY_INPUT_SRC << " = "  << Config::config[Config::CKEY_INPUT_SRC] << std::endl
-      << Config::CKEY_OUTPUT_DST << " = "  << Config::config[Config::CKEY_OUTPUT_DST]
+      << Config::CKEY_OUTPUT_DST << " = "  << Config::config[Config::CKEY_OUTPUT_DST] << std::endl
+      << Config::CKEY_IN_FILE << " = "  << Config::config[Config::CKEY_IN_FILE] << std::endl
+      << Config::CKEY_OUT_FILE << " = "  << Config::config[Config::CKEY_OUT_FILE] << std::endl
       << std::endl;
 }
 
@@ -153,6 +157,10 @@ bool Config::is_conf_key_valid(std::string key) {
   if (key == Config::CKEY_INPUT_SRC)
     return true;
   if (key == Config::CKEY_OUTPUT_DST)
+    return true;
+  if (key == Config::CKEY_IN_FILE)
+    return true;
+  if (key == Config::CKEY_OUT_FILE)
     return true;
 
   return false;

@@ -51,6 +51,8 @@ public:
   static const std::string CKEY_PROV_SRC;
   static const std::string CKEY_INPUT_SRC;
   static const std::string CKEY_OUTPUT_DST;
+  static const std::string CKEY_IN_FILE;
+  static const std::string CKEY_OUT_FILE;
 
   static config_opts_t config;
   /*
