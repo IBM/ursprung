@@ -70,7 +70,7 @@ int AbstractConsumer::run() {
         signal_handling::running = false;
       } else {
         // log and ignore error
-        LOG_WARN("Got error " < rc << " during receive. Continuing.");
+        LOG_WARN("Got error " << rc << " during receive. Continuing.");
       }
 
       if (msg_buffer.size() > batch_size) {

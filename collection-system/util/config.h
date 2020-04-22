@@ -28,15 +28,17 @@ typedef std::map<std::string, std::string> config_opts_t;
  */
 class Config {
 private:
+  /*
+   * Checks whether the provided configuration key is valid, i.e.
+   * if it equals one of the above defined CKEY_ constants.
+   */
   static bool is_conf_key_valid(std::string key);
 
 public:
   // valid configuration keys
-  static const std::string CKEY_DB_HOST;
-  static const std::string CKEY_DB_PORT;
-  static const std::string CKEY_DB_NAME;
-  static const std::string CKEY_DB_USER;
-  static const std::string CKEY_DB_PASS;
+  static const std::string CKEY_ODBC_DSN;
+  static const std::string CKEY_ODBC_USER;
+  static const std::string CKEY_ODBC_PASS;
   static const std::string CKEY_BROKER_HOST;
   static const std::string CKEY_BROKER_PORT;
   static const std::string CKEY_KAFKA_TOPIC;
@@ -46,9 +48,18 @@ public:
   static const std::string CKEY_RULES_FILE;
   static const std::string CKEY_TRACK_VERSIONS;
   static const std::string CKEY_PROVD_PORT;
+  static const std::string CKEY_PROV_SRC;
+  static const std::string CKEY_INPUT_SRC;
+  static const std::string CKEY_OUTPUT_DST;
 
   static config_opts_t config;
+  /*
+   * Parses the config file at the provided path. The config
+   * format is expected to be a simple 'key = value' format.
+   * Comments are prefixed by '#'.
+   */
   static int parse_config(std::string path);
+  static bool has_conf_key(std::string key);
   static void print_config();
 };
 

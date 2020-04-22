@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef PROV_GPFS_CONSUMER_H
-#define PROV_GPFS_CONSUMER_H
+#ifndef PROV_AUDITD_CONSUMER_H
+#define PROV_AUDITD_CONSUMER_H
 
 #include <unordered_set>
 
@@ -38,8 +38,8 @@ private:
 public:
   AuditdConsumer(ConsumerSource csrc, std::unique_ptr<MsgInputStream> in,
       ConsumerDestination cdst, std::unique_ptr<MsgOutputStream> out,
-      uint32_t batchsize = 10000, bool trackVersions) :
-      AbstractConsumer(csrc, in, cdst, out, batchsize) {}
+      uint32_t batchsize = 10000) :
+      AbstractConsumer(csrc, std::move(in), cdst, std::move(out), batchsize) {}
   ~AuditdConsumer() {};
 };
 

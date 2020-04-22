@@ -28,8 +28,8 @@ private:
 public:
   ScaleConsumer(ConsumerSource csrc, std::unique_ptr<MsgInputStream> in,
       ConsumerDestination cdst, std::unique_ptr<MsgOutputStream> out,
-      uint32_t batchsize = 10000, bool trackVersions) :
-      AbstractConsumer(csrc, in, cdst, out, batchsize),
+      bool trackVersions, uint32_t batchsize = 10000) :
+      AbstractConsumer(csrc, std::move(in), cdst, std::move(out), batchsize),
       trackVersions { trackVersions } {}
   ~ScaleConsumer() {};
 };

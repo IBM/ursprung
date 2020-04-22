@@ -21,6 +21,39 @@
 #include "error.h"
 #include "logger.h"
 
+// constants describing the different tables for Scale events
+const std::string DBOutputStream::SCALE_EVENTS_TABLENAME = "gpfseventsnarrow";
+const std::string DBOutputStream::SCALE_EVENTS_SCHEMA = "event,clusterName,nodeName,"
+    "fsName,path,inode,bytesRead,bytesWritten,pid,eventTime,dstPath,version";
+
+// constants describing the different tables for Auditd events
+const std::string DBOutputStream::AUDIT_SYSCALL_EVENTS_TABLENAME = "auditdsyscallevents";
+const std::string DBOutputStream::AUDIT_SYSCALL_EVENTS_SCHEMA = "nodeName,eventId,pid,ppid,"
+    "uid,gid,euid,egid,syscall,arg0,arg1,arg2,arg3,arg4,rc,eventTime,data1,data2";
+const std::string DBOutputStream::AUDIT_SYSCALL_EVENTS_KEY = "SyscallEvent";
+
+const std::string DBOutputStream::AUDIT_PROCESS_EVENTS_TABLENAME = "auditdprocessevents";
+const std::string DBOutputStream::AUDIT_PROCESS_EVENTS_SCHEMA = "nodeName,pid,ppid,pgid,"
+    "execCwd,execCmdLine,birthTime,deathTime";
+const std::string DBOutputStream::AUDIT_PROCESS_EVENTS_KEY = "ProcessEvent";
+
+const std::string DBOutputStream::AUDIT_PROCESSGROUP_EVENTS_TABLENAME = "auditdprocessgroupevents";
+const std::string DBOutputStream::AUDIT_PROCESSGROUP_EVENTS_SCHEMA = "nodeName,pgid,birthTime,deathTime";
+const std::string DBOutputStream::AUDIT_PROCESSGROUP_EVENTS_KEY = "ProcessGroupEvent";
+
+const std::string DBOutputStream::AUDIT_IPC_EVENTS_TABLENAME = "auditdipcevents";
+const std::string DBOutputStream::AUDIT_IPC_EVENTS_SCHEMA = "nodeName,srcPid,dstPid,srcBirth,dstBirth";
+const std::string DBOutputStream::AUDIT_IPC_EVENTS_KEY = "IPCEvent";
+
+const std::string DBOutputStream::AUDIT_SOCKET_EVENTS_TABLENAME = "auditdsocketevents";
+const std::string DBOutputStream::AUDIT_SOCKET_EVENTS_SCHEMA = "nodeName,pid,port,openTime,closeTime";
+const std::string DBOutputStream::AUDIT_SOCKET_EVENTS_KEY = "SocketEvent";
+
+const std::string DBOutputStream::AUDIT_SOCKETCONNECT_EVENTS_TABLENAME = "auditdsocketconnectevents";
+const std::string DBOutputStream::AUDIT_SOCKETCONNECT_EVENTS_SCHEMA = "nodeName,pid,dstPort,"
+    "connectTime,dstNode";
+const std::string DBOutputStream::AUDIT_SOCKETCONNECT_EVENTS_KEY = "SocketConnectEvent";
+
 DBOutputStream::DBOutputStream(const std::string &conn, const std::string &db_schema,
     const std::string &tablename, bool async_val, bool multiplex_val, int pos) :
     connection_string { conn },

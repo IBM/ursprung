@@ -87,6 +87,30 @@ private:
   void send_async(std::vector<std::string> records);
 
 public:
+  // constants describing the different tables for Scale events
+  static const std::string SCALE_EVENTS_TABLENAME;
+  static const std::string SCALE_EVENTS_SCHEMA;
+
+  // constants describing the different tables for Auditd events
+  static const std::string AUDIT_SYSCALL_EVENTS_TABLENAME;
+  static const std::string AUDIT_SYSCALL_EVENTS_SCHEMA;
+  static const std::string AUDIT_SYSCALL_EVENTS_KEY;
+  static const std::string AUDIT_PROCESS_EVENTS_TABLENAME;
+  static const std::string AUDIT_PROCESS_EVENTS_SCHEMA;
+  static const std::string AUDIT_PROCESS_EVENTS_KEY;
+  static const std::string AUDIT_PROCESSGROUP_EVENTS_TABLENAME;
+  static const std::string AUDIT_PROCESSGROUP_EVENTS_SCHEMA;
+  static const std::string AUDIT_PROCESSGROUP_EVENTS_KEY;
+  static const std::string AUDIT_IPC_EVENTS_TABLENAME;
+  static const std::string AUDIT_IPC_EVENTS_SCHEMA;
+  static const std::string AUDIT_IPC_EVENTS_KEY;
+  static const std::string AUDIT_SOCKET_EVENTS_TABLENAME;
+  static const std::string AUDIT_SOCKET_EVENTS_SCHEMA;
+  static const std::string AUDIT_SOCKET_EVENTS_KEY;
+  static const std::string AUDIT_SOCKETCONNECT_EVENTS_TABLENAME;
+  static const std::string AUDIT_SOCKETCONNECT_EVENTS_SCHEMA;
+  static const std::string AUDIT_SOCKETCONNECT_EVENTS_KEY;
+
   DBOutputStream(const std::string &conn, const std::string &dbSchema,
       const std::string &tablename, bool async, bool multiplex = false, int pos = -1);
   ~DBOutputStream();

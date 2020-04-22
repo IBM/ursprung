@@ -24,11 +24,9 @@
 #include <errno.h>
 
 // define config keys
-const std::string Config::CKEY_DB_HOST = "db-host";
-const std::string Config::CKEY_DB_PORT = "db-port";
-const std::string Config::CKEY_DB_NAME = "db-name";
-const std::string Config::CKEY_DB_USER = "db-user";
-const std::string Config::CKEY_DB_PASS = "db-password";
+const std::string Config::CKEY_ODBC_DSN = "odbc-dsn";
+const std::string Config::CKEY_ODBC_USER = "odbc-user";
+const std::string Config::CKEY_ODBC_PASS = "odbc-pass";
 const std::string Config::CKEY_BROKER_HOST = "broker-host";
 const std::string Config::CKEY_BROKER_PORT = "broker-port";
 const std::string Config::CKEY_KAFKA_TOPIC = "kafka-topic";
@@ -38,14 +36,12 @@ const std::string Config::CKEY_LOG_FILE = "log-file";
 const std::string Config::CKEY_RULES_FILE = "rules-file";
 const std::string Config::CKEY_TRACK_VERSIONS = "enable-versioning";
 const std::string Config::CKEY_PROVD_PORT = "port";
+const std::string Config::CKEY_PROV_SRC = "prov-src";
+const std::string Config::CKEY_INPUT_SRC = "in-src";
+const std::string Config::CKEY_OUTPUT_DST = "out-dst";
 
 config_opts_t Config::config;
 
-/**
- * Parses the config file at the provided path. The config
- * format is expected to be a simple 'key = value' format.
- * Comments are prefixed by '#'.
- */
 int Config::parse_config(std::string path) {
   std::ifstream config_file(path);
 
@@ -101,11 +97,9 @@ int Config::parse_config(std::string path) {
 
 void Config::print_config() {
   std::cout << "Config values:" << std::endl
-      << Config::CKEY_DB_HOST << " = "  << Config::config[Config::CKEY_DB_HOST] << std::endl
-      << Config::CKEY_DB_PORT << " = "  << Config::config[Config::CKEY_DB_PORT] << std::endl
-      << Config::CKEY_DB_NAME << " = "  << Config::config[Config::CKEY_DB_NAME] << std::endl
-      << Config::CKEY_DB_USER << " = "  << Config::config[Config::CKEY_DB_USER] << std::endl
-      << Config::CKEY_DB_PASS << " = "  << Config::config[Config::CKEY_DB_PASS] << std::endl
+      << Config::CKEY_ODBC_DSN << " = "  << Config::config[Config::CKEY_ODBC_DSN] << std::endl
+      << Config::CKEY_ODBC_USER << " = "  << Config::config[Config::CKEY_ODBC_USER] << std::endl
+      << Config::CKEY_ODBC_PASS << " = "  << Config::config[Config::CKEY_ODBC_PASS] << std::endl
       << Config::CKEY_BROKER_HOST << " = "  << Config::config[Config::CKEY_BROKER_HOST] << std::endl
       << Config::CKEY_BROKER_PORT << " = "  << Config::config[Config::CKEY_BROKER_PORT] << std::endl
       << Config::CKEY_KAFKA_TOPIC << " = "  << Config::config[Config::CKEY_KAFKA_TOPIC] << std::endl
@@ -113,25 +107,28 @@ void Config::print_config() {
       << Config::CKEY_KAFKA_SASL_PASS << " = "  << Config::config[Config::CKEY_KAFKA_SASL_PASS] << std::endl
       << Config::CKEY_LOG_FILE << " = "  << Config::config[Config::CKEY_LOG_FILE] << std::endl
       << Config::CKEY_RULES_FILE << " = "  << Config::config[Config::CKEY_RULES_FILE] << std::endl
-      << Config::CKEY_TRACK_VERSIONS << " = "  << Config::config[Config::CKEY_TRACK_VERSIONS]  << std::endl
-      << Config::CKEY_PROVD_PORT << " = "  << Config::config[Config::CKEY_PROVD_PORT]
+      << Config::CKEY_TRACK_VERSIONS << " = "  << Config::config[Config::CKEY_TRACK_VERSIONS] << std::endl
+      << Config::CKEY_PROVD_PORT << " = "  << Config::config[Config::CKEY_PROVD_PORT] << std::endl
+      << Config::CKEY_PROV_SRC << " = "  << Config::config[Config::CKEY_PROV_SRC] << std::endl
+      << Config::CKEY_INPUT_SRC << " = "  << Config::config[Config::CKEY_INPUT_SRC] << std::endl
+      << Config::CKEY_OUTPUT_DST << " = "  << Config::config[Config::CKEY_OUTPUT_DST]
       << std::endl;
 }
 
-/**
- * Checks whether the provided configuration key is valid, i.e.
- * if it equals one of the above defined CKEY_ constants.
- */
+bool Config::has_conf_key(std::string key) {
+  if (Config::config.find(key) != Config::config.end()
+      && Config::config[key] != "") {
+    return true;
+  }
+  return false;
+}
+
 bool Config::is_conf_key_valid(std::string key) {
-  if (key == Config::CKEY_DB_HOST)
+  if (key == Config::CKEY_ODBC_DSN)
     return true;
-  if (key == Config::CKEY_DB_PORT)
+  if (key == Config::CKEY_ODBC_USER)
     return true;
-  if (key == Config::CKEY_DB_NAME)
-    return true;
-  if (key == Config::CKEY_DB_USER)
-    return true;
-  if (key == Config::CKEY_DB_PASS)
+  if (key == Config::CKEY_ODBC_PASS)
     return true;
   if (key == Config::CKEY_BROKER_HOST)
     return true;
@@ -150,6 +147,12 @@ bool Config::is_conf_key_valid(std::string key) {
   if (key == Config::CKEY_TRACK_VERSIONS)
     return true;
   if (key == Config::CKEY_PROVD_PORT)
+    return true;
+  if (key == Config::CKEY_PROV_SRC)
+    return true;
+  if (key == Config::CKEY_INPUT_SRC)
+    return true;
+  if (key == Config::CKEY_OUTPUT_DST)
     return true;
 
   return false;
