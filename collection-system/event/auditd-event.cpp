@@ -253,7 +253,7 @@ std::string SyscallEvent::serialize() const {
 
 std::string SyscallEvent::format_for_dst(ConsumerDestination c_dst) const {
   std::stringstream formatted;
-  if (c_dst == CD_DB2 || c_dst == CD_POSTGRES) {
+  if (c_dst == CD_ODBC || c_dst == CD_FILE) {
     formatted << "SyscallEvent"
       << "," << format_as_varchar(node_name, 128)
       << "," << std::to_string(auditd_event_id)
@@ -533,7 +533,7 @@ std::string ProcessEvent::serialize() const {
 
 std::string ProcessEvent::format_for_dst(ConsumerDestination c_dst) const {
   std::stringstream formatted;
-  if (c_dst == CD_DB2 || c_dst == CD_POSTGRES) {
+  if (c_dst == CD_ODBC || c_dst == CD_FILE) {
     formatted << "ProcessEvent"
       << "," << format_as_varchar(node_name, 128)
       << "," << std::to_string(pid)
@@ -709,7 +709,7 @@ std::string ProcessGroupEvent::serialize() const {
 
 std::string ProcessGroupEvent::format_for_dst(ConsumerDestination c_dst) const {
   std::stringstream formatted;
-  if (c_dst == CD_DB2 || c_dst == CD_POSTGRES) {
+  if (c_dst == CD_ODBC || c_dst == CD_FILE) {
     formatted << "ProcessGroupEvent"
       << "," << format_as_varchar(node_name, 128)
       << "," << std::to_string(pgid)
@@ -804,7 +804,7 @@ std::string IPCEvent::serialize() const {
 
 std::string IPCEvent::format_for_dst(ConsumerDestination c_dst) const {
   std::stringstream formatted;
-  if (c_dst == CD_DB2 || c_dst == CD_POSTGRES) {
+  if (c_dst == CD_ODBC || c_dst == CD_FILE) {
     formatted << "IPCEvent"
       << "," << format_as_varchar(node_name, 128)
       << "," << std::to_string(src_pid)
@@ -902,7 +902,7 @@ std::string SocketEvent::serialize() const {
 
 std::string SocketEvent::format_for_dst(ConsumerDestination c_dst) const {
   std::stringstream formatted;
-  if (c_dst == CD_DB2 || c_dst == CD_POSTGRES) {
+  if (c_dst == CD_ODBC || c_dst == CD_FILE) {
     formatted << "SocketEvent"
       << "," << format_as_varchar(node_name, 128)
       << "," << std::to_string(pid)
@@ -1000,7 +1000,7 @@ std::string SocketConnectEvent::serialize() const {
 
 std::string SocketConnectEvent::format_for_dst(ConsumerDestination c_dst) const {
   std::stringstream formatted;
-  if (c_dst == CD_DB2 || c_dst == CD_POSTGRES) {
+  if (c_dst == CD_ODBC || c_dst == CD_FILE) {
     formatted << "SocketConnectEvent"
       << "," << format_as_varchar(node_name, 128)
       << "," << std::to_string(pid)

@@ -145,7 +145,7 @@ std::string FSEvent::serialize() const {
 
 std::string FSEvent::format_for_dst(ConsumerDestination c_dst) const {
   std::stringstream formatted;
-  if (c_dst == CD_DB2 || c_dst == CD_POSTGRES) {
+  if (c_dst == CD_ODBC || c_dst == CD_FILE) {
     formatted << format_as_varchar(event, 20)
       << "," << format_as_varchar(cluster_name, 32)
       << "," << format_as_varchar(node_name, 128)

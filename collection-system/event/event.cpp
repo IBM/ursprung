@@ -162,7 +162,7 @@ std::string TestEvent::serialize() const {
 
 std::string TestEvent::format_for_dst(ConsumerDestination c_dst) const {
   std::string normalized;
-  if (c_dst == CD_DB2 || c_dst == CD_POSTGRES) {
+  if (c_dst == CD_ODBC || c_dst == CD_FILE) {
     normalized = format_as_varchar(f1, 20)
         + "," + format_as_varchar(f2, 32)
         + "," + format_as_varchar(f3, 128);

@@ -150,7 +150,7 @@ int LogLoadAction::execute(evt_t msg) {
     LOG_ERROR("stat() failed with " << strerror(errno) << "."
         << " Can't retrieve inode for " << path << ". "
         << "Exiting LogLoadAction " << this->str()
-        << " for received message " << msg->format_for_dst(CD_DB2));
+        << " for received message " << msg->serialize());
     return ERROR_NO_RETRY;
   }
   unsigned long long inode = sb.st_ino;

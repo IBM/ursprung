@@ -25,7 +25,6 @@
 
 int ScaleConsumer::receive_event(ConsumerSource csrc, evt_t event) {
   // TODO add processing of directory renames here
-  assert(csrc == CS_PROV_GPFS);
   // if assert passes, we can safely cast event and call get_value() with FSEvent attributes
   assert(event->get_type() == FS_EVENT);
 

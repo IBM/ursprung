@@ -170,7 +170,7 @@ std::unique_ptr<AbstractConsumer> create_configured_consumer() {
     }
   } else if (out_dst == constants::FILE_STREAM) {
     // make sure all File relevant properties are set in config
-    if (Config::has_conf_key(Config::CKEY_IN_FILE)) {
+    if (Config::has_conf_key(Config::CKEY_OUT_FILE)) {
       out = std::make_unique<FileOutputStream>(Config::config[Config::CKEY_OUT_FILE]);
     } else {
       LOG_ERROR("File ouput destination needs to specify " << Config::CKEY_OUT_FILE << ".");
@@ -183,15 +183,17 @@ std::unique_ptr<AbstractConsumer> create_configured_consumer() {
 
   // create the consumer
   std::unique_ptr<AbstractConsumer> consumer;
+  ConsumerDestination c_dst;
+  if (out_dst == "ODBC") c_dst = CD_ODBC;
+  else if (out_dst == "File") c_dst = CD_FILE;
+
   if (Config::config[Config::CKEY_PROV_SRC] == constants::AUDITD_SRC) {
-    // TODO somehow combine consumer src/destination and input/output streams in on object
     consumer = std::make_unique<AuditdConsumer>(CS_PROV_AUDITD, std::move(in),
-        CD_ODBC, std::move(out));
+        c_dst, std::move(out));
   } else if (Config::config[Config::CKEY_PROV_SRC] == constants::SCALE_SRC) {
-    // TODO somehow combine consumer src/destination and input/output streams in on object
     // TODO correctly interpret config option for tracking versions
     consumer = std::make_unique<ScaleConsumer>(CS_PROV_GPFS, std::move(in),
-        CD_ODBC, std::move(out), false);
+        c_dst, std::move(out), false);
   }
 
   return consumer;

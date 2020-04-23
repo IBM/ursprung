@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef OS_EVENT_H
-#define OS_EVENT_H
+#ifndef EVENT_H
+#define EVENT_H
 
 #include <string>
 #include <memory>
@@ -47,9 +47,8 @@ enum ConsumerSource {
 };
 
 enum ConsumerDestination {
-  CD_DB2 = 0,
-  CD_POSTGRES = 1,
-  CD_ODBC
+  CD_ODBC = 0,
+  CD_FILE = 1
 };
 
 /**
