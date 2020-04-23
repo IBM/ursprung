@@ -30,12 +30,16 @@ AbstractConsumer::AbstractConsumer(ConsumerSource csrc,
   if (!Config::config[Config::CKEY_RULES_FILE].empty()) {
     rule_engine = std::make_unique<RuleEngine>(Config::config[Config::CKEY_RULES_FILE]);
   }
+  in_stream->open();
+  out_stream->open();
 }
 
 AbstractConsumer::~AbstractConsumer() {
   if (rule_engine) {
     rule_engine->shutdown();
   }
+  in_stream->close();
+  out_stream->close();
 }
 
 int AbstractConsumer::run() {
@@ -55,7 +59,7 @@ int AbstractConsumer::run() {
           LOG_ERROR("Problems while receiving event " << next_msg << " Skipping event.");
           continue;
         }
-        if (!receive_event(c_src, evt)) {
+        if (receive_event(c_src, evt)) {
           LOG_ERROR("Problems while processing event " << next_msg << " Skipping event.");
           continue;
         }
@@ -66,7 +70,7 @@ int AbstractConsumer::run() {
           LOG_ERROR("Problems while executing rules, some provenance " <<
               "might be lost");
         }
-      } else if (rc == ERROR_NO_RETRY) {
+      } else if (rc == ERROR_NO_RETRY || rc == ERROR_EOF) {
         signal_handling::running = false;
       } else {
         // log and ignore error
