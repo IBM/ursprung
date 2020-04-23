@@ -127,6 +127,13 @@ bool Config::has_conf_key(std::string key) {
   return false;
 }
 
+bool Config::get_bool(std::string key) {
+  if (key == "True" || key == "true" || key == "Yes" || key == "yes") {
+    return true;
+  }
+  return false;
+}
+
 bool Config::is_conf_key_valid(std::string key) {
   if (key == Config::CKEY_ODBC_DSN)
     return true;

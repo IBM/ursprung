@@ -191,9 +191,8 @@ std::unique_ptr<AbstractConsumer> create_configured_consumer() {
     consumer = std::make_unique<AuditdConsumer>(CS_PROV_AUDITD, std::move(in),
         c_dst, std::move(out));
   } else if (Config::config[Config::CKEY_PROV_SRC] == constants::SCALE_SRC) {
-    // TODO correctly interpret config option for tracking versions
     consumer = std::make_unique<ScaleConsumer>(CS_PROV_GPFS, std::move(in),
-        c_dst, std::move(out), false);
+        c_dst, std::move(out), Config::get_bool(Config::CKEY_TRACK_VERSIONS));
   }
 
   return consumer;

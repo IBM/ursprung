@@ -62,6 +62,8 @@ public:
    */
   static int parse_config(std::string path);
   static bool has_conf_key(std::string key);
+  static bool get_bool(std::string key);
+  static long get_long(std::string key) { return std::stol(config[key]); }
   static void print_config();
 };
 
