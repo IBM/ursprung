@@ -29,7 +29,7 @@ int ScaleConsumer::receive_event(ConsumerSource csrc, evt_t event) {
   assert(event->get_type() == FS_EVENT);
 
   if (event->get_value("event") == "CLOSE"
-      && std::stoi(event->get_value("bytes_written")) > 0 && trackVersions) {
+      && std::stoi(event->get_value("bytes_written")) > 0 && track_versions) {
     // if the event updated a file and version tracking is enabled, compute version hash
     // open file, check that it exists and compute file size
     int fd = open(event->get_value("path").c_str(), O_RDONLY);
