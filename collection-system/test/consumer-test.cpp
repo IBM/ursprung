@@ -41,3 +41,42 @@ TEST(scale_consumer_test, test1) {
   EXPECT_EQ("'CLOSE','scale-cluster','some-node','fs0',"
       "'/tmp/some-file',4321,12,0,1234,'2020/04/22 - 01:01:00.123','',''", line);
 }
+
+TEST(auditd_consumer_test, test1) {
+  // create in and output streams
+  std::string in_file_name = "auditd-consumer-test.in";
+  std::unique_ptr<MsgInputStream> in = std::make_unique<FileInputStream>(in_file_name);
+  std::string out_file_name = "auditd-consumer-test.out";
+  std::unique_ptr<MsgOutputStream> out = std::make_unique<FileOutputStream>(out_file_name);
+
+  AuditdConsumer c(CS_PROV_AUDITD, std::move(in), CD_FILE, std::move(out));
+  c.run();
+
+  std::ifstream in_file("auditd-consumer-test.out");
+  std::string line;
+  std::vector<std::string> lines;
+  while(std::getline(in_file, line)) {
+    lines.push_back(line);
+  }
+  std::getline(in_file, line);
+  EXPECT_EQ(6, lines.size());
+  std::string syscall_event = "SyscallEvent,'some-node',123,1234,1233,1010,2,1010,2,"
+      "'exit_group','some arg','another arg','third arg','','',"
+      "0,'2020/04/22 - 01:01:00:123','data1','data2'";
+  std::string process_event = "ProcessEvent,'some-node',1234,1233,1234,'/tmp/cwd',"
+      "'python train.py -d data','2020/04/22 - 01:01:00:123','2020/04/22 - 01:01:01:123'";
+  std::string process_group_event = "ProcessGroupEvent,'some-node',1234,'2020/04/22 - 01:01:00:123',"
+      "'2020/04/22 - 01:01:01:123'";
+  std::string ipc_event = "IPCEvent,'some-node',1234,1235,'2020/04/22 - 01:01:00:123',"
+      "'2020/04/22 - 01:01:00:123'";
+  std::string socket_event = "SocketEvent,'some-node',1234,12345,'2020/04/22 - 01:01:00:123',"
+      "'2020/04/22 - 01:01:01:123'";
+  std::string socket_connect_event = "SocketConnectEvent,'some-other-node',4321,12345,"
+      "'2020/04/22 - 01:01:00:124','some-node'";
+  EXPECT_EQ(lines[0], syscall_event);
+  EXPECT_EQ(lines[1], process_event);
+  EXPECT_EQ(lines[2], process_group_event);
+  EXPECT_EQ(lines[3], ipc_event);
+  EXPECT_EQ(lines[4], socket_event);
+  EXPECT_EQ(lines[5], socket_connect_event);
+}

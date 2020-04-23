@@ -768,12 +768,12 @@ IPCEvent::IPCEvent(const std::string &serialized_event) {
     throw std::invalid_argument(serialized_event + " is not a IPCEvent.");
   }
   dst_pid = std::stoi(dst_pid_str);
-  // start_time_utc
+  // src_start_time_utc
   if (!getline(evt_ss, src_start_time_utc, ',')) {
     LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a IPCEvent.");
   }
-  // finish_time_utc
+  // dst_start_time_utc
   if (!getline(evt_ss, dst_start_time_utc, ',')) {
     LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a IPCEvent.");

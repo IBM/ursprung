@@ -44,6 +44,9 @@ AbstractConsumer::~AbstractConsumer() {
 
 int AbstractConsumer::run() {
   signal_handling::setup_handlers();
+  // This is only needed to be able to run the unit tests for different consumers
+  // (as each consumer unit test will set this to 0 after finishing)
+  signal_handling::running = 1;
 
   std::string next_msg;
   int rc;
