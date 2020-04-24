@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+#include "../os-model/processes.h"
+
 #include <assert.h>
 #include <unistd.h>
 #include <string.h>
 
-#include "processes.h"
 #include "logger.h"
 
 static const std::string EPOCH_TIME_UTC = "1970-01-01 00:00:00.000";

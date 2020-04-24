@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+#include "../os-model/os-model.h"
+
 #include <assert.h>
 
-#include "os-model.h"
 #include "logger.h"
 
 std::map<std::string, osm_syscall_t> string_to_syscall {

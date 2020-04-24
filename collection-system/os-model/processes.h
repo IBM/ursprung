@@ -23,9 +23,9 @@
 #include <set>
 #include <string>
 
-#include "files.h"
+#include "../os-model/files.h"
+#include "../os-model/os-common.h"
 #include "auditd-event.h"
-#include "os-common.h"
 
 class LiveThread;
 

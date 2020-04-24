@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+#include "../os-model/files.h"
+
 #include <cstring>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "files.h"
 #include "logger.h"
 
 /*------------------------------

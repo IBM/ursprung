@@ -23,9 +23,9 @@
 #include <set>
 #include <string>
 
+#include "../os-model/os-common.h"
+#include "../os-model/processes.h"
 #include "auditd-event.h"
-#include "os-common.h"
-#include "processes.h"
 
 /**
  * OSModel models an OS. It replays a syscall trace to track higher-level objects
