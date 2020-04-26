@@ -36,19 +36,19 @@ class LiveThread;
  * pgid, command line, etc.).
  */
 class LiveProcess {
-  friend class ProcessEvent;
+friend class ProcessEvent;
 
 public:
-  osm_pid_t pid_;
-  osm_pid_t ppid_;
+  osm_pid_t pid;
+  osm_pid_t ppid;
   // for completeness, this should be a list of <pgid, timestamp> pairs
-  osm_pgid_t pgid_;
+  osm_pgid_t pgid;
   // for completeness, this should be a list of <X, timestamp> pairs
   // since you can nest exec calls
   std::string exec_cwd;
   std::vector<std::string> exec_cmd_line;
-  std::string start_time_utc_;
-  std::string finish_time_utc_;
+  std::string start_time_utc;
+  std::string finish_time_utc;
   std::map<int, FileDescriptor> fds;
   std::map<osm_pid_t, LiveThread*> threads;
   bool is_thread;

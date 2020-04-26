@@ -81,7 +81,7 @@ osm_rc_t ProcessTable::apply_syscall(SyscallEvent *se) {
   // If we haven't seen the corresponding clone() call, we don't know
   // whether the parent is a thread or not and hence just create a new process.
   LiveProcess *caller = add_caller_if_unseen(se);
-  LOG_DEBUG("process " << std::to_string(caller->pid_) << " made syscall " << se->syscall_name);
+  LOG_DEBUG("process " << std::to_string(caller->pid) << " made syscall " << se->syscall_name);
 
   switch (string_to_syscall[se->syscall_name]) {
   // process-related syscalls
@@ -198,10 +198,10 @@ LiveProcess* ProcessTable::add_process_if_unseen(osm_pid_t pid) {
 
 void ProcessTable::register_live_process(LiveProcess *lp) {
   assert(lp);
-  assert(!get_live_process(lp->pid_));
+  assert(!get_live_process(lp->pid));
 
-  LOG_DEBUG("Adding lp " << lp->pid_ << "(" << lp << ")" << " to liveProcesses");
-  live_processes[lp->pid_] = lp;
+  LOG_DEBUG("Adding lp " << lp->pid << "(" << lp << ")" << " to liveProcesses");
+  live_processes[lp->pid] = lp;
 }
 
 void ProcessTable::register_live_process_group(LiveProcessGroup *lpg) {
@@ -247,11 +247,11 @@ void ProcessTable::clone(SyscallEvent *se) {
       parent = ((LiveThread*) parent)->parent;
     }
     LOG_DEBUG("A thread has been cloned with tid " << std::to_string(child_pid) << " and parent "
-        << std::to_string(parent->pid_));
+        << std::to_string(parent->pid));
 
     LiveThread *new_thread = new LiveThread(parent, child_pid, se->event_time);
     register_live_process(new_thread);
-    parent->threads[new_thread->pid_] = new_thread;
+    parent->threads[new_thread->pid] = new_thread;
     // we don't add threads to existing process groups
   } else {
     // threads can clone new processes so we have to find the actual process parent
@@ -297,7 +297,7 @@ void ProcessTable::vfork(SyscallEvent *se) {
       parent = ((LiveThread*) parent)->parent;
     }
 
-    old_process->vfork(se->event_time, parent->pid_, parent->pgid_);
+    old_process->vfork(se->event_time, parent->pid, parent->pgid);
     try_to_add_process_to_process_group(old_process, se->event_time);
   } else {
     // find parent process (not thread)
@@ -310,7 +310,7 @@ void ProcessTable::vfork(SyscallEvent *se) {
     try_to_add_process_to_process_group(new_process, se->event_time);
   }
   LOG_DEBUG("A process has been cloned with pid " << std::to_string(child_pid) << " by "
-      << std::to_string(se->pid_));
+      << std::to_string(se->pid));
 }
 
 void ProcessTable::pipe(SyscallEvent *se) {
@@ -327,9 +327,9 @@ void ProcessTable::pipe(SyscallEvent *se) {
   lp->fds[fd_read_int] = fd0;
   lp->fds[fd_write_int] = fd1;
 
-  LOG_DEBUG("[" << lp->pid_ << "] Added file descriptor " << lp->fds[fd_read_int].str()
-      << " to lp " << lp->pid_ << " and file descriptor " << lp->fds[fd_write_int].str()
-      << " to lp " << lp->pid_ << ". Process now has " << lp->fds.size()
+  LOG_DEBUG("[" << lp->pid << "] Added file descriptor " << lp->fds[fd_read_int].str()
+      << " to lp " << lp->pid << " and file descriptor " << lp->fds[fd_write_int].str()
+      << " to lp " << lp->pid << ". Process now has " << lp->fds.size()
       << " open file descriptors.");
 }
 
@@ -371,8 +371,8 @@ void ProcessTable::close(SyscallEvent *se) {
 
   std::string fd_str = lp->fds[fd].str();
   lp->fds.erase(fd);
-  LOG_DEBUG("[" << lp->pid_ << "] Closing file descriptor " << fd_str << " in "
-      << lp->pid_ << ". Process now has " << lp->fds.size()
+  LOG_DEBUG("[" << lp->pid << "] Closing file descriptor " << fd_str << " in "
+      << lp->pid << ". Process now has " << lp->fds.size()
       << " open file descriptors.");
 }
 
@@ -389,12 +389,12 @@ void ProcessTable::dup2(SyscallEvent *se) {
     FileDescriptor fd = lp->fds[old_fd];
     if (fd.get_type() == osm_fd_pipe_read && new_fd == 0) {
       // the pipe read end has been set up
-      ((Pipe*) fd.get_target_file())->set_reader_process(lp->pid_, lp->start_time_utc_);
-      LOG_DEBUG("Setting pipe reader " << lp->pid_ << " - " << lp->start_time_utc);
+      ((Pipe*) fd.get_target_file())->set_reader_process(lp->pid, lp->start_time_utc);
+      LOG_DEBUG("Setting pipe reader " << lp->pid << " - " << lp->start_time_utc);
     } else if (fd.get_type() == osm_fd_pipe_write && new_fd == 1) {
       // the pipe write end has been set up
-      ((Pipe*) fd.get_target_file())->set_writer_process(lp->pid_, lp->start_time_utc_);
-      LOG_DEBUG("Setting pipe writer " << lp->pid_ << " - " << lp->start_time_utc);
+      ((Pipe*) fd.get_target_file())->set_writer_process(lp->pid, lp->start_time_utc);
+      LOG_DEBUG("Setting pipe writer " << lp->pid << " - " << lp->start_time_utc);
     }
   }
 }
@@ -406,12 +406,12 @@ void ProcessTable::socket(SyscallEvent *se) {
   // create the Socket and add to process
   LiveProcess *lp = get_live_process(se->pid);
   std::shared_ptr<Socket> sock = std::make_shared<Socket>();
-  sock->open(lp->pid_, se->event_time);
+  sock->open(lp->pid, se->event_time);
   FileDescriptor sock_fd(osm_fd_socket, fd, sock);
   lp->fds[fd] = sock_fd;
 
-  LOG_DEBUG("[" << lp->pid_ << "] Added file descriptor " << lp->fds[fd].str() << " to lp "
-      << lp->pid_ << ". Process now has " << lp->fds.size() << " open file descriptors.");
+  LOG_DEBUG("[" << lp->pid << "] Added file descriptor " << lp->fds[fd].str() << " to lp "
+      << lp->pid << ". Process now has " << lp->fds.size() << " open file descriptors.");
 }
 
 void ProcessTable::connect(SyscallEvent *se) {
@@ -441,7 +441,7 @@ void ProcessTable::connect(SyscallEvent *se) {
   if (ev) {
     finished_socket_connects.push_back(ev);
   }
-  LOG_DEBUG("[" << lp->pid_ << "] connected to " << remote_addr << ":" << remote_port);
+  LOG_DEBUG("[" << lp->pid << "] connected to " << remote_addr << ":" << remote_port);
 }
 
 void ProcessTable::bind(SyscallEvent *se) {
@@ -466,7 +466,7 @@ void ProcessTable::bind(SyscallEvent *se) {
   // TODO how to deal with the case in which a host has more than one hostname?
   ((Socket*) fd.get_target_file())->bind(localPort);
 
-  LOG_DEBUG("[" << lp->pid_ << "] bound to " << localAddr << ":" << localPort);
+  LOG_DEBUG("[" << lp->pid << "] bound to " << localAddr << ":" << localPort);
 }
 
 void ProcessTable::execve(SyscallEvent *se) {
@@ -503,7 +503,7 @@ void ProcessTable::setpgid(SyscallEvent *se) {
   // get the affected process (might be prehistoric)
   // since the affected process may not be the caller, it may not exist yet
   LiveProcess *affected_process = add_process_if_unseen(affected_pid);
-  osm_pgid_t old_pgid = affected_process->pgid_;
+  osm_pgid_t old_pgid = affected_process->pgid;
   affected_process->setpgid(new_pgid);
 
   LiveProcessGroup *old_lpg = get_live_process_group(old_pgid);
@@ -515,7 +515,7 @@ void ProcessTable::setpgid(SyscallEvent *se) {
   // old_pgid could be equal to new_pgid so we save the call to
   // remove_process_group_from_state until the end
   if (old_lpg) {
-    old_lpg->remove_process(affected_process->pid_);
+    old_lpg->remove_process(affected_process->pid);
   }
   if (new_lpg) {
     new_lpg = add_process_to_process_group(affected_process, new_lpg, se->event_time);
@@ -530,7 +530,7 @@ void ProcessTable::setpgid(SyscallEvent *se) {
       add_process_to_process_group(affected_process, new_lpg, se->event_time);
     } else {
       // process is joining a prehistoric group, do nothing
-      LOG_DEBUG("ProcessTable::setpgid: Process " << affected_process->pid_
+      LOG_DEBUG("ProcessTable::setpgid: Process " << affected_process->pid
           << " is joining prehistoric pgroup " << affected_process->pgid);
     }
   }
@@ -546,10 +546,10 @@ void ProcessTable::exit(SyscallEvent *se) {
   LiveProcess *lp = get_live_process(se->pid);
 
   if (lp->is_thread) {
-    LOG_DEBUG("Thread " << std::to_string(lp->pid_) << " called exit()");
+    LOG_DEBUG("Thread " << std::to_string(lp->pid) << " called exit()");
     finalize_thread((LiveThread*) lp, se->event_time, true);
   } else {
-    LOG_DEBUG("Process " << std::to_string(lp->pid_) << " called exit()");
+    LOG_DEBUG("Process " << std::to_string(lp->pid) << " called exit()");
     finalize_process(lp, se->event_time);
   }
 }
@@ -561,10 +561,10 @@ void ProcessTable::exit_group(SyscallEvent *se) {
   if (lp->is_thread) {
     // if a thread has called exit_group, we need to finalize its parent
     LiveProcess *parent = ((LiveThread*) lp)->parent;
-    LOG_DEBUG("Thread " << std::to_string(lp->pid_) << " called exit_group()");
+    LOG_DEBUG("Thread " << std::to_string(lp->pid) << " called exit_group()");
     finalize_process(parent, se->event_time);
   } else {
-    LOG_DEBUG("Process " << std::to_string(lp->pid_) << " called exit_group()");
+    LOG_DEBUG("Process " << std::to_string(lp->pid) << " called exit_group()");
     finalize_process(lp, se->event_time);
   }
 }
@@ -575,16 +575,16 @@ void ProcessTable::finalize_process(LiveProcess *lp, const std::string &death_ti
   // kill all associated threads
   for (std::map<osm_pid_t, LiveThread*>::iterator it = lp->threads.begin();
       it != lp->threads.end(); it++) {
-    LOG_DEBUG("Killing thread " << std::to_string(it->second->pid_));
+    LOG_DEBUG("Killing thread " << std::to_string(it->second->pid));
     finalize_thread(it->second, death_time, false);
   }
   lp->threads.clear();
 
   // finish the lpg (might not exist, could be prehistoric)
-  LiveProcessGroup *lpg = get_live_process_group(lp->pgid_);
+  LiveProcessGroup *lpg = get_live_process_group(lp->pgid);
   if (lpg) {
     // Update process group membership.
-    lpg->remove_process(lp->pid_);
+    lpg->remove_process(lp->pid);
     if (lpg->is_empty()) {
       finalize_process_group(lpg, death_time);
       lpg = nullptr;
@@ -610,9 +610,9 @@ void ProcessTable::finalize_process_group(LiveProcessGroup *lpg, const std::stri
 
 void ProcessTable::remove_process_from_state(LiveProcess *lp) {
   if (lp) {
-    LOG_DEBUG("Deleting lp " << lp->pid_ << "(" << lp << ")");
-    assert(get_live_process(lp->pid_) == lp);
-    live_processes.erase(lp->pid_);
+    LOG_DEBUG("Deleting lp " << lp->pid << "(" << lp << ")");
+    assert(get_live_process(lp->pid) == lp);
+    live_processes.erase(lp->pid);
 
     ProcessEvent *evt = lp->to_process_event();
     dead_processes.push_back(evt);
@@ -622,18 +622,18 @@ void ProcessTable::remove_process_from_state(LiveProcess *lp) {
 
 void ProcessTable::remove_thread_from_state(LiveThread *lt, bool delete_from_parent) {
   if (lt) {
-    LOG_DEBUG("Deleting lt " << lt->pid_ << "(" << lt << ")");
-    assert(get_live_process(lt->pid_) == lt);
+    LOG_DEBUG("Deleting lt " << lt->pid << "(" << lt << ")");
+    assert(get_live_process(lt->pid) == lt);
 
     // delete thread from parent
     if (delete_from_parent) {
-      lt->parent->threads.erase(lt->pid_);
+      lt->parent->threads.erase(lt->pid);
     }
 
     // Delete thread from process table. So far, we don't add threads to the list
     // of dead processes and do not collect them as process events as we don't have
     // a use for them in the database.
-    live_processes.erase(lt->pid_);
+    live_processes.erase(lt->pid);
     delete lt;
   }
 }
@@ -653,7 +653,7 @@ void ProcessTable::remove_process_group_from_state(LiveProcessGroup *lpg,
 
 LiveProcessGroup* ProcessTable::try_to_add_process_to_process_group(const LiveProcess *lp,
     std::string &join_time) {
-  LiveProcessGroup *lpg = get_live_process_group(lp->pgid_);
+  LiveProcessGroup *lpg = get_live_process_group(lp->pgid);
   if (lpg) {
     lpg = add_process_to_process_group(lp, lpg, join_time);
   }
@@ -665,29 +665,29 @@ LiveProcessGroup* ProcessTable::add_process_to_process_group(const LiveProcess *
   assert(lp);
   assert(lpg);
   assert(get_live_process_group(lpg->pgid));
-  LOG_DEBUG("ProcessTable::addProcessToProcessGroup: Adding lp " << lp->pid_
+  LOG_DEBUG("ProcessTable::addProcessToProcessGroup: Adding lp " << lp->pid
       << "(" << lp << ") lpg " << lp->pgid << " to liveProcessGroup " << lpg);
 
   // Check if already present. This can only be the case if
   // the old pgid died, and the pid and pgid have been re-used.
   // If so, mark it dead and start a new one.
-  if (lpg->has_process(lp->pid_)) {
+  if (lpg->has_process(lp->pid)) {
     // TODO lp should track that it replaced a zombie, and we should assert that here
     // (otherwise there is a nasty bug)
     assert(!"I was hoping this would never happen");
-    LOG_ERROR("ProcessTable::addProcessToProcessGroup: " << lp->pgid_
+    LOG_ERROR("ProcessTable::addProcessToProcessGroup: " << lp->pgid
         << " was a zombie process group, retiring it.");
 
     // retire the lpg
     finalize_process_group(lpg, joinTime);
     // replace the lpg
-    lpg = new LiveProcessGroup(lp->pgid_, joinTime);
+    lpg = new LiveProcessGroup(lp->pgid, joinTime);
     LOG_DEBUG("ProcessTable::addProcessToProcessGroup: process group "
         << lp->pgid << ": " << lpg);
     register_live_process_group(lpg);
   }
 
-  lpg->add_process(lp->pid_);
+  lpg->add_process(lp->pid);
   return lpg;
 }
 
@@ -697,11 +697,11 @@ LiveProcessGroup* ProcessTable::add_process_to_process_group(const LiveProcess *
 
 LiveProcess::LiveProcess(const LiveProcess *parent, osm_pid_t pid,
     std::string start_time_utc, bool inherit_fds) :
-    pid_ { pid },
-    start_time_utc_ { start_time_utc },
+    pid { pid },
+    start_time_utc { start_time_utc },
     is_thread { false } {
-  ppid_ = parent->pid_;
-  pgid_ = parent->pgid_;
+  ppid = parent->pid;
+  pgid = parent->pgid;
 
   if (inherit_fds) {
     for (std::pair<int, FileDescriptor> fd : parent->fds) {
@@ -714,16 +714,16 @@ LiveProcess::LiveProcess(const LiveProcess *parent, osm_pid_t pid,
 }
 
 LiveProcess::LiveProcess(const SyscallEvent *se) :
-    pid_ { -1 },
-    ppid_ { -1 },
-    pgid_ { -1 },
+    pid { -1 },
+    ppid { -1 },
+    pgid { -1 },
     exec_cwd { "UNKNOWN" },
     exec_cmd_line { "UNKNOWN" },
-    start_time_utc_ { EPOCH_TIME_UTC },
-    finish_time_utc_ { FUTURE_TIME_UTC },
+    start_time_utc { EPOCH_TIME_UTC },
+    finish_time_utc { FUTURE_TIME_UTC },
     is_thread { false } {
-  pid_ = se->pid;
-  ppid_ = se->ppid;
+  pid = se->pid;
+  ppid = se->ppid;
 
   // Don't set start_time_utc_ to se->eventTime_. This might interfere with queries on
   // processes alive at a certain time based on interactions with other event streams
@@ -731,20 +731,20 @@ LiveProcess::LiveProcess(const SyscallEvent *se) :
 }
 
 LiveProcess::LiveProcess(osm_pid_t pid) :
-    pid_ { pid }, ppid_ { -1 },
-    pgid_ { -1 },
+    pid { pid }, ppid { -1 },
+    pgid { -1 },
     exec_cwd { "UNKNOWN" },
     exec_cmd_line { "UNKNOWN" },
-    start_time_utc_ { EPOCH_TIME_UTC },
-    finish_time_utc_ { FUTURE_TIME_UTC },
+    start_time_utc { EPOCH_TIME_UTC },
+    finish_time_utc { FUTURE_TIME_UTC },
     is_thread { false } {
 }
 
 void LiveProcess::setpgid(osm_pgid_t pgid) {
   if (pgid == 0) {
-    this->pgid_ = this->pid_;
+    this->pgid = this->pid;
   } else {
-    this->pgid_ = pgid;
+    this->pgid = pgid;
   }
 }
 
@@ -753,19 +753,19 @@ void LiveProcess::execve(std::string cwd, std::vector<std::string> cmd_line) {
   exec_cmd_line = cmd_line;
 }
 
-void LiveProcess::vfork(std::string start_time_utc, osm_pid_t ppid, osm_pgid_t pgid) {
-  start_time_utc_ = start_time_utc;
-  ppid_ = ppid;
-  pgid_ = pgid;
+void LiveProcess::vfork(std::string start_time, osm_pid_t p_pid, osm_pgid_t p_gid) {
+  start_time_utc = start_time;
+  ppid = p_pid;
+  pgid = p_gid;
 }
 
-void LiveProcess::exit_group(std::string finish_time_utc) {
-  finish_time_utc_ = finish_time_utc;
+void LiveProcess::exit_group(std::string finish_time) {
+  finish_time_utc = finish_time;
 }
 
 ProcessEvent* LiveProcess::to_process_event() {
-  return new ProcessEvent(pid_, ppid_, pgid_, exec_cwd, exec_cmd_line,
-      start_time_utc_, finish_time_utc_);
+  return new ProcessEvent(pid, ppid, pgid, exec_cwd, exec_cmd_line,
+      start_time_utc, finish_time_utc);
 }
 
 /*------------------------------
