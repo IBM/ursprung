@@ -23,8 +23,8 @@
 #include <set>
 #include <string>
 
-#include "../os-model/files.h"
-#include "../os-model/os-common.h"
+#include "files.h"
+#include "os-common.h"
 #include "auditd-event.h"
 
 class LiveThread;
