@@ -60,7 +60,7 @@ ProcessTable::~ProcessTable() {
     delete itr->second;
   }
   for (ProcessGroupEvent*e :  dead_process_groups) {
-    delete *e;
+    delete e;
   }
   // clean up IPC
   for (IPCEvent *e: finished_ipcs) {
@@ -223,7 +223,7 @@ void ProcessTable::clone(SyscallEvent *se) {
   LiveProcess *old_process = get_live_process(child_pid);
   if (old_process) {
     LOG_INFO("ProcessTable::clone: Found still-live process in new pid " << child_pid
-        << ", making it dead at time " << se->eventTime_.c_str());
+        << ", making it dead at time " << se->event_time.c_str());
     finalize_process(old_process, se->event_time);
     old_process = nullptr;
   }

@@ -25,7 +25,15 @@
 
 #include "event.h"
 
+class OSModel;
+class ProcessTable;
+class LiveProcess;
+
 class SyscallEvent: public Event {
+friend class OSModel;
+friend class ProcessTable;
+friend class LiveProcess;
+
 private:
   static const int RETURNS_VOID = -2;
 

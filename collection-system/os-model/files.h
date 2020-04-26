@@ -145,7 +145,7 @@ public:
    * any connection, this function returns null.
    */
   SocketConnectEvent* to_socket_connect_event();
-  OSFileType getType() const override { return OSFileType::OS_FILE_TYPE_SOCKET; }
+  OSFileType get_type() const override { return OSFileType::OS_FILE_TYPE_SOCKET; }
   std::string str() const override;
 };
 

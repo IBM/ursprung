@@ -22,8 +22,8 @@
 
 class Event;
 
-typedef uint32_t osm_pid_t;
-typedef uint32_t osm_pgid_t;
+typedef int osm_pid_t;
+typedef int osm_pgid_t;
 typedef std::shared_ptr<Event> evt_t;
 
 // delimiter for serialization/deserialization
