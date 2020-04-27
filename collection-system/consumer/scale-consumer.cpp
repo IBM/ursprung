@@ -67,7 +67,7 @@ int ScaleConsumer::receive_event(ConsumerSource csrc, evt_t event) {
       sout << std::setw(2) << (long long) c;
     }
     ((FSEvent*) event.get())->set_version_hash(sout.str());
-    LOG_DEBUG("Computed hash for " << primaryMsg->getPath());
+    LOG_DEBUG("Computed hash for " << event->get_value("path"));
   }
 
   return NO_ERROR;

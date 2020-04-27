@@ -34,7 +34,7 @@ int AuditdConsumer::evaluate_rules(evt_t msg) {
         std::string pid_str = msg->get_value("pid");
         std::string tracee = pid_str + node_name;
 
-        LOG_DEBUG("Received exit syscall for " tracee);
+        LOG_DEBUG("Received exit syscall for " << tracee);
         if (active_tracees.find(tracee) != active_tracees.end()) {
           // we're tracing the process that just exited, signal the tracer
           int err;

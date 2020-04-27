@@ -423,7 +423,7 @@ void ProcessTable::connect(SyscallEvent *se) {
     // we haven't seen the open of that socket, which means it's either
     // prehistoric or we're not tracking that socket's domain (only
     // AF_INET tested so far)
-    LOG_DEBUG("Didn't see open for socket " << se->arg0_ << " " << se->arg1_);
+    LOG_DEBUG("Didn't see open for socket " << se->arg0 << " " << se->arg1);
     return;
   }
 
@@ -453,7 +453,7 @@ void ProcessTable::bind(SyscallEvent *se) {
     // we haven't seen the open of that socket, which means it's either
     // prehistoric or we're not tracking that socket's domain (only
     // AF_INET tested so far)
-    LOG_DEBUG("Didn't see open for socket " << se->arg0_ << " " << se->arg1_);
+    LOG_DEBUG("Didn't see open for socket " << se->arg0 << " " << se->arg1);
     return;
   }
 
