@@ -41,6 +41,9 @@ const std::string Config::CKEY_INPUT_SRC = "in-src";
 const std::string Config::CKEY_OUTPUT_DST = "out-dst";
 const std::string Config::CKEY_IN_FILE = "in-file";
 const std::string Config::CKEY_OUT_FILE = "out-file";
+const std::string Config::CKEY_AUDITD_KEY = "auditd-key";
+const std::string Config::CKEY_EMIT_SYSCALL_EVENTS = "emit-syscall-events";
+const std::string Config::CKEY_HOSTNAME_SUFFIX = "hostname-suffix";
 
 config_opts_t Config::config;
 
@@ -116,6 +119,9 @@ void Config::print_config() {
       << Config::CKEY_OUTPUT_DST << " = "  << Config::config[Config::CKEY_OUTPUT_DST] << std::endl
       << Config::CKEY_IN_FILE << " = "  << Config::config[Config::CKEY_IN_FILE] << std::endl
       << Config::CKEY_OUT_FILE << " = "  << Config::config[Config::CKEY_OUT_FILE] << std::endl
+      << Config::CKEY_AUDITD_KEY << " = "  << Config::config[Config::CKEY_AUDITD_KEY] << std::endl
+      << Config::CKEY_EMIT_SYSCALL_EVENTS << " = "  << Config::config[Config::CKEY_EMIT_SYSCALL_EVENTS] << std::endl
+      << Config::CKEY_HOSTNAME_SUFFIX << " = "  << Config::config[Config::CKEY_HOSTNAME_SUFFIX] << std::endl
       << std::endl;
 }
 
@@ -168,6 +174,12 @@ bool Config::is_conf_key_valid(std::string key) {
   if (key == Config::CKEY_IN_FILE)
     return true;
   if (key == Config::CKEY_OUT_FILE)
+    return true;
+  if (key == Config::CKEY_AUDITD_KEY)
+    return true;
+  if (key == Config::CKEY_EMIT_SYSCALL_EVENTS)
+    return true;
+  if (key == Config::CKEY_HOSTNAME_SUFFIX)
     return true;
 
   return false;

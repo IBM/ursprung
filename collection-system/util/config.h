@@ -53,6 +53,9 @@ public:
   static const std::string CKEY_OUTPUT_DST;
   static const std::string CKEY_IN_FILE;
   static const std::string CKEY_OUT_FILE;
+  static const std::string CKEY_AUDITD_KEY;
+  static const std::string CKEY_EMIT_SYSCALL_EVENTS;
+  static const std::string CKEY_HOSTNAME_SUFFIX;
 
   static config_opts_t config;
   /*
