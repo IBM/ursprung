@@ -20,6 +20,9 @@ endif()
 
 add_subdirectory(provd)
 add_subdirectory(consumer)
+if ( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
+  add_subdirectory(auditd-plugin)
+endif()
 
 # testing
 if ( BUILD_TESTS )
