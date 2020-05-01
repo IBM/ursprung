@@ -23,10 +23,15 @@
 
 namespace signal_handling {
 static volatile sig_atomic_t running = 1;
+static volatile sig_atomic_t hup = 1;
 
 static void term_handler(int sig) {
   LOG_INFO("Shutting down...");
   running = 0;
+}
+
+void hup_handler(int sig) {
+    hup = 1;
 }
 
 static void setup_handlers() {
@@ -40,11 +45,13 @@ static void setup_handlers() {
   sa.sa_handler = SIG_IGN;
   for (int i = 1; i < NSIG; i++)
     sigaction(i, &sa, NULL);
-  // now set the handlers for SIGTERM and SIGINT
+  // now set the handlers for SIGTERM, SIGINT, and SIGHUP
   sa.sa_handler = term_handler;
   sigaction(SIGTERM, &sa, NULL);
   sa.sa_handler = term_handler;
   sigaction(SIGINT, &sa, NULL);
+  sa.sa_handler = hup_handler;
+  sigaction(SIGHUP, &sa, NULL);
 }
 }
 
