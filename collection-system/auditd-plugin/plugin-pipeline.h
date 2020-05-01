@@ -19,12 +19,14 @@
 
 #include <thread>
 #include <auparse.h>
+#include <assert.h>
 
 #include "sync-queue.h"
 #include "event.h"
 #include "logger.h"
 #include "plugin-util.h"
 #include "os-model.h"
+#include "msg-output-stream.h"
 
 /**
  * A stage represents a step in the event processing pipeline
@@ -39,9 +41,11 @@
  * on exit.
  */
 class PipelineStep {
-private:
-  std::shared_ptr<Statistics> stats;
 protected:
+  std::thread thread;
+  SynchronizedQueue<void*> *in;
+  SynchronizedQueue<void*> *out;
+
   /*
    * This program is an audisp plugin, and as such we may receive
    * SIGHUP or SIGTERM as control signals. Only the main() thread should
@@ -50,11 +54,9 @@ protected:
    */
   void mask_signals();
 
-  std::thread thread;
-  SynchronizedQueue<void*> *in;
-  SynchronizedQueue<void*> *out;
-
 public:
+  std::shared_ptr<Statistics> stats;
+
   PipelineStep(SynchronizedQueue<void*> *in, SynchronizedQueue<void*> *out,
       std::shared_ptr<Statistics> stats) :
       in { in },

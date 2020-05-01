@@ -30,7 +30,7 @@ static void term_handler(int sig) {
   running = 0;
 }
 
-void hup_handler(int sig) {
+static void hup_handler(int sig) {
     hup = 1;
 }
 

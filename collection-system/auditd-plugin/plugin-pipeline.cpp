@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <librdkafka/rdkafkacpp.h>
+#include <string.h>
 
 #include "plugin-pipeline.h"
 #include "plugin-util.h"
@@ -78,10 +79,10 @@ void ExtractorStep::handle_audisp_event(auparse_state_t *au,
       if (record_key) {
         LOG_DEBUG("Skipping event whose first record has key " << record_key_str
                 << " != " << that->state_->cfg->_auditdKey);
-        stats->skipped_auditd_event();
+        that->stats->skipped_auditd_event();
       } else {
         LOG_DEBUG("Skipping event without key");
-        stats->skipped_auditd_event();
+        that->stats->skipped_auditd_event();
       }
       num++;
       continue;
@@ -90,18 +91,18 @@ void ExtractorStep::handle_audisp_event(auparse_state_t *au,
     // we only want syscall events
     bool is_syscall_event = (0 <= AuparseInterface::get_syscall_record_number(au));
     if (!is_syscall_event) {
-      stats->skipped_auditd_event();
+      that->stats->skipped_auditd_event();
       num++;
       continue;
     }
 
     // update statistics
-    stats->received_auditd_event();
+    that->stats->received_auditd_event();
 
     // send to next stage of pipeline
     SyscallEvent *se = nullptr;
 #ifdef __linux__
-    SyscallEvent *se = new SyscallEvent(au);
+    se = new SyscallEvent(au);
 #endif
     that->out->push(se);
     num++;
@@ -305,22 +306,22 @@ int LoaderStep::run() {
     std::string key;
     switch (evt->get_type()) {
     case EventType::PROCESS_EVENT:
-      key = ((ProcessEvent*) evt)->pid;
+      key = ((ProcessEvent*) evt)->get_value("pid");
       break;
     case EventType::PROCESS_GROUP_EVENT:
-      key = ((ProcessGroupEvent*) evt)->pgid;
+      key = ((ProcessGroupEvent*) evt)->get_value("pgid");
       break;
     case EventType::SYSCALL_EVENT:
-      key = ((SyscallEvent*) evt)->pid;
+      key = ((SyscallEvent*) evt)->get_value("pid");
       break;
     case EventType::IPC_EVENT:
-      key = ((IPCEvent*) evt)->src_pid;
+      key = ((IPCEvent*) evt)->get_value("src_pid");
       break;
     case EventType::SOCKET_EVENT:
-      key = ((SocketEvent*) evt)->pid;
+      key = ((SocketEvent*) evt)->get_value("pid");
       break;
     case EventType::SOCKET_CONNECT_EVENT:
-      key = ((SocketConnectEvent*) evt)->pid;
+      key = ((SocketConnectEvent*) evt)->get_value("pid");
       break;
     default:
       assert(!"Error, unknown OSEventType");
