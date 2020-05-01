@@ -16,11 +16,11 @@ target_include_directories(prov-consumer PUBLIC /usr/local/include ../util ../io
 # include openssl/md5.h on MacOS (assuming it has been installed through homebrew)
 if (APPLE)
   target_include_directories(prov-consumer PUBLIC /usr/local/Cellar/openssl@1.1/1.1.1d/include)
-endif (APPLE)
+endif ()
 
 target_link_directories(prov-consumer PUBLIC /usr/local/lib ${PROJECT_SOURCE_DIR}/lib/c-hglib)
 if (APPLE)
   target_link_directories(prov-consumer PUBLIC /usr/local/Cellar/openssl@1.1/1.1.1d/lib)
-endif (APPLE)
+endif ()
 
-target_link_libraries(prov-consumer odbc boost_regex hg crypto rdkafka++)
+target_link_libraries(prov-consumer odbc boost_regex hg crypto pthread auparse audit rdkafka++)

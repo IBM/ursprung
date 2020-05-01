@@ -21,13 +21,13 @@ target_include_directories(${TEST_BIN} PUBLIC /usr/local/include ../util ../io .
 # include openssl/md5.h on MacOS (assuming it has been installed through homebrew)
 if (APPLE)
   target_include_directories(${TEST_BIN} PUBLIC /usr/local/Cellar/openssl@1.1/1.1.1d/include)
-endif (APPLE)
+endif ()
 
 target_link_directories(${TEST_BIN} PUBLIC /usr/local/lib ${PROJECT_SOURCE_DIR}/lib/c-hglib)
 # include libcrypto on MacOS (assuming it has been installed through homebrew)
 if (APPLE)
   target_link_directories(${TEST_BIN} PUBLIC /usr/local/Cellar/openssl@1.1/1.1.1d/lib)
-endif (APPLE)
+endif ()
 
 target_link_libraries(${TEST_BIN} PUBLIC gtest gmock odbc boost_regex hg crypto rdkafka++)
 
