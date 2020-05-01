@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include <string.h>
+#include <errno.h>
+#include <assert.h>
+
 #include "logger.h"
 #include "msg-output-stream.h"
 #include "error.h"

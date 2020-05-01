@@ -16,6 +16,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 #include <string.h>
 #include <errno.h>

@@ -19,6 +19,8 @@
 #include <openssl/md5.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <iomanip>
+#include <assert.h>
 
 #include "scale-consumer.h"
 #include "scale-event.h"

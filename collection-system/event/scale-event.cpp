@@ -15,6 +15,7 @@
  */
 
 #include <sstream>
+#include <assert.h>
 
 #include "scale-event.h"
 #include "logger.h"

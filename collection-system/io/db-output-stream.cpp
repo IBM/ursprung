@@ -16,6 +16,8 @@
 
 #include <sstream>
 #include <unordered_map>
+#include <iomanip>
+#include <assert.h>
 
 #include "db-output-stream.h"
 #include "error.h"

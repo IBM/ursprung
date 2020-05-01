@@ -15,6 +15,9 @@
  */
 
 #include <sstream>
+#include <cstring>
+#include <algorithm>
+#include <assert.h>
 
 #include "auditd-event.h"
 #include "logger.h"
@@ -426,11 +429,11 @@ std::string SyscallEvent::get_cwd(auparse_state_t *au) {
 }
 
 std::string SyscallEvent::get_data_as_string() {
-  std::string data;
+  std::string data_str;
   for (std::string item : data) {
-    data += item + " ";
+    data_str += item + " ";
   }
-  return data;
+  return data_str;
 }
 #endif
 

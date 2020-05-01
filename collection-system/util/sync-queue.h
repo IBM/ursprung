@@ -19,6 +19,7 @@
 
 #include <mutex>
 #include <queue>
+#include <condition_variable>
 
 /**
  * A thread safe blocking queue.

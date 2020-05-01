@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#include <memory>
+#include <string.h>
+#include <errno.h>
 
 #include "logger.h"
 #include "error.h"

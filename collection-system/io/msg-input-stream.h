@@ -19,6 +19,7 @@
 
 #include <fstream>
 #include <string>
+#include <memory>
 
 /**
  * An input stream handles setting up, reading from, and tearing down
