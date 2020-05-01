@@ -139,7 +139,7 @@ int ExtractorStep::run() {
       LOG_INFO("Detected SIGHUP, reloading config.");
       signal_handling::hup = 0;
       Config::parse_config(config_path);
-      LOG_INFO("Config:\n" << Config::print_config());
+      Config::print_config();
     }
     do {
       // if we timed out & have events, shake them loose

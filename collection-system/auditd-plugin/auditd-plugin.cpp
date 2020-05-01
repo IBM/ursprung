@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
   // populate config and store path to config file for config reload
   Config::parse_config(std::string(argv[1]));
   std::string configPath = std::string(argv[1]);
-  LOG_INFO("Config:\n" << Config::print_config());
+  Config::print_config();
 
   Logger::set_log_file_name(Config::config[Config::CKEY_LOG_FILE]);
 
@@ -101,14 +101,14 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  SynchronizedQueue<void*> extractorToTransformer;
-  SynchronizedQueue<void*> transformerToLoader;
+  SynchronizedQueue<void*> extractor_to_transformer;
+  SynchronizedQueue<void*> transformer_to_loader;
   std::shared_ptr<Statistics> stats = std::make_shared<Statistics>();
 
-  ExtractorStep extractor(nullptr, &extractorToTransformer, stats);
-  TransformerStep transformer(&extractorToTransformer,
-      &transformerToLoader, stats);
-  LoaderStep loader(&transformerToLoader, nullptr, stats, std::move(out));
+  ExtractorStep extractor(nullptr, &extractor_to_transformer, stats);
+  TransformerStep transformer(&extractor_to_transformer,
+      &transformer_to_loader, stats);
+  LoaderStep loader(&transformer_to_loader, nullptr, stats, std::move(out));
 
   extractor.set_config_path(configPath);
   extractor.start();
