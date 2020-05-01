@@ -15,6 +15,7 @@
  */
 
 #include <sstream>
+#include <iomanip>
 #include <openssl/md5.h>
 
 #include "rule-engine.h"
