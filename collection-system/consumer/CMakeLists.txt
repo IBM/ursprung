@@ -23,4 +23,7 @@ if (APPLE)
   target_link_directories(prov-consumer PUBLIC /usr/local/Cellar/openssl@1.1/1.1.1d/lib)
 endif ()
 
-target_link_libraries(prov-consumer odbc boost_regex hg crypto pthread auparse audit rdkafka++)
+target_link_libraries(prov-consumer odbc boost_regex hg crypto pthread rdkafka++)
+if (UNIX AND NOT APPLE)
+	target_link_libraries(prov-consumer auparse audit)
+endif()
