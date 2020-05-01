@@ -30,6 +30,9 @@ if (APPLE)
 endif ()
 
 target_link_libraries(${TEST_BIN} PUBLIC gtest gmock odbc boost_regex hg crypto rdkafka++)
+if (UNIX AND NOT APPLE)
+	target_link_libraries(${TEST_BIN} PUBLIC auparse audit)
+endif()
 
 add_custom_command(
   TARGET ${TEST_BIN}

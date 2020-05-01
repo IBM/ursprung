@@ -14,27 +14,12 @@
  * limitations under the License.
  */
 
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <thread>
-#include <mutex>
-#include <assert.h>
 #include <stdio.h>
-#include <signal.h>
-#include <string.h>
-#include <sys/select.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <libaudit.h>
-#include <auparse.h>
-#include <time.h>
 
 #include "msg-output-stream.h"
-#include "os-model.h"
 #include "auditd-event.h"
 #include "logger.h"
 #include "plugin-pipeline.h"
