@@ -181,7 +181,7 @@ void TraceProcessReqHandler::handle() {
    */
   // check if the process still exists
   if (kill(tracee_pid, 0) < 0) {
-    LOG_WARN("Process " << tracee_pid << " doesn't exist anymore. Not tracing.");
+    LOGGER_LOG_WARN("Process " << tracee_pid << " doesn't exist anymore. Not tracing.");
     close(sock);
     return;
   }
@@ -273,11 +273,11 @@ void TraceProcessReqHandler::handle() {
         if (file_buffer[i] == '\n') {
           line_buffer[offset - 1] = '\0';
           std::string line(line_buffer);
-          LOG_DEBUG("Read line " << line << " with size " << line.size());
+          LOGGER_LOG_DEBUG("Read line " << line << " with size " << line.size());
 
           // check if the line matches
           if (std::regex_match(line, matching_str)) {
-            LOG_DEBUG("Found match in " << line);
+            LOGGER_LOG_DEBUG("Found match in " << line);
             // send matching line to client
             int32_t len = line.size();
             int32_t len_to_send = htonl(len);
