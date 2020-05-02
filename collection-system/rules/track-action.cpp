@@ -66,7 +66,7 @@ int parse_hg_return_code(hg_handle *handle, std::string &out, std::string &err) 
 TrackAction::TrackAction(std::string action) {
   // check that the action has the right syntax
   if (!std::regex_match(action, TRACK_SYNTAX)) {
-    LOG_ERROR("TrackAction " << action << " is not specified correctly.");
+    LOGGER_LOG_ERROR("TrackAction " << action << " is not specified correctly.");
     throw std::invalid_argument(action + " not specified correctly.");
   }
 
@@ -92,7 +92,7 @@ TrackAction::TrackAction(std::string action) {
   repo_handle = hg_open(repo_path.c_str(), NULL);
   if (!repo_handle) {
     // TODO should we initialize the repo if it doesn't exist?
-    LOG_ERROR("Couldn't establish connection to target repo at " << repo_path
+    LOGGER_LOG_ERROR("Couldn't establish connection to target repo at " << repo_path
         << ". Content tracking will not be available.");
   }
 }
@@ -105,11 +105,11 @@ TrackAction::~TrackAction() {
 }
 
 int TrackAction::execute(evt_t msg) {
-  LOG_DEBUG("Executing TrackAction " << this->str());
+  LOGGER_LOG_DEBUG("Executing TrackAction " << this->str());
 
   // check if we have a connection to the target repo
   if (!repo_handle) {
-    LOG_WARN("Not executing " << this->str() << " as no repo connection established.");
+    LOGGER_LOG_WARN("Not executing " << this->str() << " as no repo connection established.");
     return ERROR_NO_RETRY;
   }
 
@@ -150,7 +150,7 @@ int TrackAction::execute(evt_t msg) {
   struct stat statbuf_pre;
   stat(src.c_str(), &statbuf_pre);
   if (system(cmd.c_str()) != 0) {
-    LOG_ERROR("Problems while copying file: " << strerror(errno));
+    LOGGER_LOG_ERROR("Problems while copying file: " << strerror(errno));
     // store the state of the failed inode
     failed_cp_state[inode] = true;
     return ERROR_NO_RETRY;
@@ -162,7 +162,7 @@ int TrackAction::execute(evt_t msg) {
   const char *add[] = { "add", ".", "--cwd", repo_path.c_str(), NULL };
   hg_rawcommand(repo_handle, (char**) add);
   if (parse_hg_return_code(repo_handle, std_out, std_err) != 0) {
-    LOG_ERROR("Problems while running hg add: " << std_err
+    LOGGER_LOG_ERROR("Problems while running hg add: " << std_err
         << ": Not tracking current version of " << src);
     return ERROR_NO_RETRY;
   }
@@ -173,7 +173,7 @@ int TrackAction::execute(evt_t msg) {
   const char *commit[] = { "commit", "-m", "commit", "--cwd", repo_path.c_str(), NULL };
   hg_rawcommand(repo_handle, (char**) commit);
   if (parse_hg_return_code(repo_handle, std_out, std_err) != 0) {
-    LOG_ERROR("Problems while running hg commit: " << std_err
+    LOGGER_LOG_ERROR("Problems while running hg commit: " << std_err
         << ": Not tracking current version of " << src);
     return ERROR_NO_RETRY;
   }
@@ -184,7 +184,7 @@ int TrackAction::execute(evt_t msg) {
   const char *identify[] = { "--debug", "identify", "-i", "--cwd", repo_path.c_str(), NULL };
   hg_rawcommand(repo_handle, (char**) identify);
   if (parse_hg_return_code(repo_handle, std_out, std_err) != 0) {
-    LOG_ERROR("Problems while running hg identify: " << std_err
+    LOGGER_LOG_ERROR("Problems while running hg identify: " << std_err
         << ": Won't add commit record to database for " << src);
     return ERROR_NO_RETRY;
   }
@@ -206,7 +206,7 @@ int TrackAction::execute(evt_t msg) {
   records.push_back(record.str());
   int rc = out->send_batch(records);
   if (rc != NO_ERROR) {
-    LOG_ERROR("Problems while bulk loading data into DB."
+    LOGGER_LOG_ERROR("Problems while bulk loading data into DB."
         << " Provenance may be incomplete. Action: " << this->str());
   }
   return rc;

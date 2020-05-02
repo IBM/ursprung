@@ -47,10 +47,10 @@ ProvdServer::ProvdServer() {
   int enable = 1;
 
   if ((socketfd = socket(AF_INET, SOCK_STREAM, 0)) <= 0) {
-    LOG_ERROR("Can't create server socket: " << strerror(errno));
+    LOGGER_LOG_ERROR("Can't create server socket: " << strerror(errno));
   }
   if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &enable, sizeof(enable))) {
-    LOG_ERROR("Can't set SO_REUSEADDR on server socket: " << strerror(errno));
+    LOGGER_LOG_ERROR("Can't set SO_REUSEADDR on server socket: " << strerror(errno));
   }
 
   address.sin_family = AF_INET;
@@ -58,13 +58,13 @@ ProvdServer::ProvdServer() {
   address.sin_addr.s_addr = INADDR_ANY;
 
   if (bind(socketfd, (const sockaddr*) &address, sizeof(address)) < 0) {
-    LOG_ERROR("Can't bind server socket: " << strerror(errno));
+    LOGGER_LOG_ERROR("Can't bind server socket: " << strerror(errno));
   }
 }
 
 ProvdServer::~ProvdServer() {
   for (std::pair<int32_t, ReqHandler*> worker : workers) {
-    LOG_INFO("Waiting for worker " << worker.second->get_thread_id() << " to finish...");
+    LOGGER_LOG_INFO("Waiting for worker " << worker.second->get_thread_id() << " to finish...");
     if (worker.second->is_running()) {
       // signal the thread to stop in case it is still running
       worker.second->stop();
@@ -72,7 +72,7 @@ ProvdServer::~ProvdServer() {
     // wait for thread to finish
     worker.second->join();
     delete worker.second;
-    LOG_INFO("Worker finished. provd shutting down.");
+    LOGGER_LOG_INFO("Worker finished. provd shutting down.");
   }
 }
 
@@ -83,7 +83,7 @@ void ProvdServer::start() {
   int16_t opcode;
 
   listen(socketfd, 1000);
-  LOG_INFO("Server Listening on " << ntohs(address.sin_port));
+  LOGGER_LOG_INFO("Server Listening on " << ntohs(address.sin_port));
 
   // Server can be stopped from the outside by receiving a SIGINT/SIGTERM
   // or by the owner of the ProvdServer object by calling stop() and setting
@@ -92,18 +92,18 @@ void ProvdServer::start() {
     if ((clientfd = accept(socketfd, (struct sockaddr*) &address,
         (socklen_t*) &address_len)) < 0) {
       if (errno == EINTR && signal_handling::running) {
-        LOG_INFO("Received shutdown signal, shutting down...");
+        LOGGER_LOG_INFO("Received shutdown signal, shutting down...");
         // any clean up should go here
         break;
       } else {
-        LOG_ERROR("Problems while accepting new incoming connection: " << strerror(errno));
+        LOGGER_LOG_ERROR("Problems while accepting new incoming connection: " << strerror(errno));
       }
     }
 
     // read the request type
     bytes_read = NetworkHelper::read_from_socket(clientfd, (char*) &opcode, sizeof(opcode));
     if (bytes_read != 2) {
-      LOG_ERROR("Wrong opcode received (" << bytes_read << " "
+      LOGGER_LOG_ERROR("Wrong opcode received (" << bytes_read << " "
           << ntohs(opcode) << "). Not processing request.");
       continue;
     }
@@ -111,18 +111,18 @@ void ProvdServer::start() {
     // read operands for different requests
     switch (ntohs(opcode)) {
     case REQ_TRACE_PROCESS:
-      LOG_INFO("Received trace process request.");
+      LOGGER_LOG_INFO("Received trace process request.");
       dispatch_trace_process_req(clientfd);
       break;
     case REQ_TRACE_PROCESS_STOP:
-      LOG_INFO("Received trace process STOP request.");
+      LOGGER_LOG_INFO("Received trace process STOP request.");
       dispatch_trace_process_stop_req(clientfd);
       break;
     default:
-      LOG_INFO("Received unknown request " << ntohs(opcode) << ".");
+      LOGGER_LOG_INFO("Received unknown request " << ntohs(opcode) << ".");
     }
   }
-  LOG_INFO("Server finished, shutting down.");
+  LOGGER_LOG_INFO("Server finished, shutting down.");
 }
 
 void ProvdServer::dispatch_trace_process_req(int sock) {
@@ -165,7 +165,7 @@ void ProvdServer::dispatch_trace_process_stop_req(int sock) {
  * on any other platform.
  */
 void TraceProcessReqHandler::handle() {
-  LOG_INFO("Read pid " << tracee_pid << " and regex " << regex_str);
+  LOGGER_LOG_INFO("Read pid " << tracee_pid << " and regex " << regex_str);
 
 #ifdef __linux__
   uint buffer_size = 1024;
@@ -204,10 +204,10 @@ void TraceProcessReqHandler::handle() {
   // Now we have to read the file and look for provenance records
   int local_fd = open(buffer_cpy, O_RDONLY);
   if (local_fd <= 0) {
-    LOG_ERROR("Problems while opening file: " << local_fd << " " << strerror(errno));
+    LOGGER_LOG_ERROR("Problems while opening file: " << local_fd << " " << strerror(errno));
   }
 
-  LOG_INFO("Start reading file " << buffer_cpy);
+  LOGGER_LOG_INFO("Start reading file " << buffer_cpy);
   int rc;
   uint offset = 0;
   off_t size = 0;
@@ -218,7 +218,7 @@ void TraceProcessReqHandler::handle() {
     sleep(1);
     // stat the file to get the current size
     if ((rc = fstat(local_fd, &statbuf)) != 0) {
-      LOG_ERROR("Problems while stating " << buffer_cpy << ": " << strerror(errno));
+      LOGGER_LOG_ERROR("Problems while stating " << buffer_cpy << ": " << strerror(errno));
     }
     // if size didn't change since last stat, go back to sleep
     if (statbuf.st_size == size) {
@@ -238,7 +238,7 @@ void TraceProcessReqHandler::handle() {
       for (size_t i = 0; i < bytes_read; i++) {
         // bounds check
         if (offset >= line_buffer_size) {
-          LOG_ERROR("Found line longer than 4096, resetting buffer. "
+          LOGGER_LOG_ERROR("Found line longer than 4096, resetting buffer. "
               << "Some provenance may be lost.");
           offset = 0;
         }
@@ -283,11 +283,11 @@ void TraceProcessReqHandler::handle() {
             int32_t len_to_send = htonl(len);
             char *bytes = (char*) &len_to_send;
             if ((rc = NetworkHelper::write_to_socket(sock, bytes, sizeof(len_to_send))) < 0) {
-              LOG_ERROR("Problems while writing: " << strerror(errno));
+              LOGGER_LOG_ERROR("Problems while writing: " << strerror(errno));
             }
             if ((rc = NetworkHelper::write_to_socket(sock, (char*) line.c_str(),
                 line.size())) < 0) {
-              LOG_ERROR("Problems while writing: " << strerror(errno));
+              LOGGER_LOG_ERROR("Problems while writing: " << strerror(errno));
             }
           }
           offset = 0;
@@ -295,13 +295,13 @@ void TraceProcessReqHandler::handle() {
       }
     }
     if (bytes_read < 0) {
-      LOG_ERROR("Problems while reading file: " << strerror(errno));
+      LOGGER_LOG_ERROR("Problems while reading file: " << strerror(errno));
     }
   }
 
-  LOG_INFO("Stop reading file " << buffer_cpy);
+  LOGGER_LOG_INFO("Stop reading file " << buffer_cpy);
   if (remove(buffer_cpy) != 0) {
-    LOG_ERROR("Problems while deleting file " << buffer_cpy << ": " << strerror(errno));
+    LOGGER_LOG_ERROR("Problems while deleting file " << buffer_cpy << ": " << strerror(errno));
   }
   close(sock);
 #endif

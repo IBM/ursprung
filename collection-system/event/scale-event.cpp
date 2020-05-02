@@ -25,80 +25,80 @@ FSEvent::FSEvent(const std::string &serialized_event) {
   // event type
   std::string evt_type;
   if (!getline(evt_ss, evt_type, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   // node_name
   if (!getline(evt_ss, node_name, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   // send_time
   if (!getline(evt_ss, send_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   // pid
   std::string pid_str;
   if (!getline(evt_ss, pid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   pid = std::stoul(pid_str);
   // inode
   std::string inode_str;
   if (!getline(evt_ss, inode_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   inode = std::stoi(inode_str);
   // bytes_read
   std::string bytes_read_str;
   if (!getline(evt_ss, bytes_read_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   bytes_read = std::stoul(bytes_read_str);
   // bytes_written
   std::string bytes_written_str;
   if (!getline(evt_ss, bytes_written_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   bytes_written = std::stoi(bytes_written_str);
   // path
   if (!getline(evt_ss, path, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   // dst_path
   if (!getline(evt_ss, dst_path, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   // mode
   if (!getline(evt_ss, mode, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   // event
   if (!getline(evt_ss, event, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   // event_time
   if (!getline(evt_ss, event_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   // cluster_name
   if (!getline(evt_ss, cluster_name, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   // fs_name
   if (!getline(evt_ss, fs_name, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
 }

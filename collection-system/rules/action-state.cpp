@@ -58,7 +58,7 @@ DBStateBackend::DBStateBackend(std::string conn) :
 
 int DBStateBackend::connect() {
   if (db_conn->connect() != DB_SUCCESS) {
-    LOG_ERROR("Error while connecting to source DB " << connection_string);
+    LOGGER_LOG_ERROR("Error while connecting to source DB " << connection_string);
     return ERROR_NO_RETRY;
   }
   return NO_ERROR;
@@ -74,7 +74,7 @@ int DBStateBackend::insert_state(std::string rule_id, std::string state, std::st
   std::string prepared_query = "INSERT INTO rulestate (id,target,state) values ('"
       + rule_id + "','" + target + "','" + state + "')";
   if (db_conn->submit_query(prepared_query) != DB_SUCCESS) {
-    LOG_ERROR("Error while inserting new state: state " << state
+    LOGGER_LOG_ERROR("Error while inserting new state: state " << state
         << ", rule " << rule_id << ", target " << target);
     return ERROR_NO_RETRY;
   }
@@ -86,7 +86,7 @@ int DBStateBackend::update_state(std::string rule_id, std::string state, std::st
   std::string prepared_query = "UPDATE rulestate SET state='" + state
       + "' WHERE id='" + rule_id + "' AND target='" + target + "'";
   if (db_conn->submit_query(prepared_query) != DB_SUCCESS) {
-    LOG_ERROR("Error while updating state: state " << state
+    LOGGER_LOG_ERROR("Error while updating state: state " << state
         << ", rule " << rule_id << ", target " << target);
     return ERROR_NO_RETRY;
   }
@@ -98,7 +98,7 @@ int DBStateBackend::lookup_state(char *state_buffer, std::string rule_id, std::s
   std::string prepared_query = "SELECT state FROM rulestate WHERE id='" + rule_id
       + "'" + " AND target='" + target + "'";
   if (db_conn->submit_query(prepared_query) != DB_SUCCESS) {
-    LOG_ERROR("Error while retrieving state from DB: rule " << rule_id << ", target "
+    LOGGER_LOG_ERROR("Error while retrieving state from DB: rule " << rule_id << ", target "
         << target << ". Can't retrieve existing state.");
     return ERROR_NO_RETRY;
   }

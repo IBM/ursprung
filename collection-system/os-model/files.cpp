@@ -70,7 +70,7 @@ void Socket::connect(std::string addressStr, uint16_t port, std::string time) {
       service, 260, 0);
   // only set hostname if we successfully resolve IP address
   if (rc != 0) {
-    LOG_ERROR("Couldn't resolve " << remote_addr << " due to " << gai_strerror(rc));
+    LOGGER_LOG_ERROR("Couldn't resolve " << remote_addr << " due to " << gai_strerror(rc));
   } else {
     // use only name portion not FQDN
     char *firstDot = strchr(hostname, '.');

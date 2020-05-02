@@ -69,7 +69,7 @@ public:
     thread = std::thread(&PipelineStep::run, this);
   }
   void join() {
-    LOG_DEBUG("Waiting for thread to finish.");
+    LOGGER_LOG_DEBUG("Waiting for thread to finish.");
     thread.join();
   }
 };

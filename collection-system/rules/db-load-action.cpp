@@ -25,7 +25,7 @@ const std::regex DB_LOAD_SYNTAX = std::regex("DBLOAD (.*) INTO "
 DBLoadAction::DBLoadAction(std::string action) {
   // check that action has correct syntax
   if (!std::regex_match(action, DB_LOAD_SYNTAX)) {
-    LOG_ERROR("DBLoadAction " << action << " is not specified correctly.");
+    LOGGER_LOG_ERROR("DBLoadAction " << action << " is not specified correctly.");
     throw std::invalid_argument(action + " not specified correctly.");
   }
 
@@ -40,11 +40,11 @@ DBLoadAction::DBLoadAction(std::string action) {
 }
 
 int DBLoadAction::execute(evt_t msg) {
-  LOG_DEBUG("Executing DBLoadAction " << this->str());
+  LOGGER_LOG_DEBUG("Executing DBLoadAction " << this->str());
 
   std::string path = msg->get_value(event_field);
   if (path.empty()) {
-    LOG_ERROR("Event field " << event_field << " was empty. Not executing action " << this->str());
+    LOGGER_LOG_ERROR("Event field " << event_field << " was empty. Not executing action " << this->str());
     return ERROR_NO_RETRY;
   }
 
@@ -57,7 +57,7 @@ int DBLoadAction::execute(evt_t msg) {
   }
   int rc = out->send_batch(records);
   if (rc != NO_ERROR) {
-    LOG_ERROR("Problems while bulk loading data from " << path << " into DB."
+    LOGGER_LOG_ERROR("Problems while bulk loading data from " << path << " into DB."
         << " Provenance may be incomplete. Action: " << this->str());
   }
   return rc;

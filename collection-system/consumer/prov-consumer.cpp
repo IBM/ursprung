@@ -98,7 +98,7 @@ std::unique_ptr<AbstractConsumer> create_configured_consumer() {
           Config::config[Config::CKEY_BROKER_PORT],
           Config::config[Config::CKEY_KAFKA_TOPIC]);
     } else {
-      LOG_ERROR("Kafka input source needs to specify "
+      LOGGER_LOG_ERROR("Kafka input source needs to specify "
           << Config::CKEY_BROKER_HOST << ", "
           << Config::CKEY_BROKER_PORT << ", and "
           << Config::CKEY_KAFKA_TOPIC << ".");
@@ -109,11 +109,11 @@ std::unique_ptr<AbstractConsumer> create_configured_consumer() {
     if (Config::has_conf_key(Config::CKEY_IN_FILE)) {
       in = std::make_unique<FileInputStream>(Config::config[Config::CKEY_IN_FILE]);
     } else {
-      LOG_ERROR("File input source needs to specify " << Config::CKEY_IN_FILE << ".");
+      LOGGER_LOG_ERROR("File input source needs to specify " << Config::CKEY_IN_FILE << ".");
       return nullptr;
     }
   } else {
-    LOG_ERROR("Unknown input source " << in_src);
+    LOGGER_LOG_ERROR("Unknown input source " << in_src);
     return nullptr;
   }
 
@@ -159,12 +159,12 @@ std::unique_ptr<AbstractConsumer> create_configured_consumer() {
         out = std::make_unique<DBOutputStream>(conn, constants::SCALE_EVENTS_TABLENAME,
             constants::SCALE_EVENTS_TABLENAME, true, false);
       } else {
-        LOG_ERROR("Unsupported provenance source "
+        LOGGER_LOG_ERROR("Unsupported provenance source "
                   << Config::config[Config::CKEY_PROV_SRC] << ".");
         return nullptr;
       }
     } else {
-      LOG_ERROR("ODBC output destination source needs to specify "
+      LOGGER_LOG_ERROR("ODBC output destination source needs to specify "
           << Config::CKEY_ODBC_DSN << ".");
       return nullptr;
     }
@@ -173,11 +173,11 @@ std::unique_ptr<AbstractConsumer> create_configured_consumer() {
     if (Config::has_conf_key(Config::CKEY_OUT_FILE)) {
       out = std::make_unique<FileOutputStream>(Config::config[Config::CKEY_OUT_FILE]);
     } else {
-      LOG_ERROR("File ouput destination needs to specify " << Config::CKEY_OUT_FILE << ".");
+      LOGGER_LOG_ERROR("File ouput destination needs to specify " << Config::CKEY_OUT_FILE << ".");
       return nullptr;
     }
   } else {
-    LOG_ERROR("Unknown output destination " << out_dst);
+    LOGGER_LOG_ERROR("Unknown output destination " << out_dst);
     return nullptr;
   }
 

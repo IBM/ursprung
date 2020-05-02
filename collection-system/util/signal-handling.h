@@ -26,7 +26,7 @@ static volatile sig_atomic_t running = 1;
 static volatile sig_atomic_t hup = 1;
 
 static void term_handler(int sig) {
-  LOG_INFO("Shutting down...");
+  LOGGER_LOG_INFO("Shutting down...");
   running = 0;
 }
 

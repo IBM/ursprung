@@ -26,7 +26,7 @@ const std::regex CAPTURESOUT_SYNTAX = std::regex("CAPTURESOUT MATCH (.)* FIELDS 
 StdoutCaptureAction::StdoutCaptureAction(std::string action) {
   // check that the action has the right syntax
   if (!std::regex_match(action, CAPTURESOUT_SYNTAX)) {
-    LOG_ERROR( "StdoutCaptureAction " << action << " is not specified correctly.");
+    LOGGER_LOG_ERROR( "StdoutCaptureAction " << action << " is not specified correctly.");
     throw std::invalid_argument(action + " not specified correctly.");
   }
 
@@ -44,7 +44,7 @@ StdoutCaptureAction::StdoutCaptureAction(std::string action) {
     try {
       fields.push_back(new LogLoadField(field));
     } catch (std::invalid_argument &e) {
-      LOG_ERROR("Problems while parsing LogLoad field " << field << ". "
+      LOGGER_LOG_ERROR("Problems while parsing LogLoad field " << field << ". "
           << "Reason invalid argument to " << e.what() << ". "
           << "Field will not be added to the LogLoad fields.");
     }
@@ -63,7 +63,7 @@ int StdoutCaptureAction::execute(evt_t msg) {
   // retrieve name and pid of node and process to trace
   std::string node_name = msg->get_value("nodeName");
   std::string pid_str = msg->get_value("pid");
-  LOG_DEBUG("Executing stdout capture action for " << node_name << ":" << pid_str);
+  LOGGER_LOG_DEBUG("Executing stdout capture action for " << node_name << ":" << pid_str);
 
   // send trace request to provd daemon on target node
   uint32_t pid = atoi(pid_str.c_str());
@@ -92,7 +92,7 @@ int StdoutCaptureAction::execute(evt_t msg) {
 //      lineCounter++;
 //    }
 //  }
-  LOG_DEBUG("StdoutCapture Action done, received " << line_counter << " lines.");
+  LOGGER_LOG_DEBUG("StdoutCapture Action done, received " << line_counter << " lines.");
 
   // finish up
 //  if ((err = client.disconnectFromServer()) < 0) {
@@ -101,7 +101,7 @@ int StdoutCaptureAction::execute(evt_t msg) {
 //  }
   if (found_entries) {
     if (out->send_batch(records) != NO_ERROR) {
-      LOG_ERROR("Problems while bulk loading data from  into DB."
+      LOGGER_LOG_ERROR("Problems while bulk loading data from  into DB."
           << " Provenance may be incomplete. Action: " << this->str());
     }
   }

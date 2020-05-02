@@ -91,7 +91,7 @@ std::string extract_record_from_line(std::string line, std::string delimiter,
 LogLoadAction::LogLoadAction(std::string action) {
   // check that the action has the right syntax
   if (!std::regex_match(action, LOG_LOAD_SYNTAX)) {
-    LOG_ERROR("LogLoadAction " << action << " is not specified correctly.");
+    LOGGER_LOG_ERROR("LogLoadAction " << action << " is not specified correctly.");
     throw std::invalid_argument(action + " not specified correctly.");
   }
 
@@ -113,7 +113,7 @@ LogLoadAction::LogLoadAction(std::string action) {
     try {
       fields.push_back(new LogLoadField(field));
     } catch (std::invalid_argument &e) {
-      LOG_ERROR("Problems while parsing LogLoad field " << field
+      LOGGER_LOG_ERROR("Problems while parsing LogLoad field " << field
           << ". Reason invalid argument to " << e.what()
           << ". Field will not be added to the LogLoad fields.");
     }
@@ -140,14 +140,14 @@ LogLoadAction::~LogLoadAction() {
 }
 
 int LogLoadAction::execute(evt_t msg) {
-  LOG_DEBUG("Executing LogLoadAction " << this->str());
+  LOGGER_LOG_DEBUG("Executing LogLoadAction " << this->str());
   int rc = NO_ERROR;
 
   // get inode of file to deal with log rollover
   std::string path = msg->get_value(event_field);
   struct stat sb;
   if (stat(path.c_str(), &sb) < 0) {
-    LOG_ERROR("stat() failed with " << strerror(errno) << "."
+    LOGGER_LOG_ERROR("stat() failed with " << strerror(errno) << "."
         << " Can't retrieve inode for " << path << ". "
         << "Exiting LogLoadAction " << this->str()
         << " for received message " << msg->serialize());
@@ -162,7 +162,7 @@ int LogLoadAction::execute(evt_t msg) {
     char stateBuffer[1024];
     rc = state_backend->lookup_state(stateBuffer, rule_id, path);
     if (rc == ERROR_NO_RETRY) {
-      LOG_ERROR("Problems while trying to restore state for " << this->str()
+      LOGGER_LOG_ERROR("Problems while trying to restore state for " << this->str()
           << ". Will start" << " parsing " << path << " from 0.");
       state.first = 0;
       state.second = inode;
@@ -179,7 +179,7 @@ int LogLoadAction::execute(evt_t msg) {
         state.first = std::stoll(existing_state.substr(0, pos));
         state.second = std::stoll(existing_state.substr(pos + 1, std::string::npos));
         parsing_state[path] = state;
-        LOG_INFO("LogLoadAction " << this->str() << ": restored map state");
+        LOGGER_LOG_INFO("LogLoadAction " << this->str() << ": restored map state");
       } else {
         // we haven't seen this value before so initialize it in the map and the database
         state.first = 0;
@@ -188,10 +188,10 @@ int LogLoadAction::execute(evt_t msg) {
         rc = state_backend->insert_state(rule_id, std::to_string(parsing_state[path].first)
             + "," + std::to_string(parsing_state[path].second), path);
         if (rc != NO_ERROR) {
-          LOG_ERROR("Problems while adding state for new rule " << this->str()
+          LOGGER_LOG_ERROR("Problems while adding state for new rule " << this->str()
               << ". State can't be backed up at the moment.");
         } else {
-          LOG_INFO("LogLoadAction " << this->str() << ": no existing state found");
+          LOGGER_LOG_INFO("LogLoadAction " << this->str() << ": no existing state found");
         }
       }
     }
@@ -204,7 +204,7 @@ int LogLoadAction::execute(evt_t msg) {
     parsing_state[path].first = 0;
     parsing_state[path].second = inode;
     // TODO could there still be unread data in the old file?
-    LOG_INFO("It seems like log file " << path << " has been rotated. Extracting from new file.");
+    LOGGER_LOG_INFO("It seems like log file " << path << " has been rotated. Extracting from new file.");
   }
 
   // open log file and seek to last parsed position
@@ -235,7 +235,7 @@ int LogLoadAction::execute(evt_t msg) {
       read = false;
     }
     if (infile.bad()) {
-      LOG_ERROR("Error while reading, bad stream. LogLoad not reading from " << path);
+      LOGGER_LOG_ERROR("Error while reading, bad stream. LogLoad not reading from " << path);
       read = false;
     }
 
@@ -250,7 +250,7 @@ int LogLoadAction::execute(evt_t msg) {
 
         std::vector<char> line(line_length);
         if (line_overflow > 0) {
-          LOG_DEBUG("Appending previous line fragment to currently read line.");
+          LOGGER_LOG_DEBUG("Appending previous line fragment to currently read line.");
           for (unsigned j = 0; j < line_fragment.size(); j++) {
             line[j] = line_fragment[j];
           }
@@ -267,7 +267,7 @@ int LogLoadAction::execute(evt_t msg) {
 
         lineoffset = i + 1;
         std::string line_str(line.begin(), line.end());
-        LOG_DEBUG("Read line '" << line_str << "'");
+        LOGGER_LOG_DEBUG("Read line '" << line_str << "'");
 
         // match the line to find possible records to extract
         if (std::regex_match(line_str, matching_string)) {
@@ -285,7 +285,7 @@ int LogLoadAction::execute(evt_t msg) {
         }
         line_overflow = bytes_read - lineoffset;
         std::string line_fragment_str(line_fragment.begin(), line_fragment.end());
-        LOG_DEBUG("Read data doesn't end with new line, storing broken line '"
+        LOGGER_LOG_DEBUG("Read data doesn't end with new line, storing broken line '"
             << line_fragment_str << "' with line overflow " << line_overflow);
       }
     }
@@ -296,7 +296,7 @@ int LogLoadAction::execute(evt_t msg) {
   rc = state_backend->update_state(rule_id, std::to_string(parsing_state[path].first) + ","
       + std::to_string(parsing_state[path].second), path);
   if (rc != NO_ERROR) {
-    LOG_ERROR("Problems while updating state for rule " << this->str()
+    LOGGER_LOG_ERROR("Problems while updating state for rule " << this->str()
         << ". State can't be backed up at the moment.");
   }
   infile.close();
@@ -304,7 +304,7 @@ int LogLoadAction::execute(evt_t msg) {
   if (found_entries) {
     rc = out->send_batch(records);
     if (rc != NO_ERROR) {
-      LOG_ERROR("Problems while bulk loading data into DB."
+      LOGGER_LOG_ERROR("Problems while bulk loading data into DB."
           << " Provenance may be incomplete. Action: " << this->str());
     }
   }

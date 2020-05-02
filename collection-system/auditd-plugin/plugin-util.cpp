@@ -73,5 +73,5 @@ void Statistics::report() {
       "%ld auditd events skipped\n %ld OS events sent\n  %.1f event compression "
       "factor", report_prefix.c_str(), num_received_events, num_skipped_events,
       num_sent_events, compression_factor);
-  LOG_INFO(report);
+  LOGGER_LOG_INFO(report);
 }

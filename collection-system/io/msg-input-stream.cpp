@@ -27,7 +27,7 @@
 
 FileInputStream::FileInputStream(std::string &filename) :
     filename { filename } {
-  LOG_DEBUG("Constructing FileInputStream from " << filename);
+  LOGGER_LOG_DEBUG("Constructing FileInputStream from " << filename);
   in_file = std::make_unique<std::ifstream>();
 }
 
@@ -35,7 +35,7 @@ int FileInputStream::open() {
   in_file->open(filename);
 
   if (!in_file->good()) {
-    LOG_ERROR("Problems while trying to open input file " << filename << ": " << strerror(errno));
+    LOGGER_LOG_ERROR("Problems while trying to open input file " << filename << ": " << strerror(errno));
     return ERROR_NO_RETRY;
   }
   return NO_ERROR;

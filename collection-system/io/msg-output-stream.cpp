@@ -28,7 +28,7 @@
 
 FileOutputStream::FileOutputStream(std::string filename) :
     filename(filename) {
-  LOG_DEBUG("Constructing FileOutputStream for " << filename);
+  LOGGER_LOG_DEBUG("Constructing FileOutputStream for " << filename);
   out_file = std::make_unique<std::ofstream>();
 }
 
@@ -36,7 +36,7 @@ int FileOutputStream::open() {
   out_file->open(filename, std::ofstream::trunc);
 
   if (!out_file->good()) {
-    LOG_ERROR("Problems while trying to open output file " << filename << ": " << strerror(errno));
+    LOGGER_LOG_ERROR("Problems while trying to open output file " << filename << ": " << strerror(errno));
     return ERROR_NO_RETRY;
   }
   return NO_ERROR;

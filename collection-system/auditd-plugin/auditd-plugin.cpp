@@ -36,11 +36,11 @@ std::unique_ptr<MsgOutputStream> create_configured_output_stream() {
     if (Config::has_conf_key(Config::CKEY_OUT_FILE)) {
       out = std::make_unique<FileOutputStream>(Config::config[Config::CKEY_OUT_FILE]);
     } else {
-      LOG_ERROR("File ouput destination needs to specify " << Config::CKEY_OUT_FILE << ".");
+      LOGGER_LOG_ERROR("File ouput destination needs to specify " << Config::CKEY_OUT_FILE << ".");
       return nullptr;
     }
   } else {
-    LOG_ERROR("Unknown output destination " << out_dst);
+    LOGGER_LOG_ERROR("Unknown output destination " << out_dst);
     return nullptr;
   }
   // TODO add Kafka output stream
@@ -77,12 +77,12 @@ int main(int argc, char *argv[]) {
   // create output stream
   std::unique_ptr<MsgOutputStream>  out = create_configured_output_stream();
   if (!out) {
-    LOG_ERROR("Error, could not create configured output stream.");
+    LOGGER_LOG_ERROR("Error, could not create configured output stream.");
     return -1;
 
   }
   if (!out->open()) {
-    LOG_ERROR("Error, could not open output stream.");
+    LOGGER_LOG_ERROR("Error, could not open output stream.");
     return -1;
   }
 
@@ -106,9 +106,9 @@ int main(int argc, char *argv[]) {
   loader.join();
 
   if (!signal_handling::running) {
-    LOG_INFO("Exiting on stop request\n");
+    LOGGER_LOG_INFO("Exiting on stop request\n");
   } else {
-    LOG_INFO("Exiting on stdin EOF\n");
+    LOGGER_LOG_INFO("Exiting on stdin EOF\n");
   }
 
   return 0;

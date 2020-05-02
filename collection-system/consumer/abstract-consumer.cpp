@@ -59,25 +59,25 @@ int AbstractConsumer::run() {
       if (rc == NO_ERROR) {
         evt_t evt = Event::deserialize_event(next_msg);
         if (!evt) {
-          LOG_ERROR("Problems while receiving event " << next_msg << " Skipping event.");
+          LOGGER_LOG_ERROR("Problems while receiving event " << next_msg << " Skipping event.");
           continue;
         }
         if (receive_event(c_src, evt)) {
-          LOG_ERROR("Problems while processing event " << next_msg << " Skipping event.");
+          LOGGER_LOG_ERROR("Problems while processing event " << next_msg << " Skipping event.");
           continue;
         }
         msg_buffer.push_back(evt);
 
         // find and execute any matching rules
         if (evaluate_rules(evt) != NO_ERROR) {
-          LOG_ERROR("Problems while executing rules, some provenance " <<
+          LOGGER_LOG_ERROR("Problems while executing rules, some provenance " <<
               "might be lost");
         }
       } else if (rc == ERROR_NO_RETRY || rc == ERROR_EOF) {
         signal_handling::running = false;
       } else {
         // log and ignore error
-        LOG_WARN("Got error " << rc << " during receive. Continuing.");
+        LOGGER_LOG_WARN("Got error " << rc << " during receive. Continuing.");
       }
 
       if (msg_buffer.size() > batch_size) {
@@ -88,7 +88,7 @@ int AbstractConsumer::run() {
         long elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 batch_start - curr_time).count();
         if (elapsed_time >= BATCH_TIMEOUT && msg_buffer.size() > 0) {
-          LOG_DEBUG("Batch timed out and will be sent with size " << msg_buffer.size());
+          LOGGER_LOG_DEBUG("Batch timed out and will be sent with size " << msg_buffer.size());
           batch_done = true;
         }
       }
@@ -103,7 +103,7 @@ int AbstractConsumer::run() {
     // send messages
     rc = out_stream->send_batch(normalized_msgs);
     if (rc != NO_ERROR) {
-      LOG_ERROR("Problems while sending batch. Messages might have been lost.");
+      LOGGER_LOG_ERROR("Problems while sending batch. Messages might have been lost.");
       // TODO better error handling
     }
   }

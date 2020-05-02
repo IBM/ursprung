@@ -82,7 +82,7 @@ evt_t Event::deserialize_event(const std::string &event) {
   std::string evt_type;
   // first field is the event type
   if(!getline(ss, evt_type, ',')) {
-    LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
+    LOGGER_LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
     return nullptr;
   }
 
@@ -98,11 +98,11 @@ evt_t Event::deserialize_event(const std::string &event) {
     case SOCKET_CONNECT_EVENT: return std::make_shared<SocketConnectEvent>(event); break;
     case TEST_EVENT: return std::make_shared<TestEvent>(event); break;
     default:
-      LOG_ERROR("Received invalid event " << event << " Not deserializing.");
+      LOGGER_LOG_ERROR("Received invalid event " << event << " Not deserializing.");
       return nullptr;
     }
   } catch (const std::invalid_argument &e) {
-      LOG_ERROR("Received invalid event " << event << " Not deserializing.");
+      LOGGER_LOG_ERROR("Received invalid event " << event << " Not deserializing.");
       return nullptr;
   }
 }
@@ -116,27 +116,27 @@ TestEvent::TestEvent(const std::string &serialized_event) {
   std::stringstream evt_ss(serialized_event);
   std::string evt_type;
   if (!getline(evt_ss, evt_type, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a TestEvent.");
   }
   if (!getline(evt_ss, node_name, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a TestEvent.");
   }
   if (!getline(evt_ss, send_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a TestEvent.");
   }
   if (!getline(evt_ss, f1, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a TestEvent.");
   }
   if (!getline(evt_ss, f2, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a TestEvent.");
   }
   if (!getline(evt_ss, f3, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as TestEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a TestEvent.");
   }
 }

@@ -39,11 +39,11 @@ OSModel::OSModel() : pt { } {}
 
 osm_rc_t OSModel::apply_syscall(SyscallEvent *se) {
   assert(se);
-  LOG_DEBUG("OSModel::applySyscall: Applying syscall: " << se->serialize());
+  LOGGER_LOG_DEBUG("OSModel::applySyscall: Applying syscall: " << se->serialize());
 
   // ignore failed syscalls
   if (se->rc != SyscallEvent::RETURNS_VOID && se->rc < 0 && se->rc != -115) {
-    LOG_ERROR("OSModel::applySyscall: Ignoring failed syscall for pid "
+    LOGGER_LOG_ERROR("OSModel::applySyscall: Ignoring failed syscall for pid "
         << se->pid << ": " << se->syscall_name << " rc " << se->rc);
     delete se;
     return osm_rc_ok;
@@ -71,7 +71,7 @@ osm_rc_t OSModel::apply_syscall(SyscallEvent *se) {
       break;
     default:
       // ignore unmodeled syscalls
-      LOG_DEBUG("OSModel::applySyscall: Unmodeled syscall: " << se->serialize());
+      LOGGER_LOG_DEBUG("OSModel::applySyscall: Unmodeled syscall: " << se->serialize());
       break;
     }
   }

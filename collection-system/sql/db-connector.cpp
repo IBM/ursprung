@@ -46,7 +46,7 @@ void extract_error(SQLHANDLE handle, SQLSMALLINT type) {
     if (SQL_SUCCEEDED(ret)) {
       char buffer[2048];
       sprintf(buffer, "%s:%d:%d:%s", state, i, native, text);
-      LOG_ERROR("ODBC Error: " << buffer);
+      LOGGER_LOG_ERROR("ODBC Error: " << buffer);
     }
   } while (ret == SQL_SUCCESS);
 }
@@ -92,7 +92,7 @@ db_rc OdbcConnector::connect() {
   // allocate connection handle
   rc = SQLAllocHandle(SQL_HANDLE_DBC, env_handle, &db_handle);
   if ((rc != SQL_SUCCESS) && (rc != SQL_SUCCESS_WITH_INFO)) {
-    LOG_ERROR("Error allocating db handle, rc=" << rc);
+    LOGGER_LOG_ERROR("Error allocating db handle, rc=" << rc);
     return DB_ERROR;
   }
 
@@ -106,13 +106,13 @@ db_rc OdbcConnector::connect() {
         (SQLCHAR*) user.c_str(), SQL_NTS, (SQLCHAR*) pw.c_str(), SQL_NTS);
 
     if ((rc != SQL_SUCCESS) && (rc != SQL_SUCCESS_WITH_INFO)) {
-      LOG_WARN("Problems connecting to data source " << dsn_name << ", rc="
+      LOGGER_LOG_WARN("Problems connecting to data source " << dsn_name << ", rc="
           << rc << ". Retrying...");
       retries--;
 
       if (retries == 0) {
         extract_error(db_handle, SQL_HANDLE_DBC);
-        LOG_ERROR("Can't connect to " << dsn_name);
+        LOGGER_LOG_ERROR("Can't connect to " << dsn_name);
         SQLFreeHandle(SQL_HANDLE_DBC, db_handle);
         err = DB_ERROR;
       } else {
@@ -120,7 +120,7 @@ db_rc OdbcConnector::connect() {
       }
     } else {
       if (retries < NUM_RETRIES) {
-        LOG_INFO("Connected after " << (NUM_RETRIES - retries) << " retries");
+        LOGGER_LOG_INFO("Connected after " << (NUM_RETRIES - retries) << " retries");
       }
       connected = true;
     }
@@ -149,7 +149,7 @@ bool OdbcConnector::is_connected() {
       (SQLPOINTER) &uintval, (SQLINTEGER) sizeof(uintval), NULL);
 
   if ((rc != SQL_SUCCESS) && (rc != SQL_SUCCESS_WITH_INFO)) {
-    LOG_ERROR("Error while checking connection, rc=" << rc);
+    LOGGER_LOG_ERROR("Error while checking connection, rc=" << rc);
     extract_error(stmt_handle, SQL_HANDLE_STMT);
     return false;
   }
@@ -182,7 +182,7 @@ db_rc OdbcConnector::submit_query(std::string query) {
   SQLFreeHandle(SQL_HANDLE_STMT, stmt_handle);
   rc = SQLAllocHandle(SQL_HANDLE_STMT, db_handle, &stmt_handle);
   if ((rc != SQL_SUCCESS) && (rc != SQL_SUCCESS_WITH_INFO)) {
-    LOG_ERROR("Error allocating query handle, rc=" << rc);
+    LOGGER_LOG_ERROR("Error allocating query handle, rc=" << rc);
     extract_error(db_handle, SQL_HANDLE_DBC);
     return DB_ERROR;
   }
@@ -190,7 +190,7 @@ db_rc OdbcConnector::submit_query(std::string query) {
   // Execute query
   rc = SQLExecDirect(stmt_handle, (SQLCHAR*) query.c_str(), SQL_NTS);
   if ((rc != SQL_SUCCESS) && (rc != SQL_SUCCESS_WITH_INFO)) {
-    LOG_ERROR("Error during query submission, rc=" << rc);
+    LOGGER_LOG_ERROR("Error during query submission, rc=" << rc);
     extract_error(stmt_handle, SQL_HANDLE_STMT);
 
     // Check if we're disconnected. As we can only check the connection
@@ -202,21 +202,21 @@ db_rc OdbcConnector::submit_query(std::string query) {
       rc = disconnect();
       rc = connect();
       if (rc != DB_SUCCESS) {
-        LOG_ERROR("Can't reconnect to DB, won't submit query " << query);
+        LOGGER_LOG_ERROR("Can't reconnect to DB, won't submit query " << query);
         return DB_ERROR;
       }
 
       // re-submit query after reconnecting
       rc = SQLAllocHandle(SQL_HANDLE_STMT, db_handle, &stmt_handle);
       if ((rc != SQL_SUCCESS) && (rc != SQL_SUCCESS_WITH_INFO)) {
-        LOG_ERROR("Error allocating query handle, rc=" << rc);
+        LOGGER_LOG_ERROR("Error allocating query handle, rc=" << rc);
         extract_error(db_handle, SQL_HANDLE_DBC);
         return DB_ERROR;
       }
 
       rc = SQLExecDirect(stmt_handle, (SQLCHAR*) query.c_str(), SQL_NTS);
       if ((rc != SQL_SUCCESS) && (rc != SQL_SUCCESS_WITH_INFO)) {
-        LOG_ERROR("Error during query submission, rc=" << rc);
+        LOGGER_LOG_ERROR("Error during query submission, rc=" << rc);
         extract_error(stmt_handle, SQL_HANDLE_STMT);
         SQLFreeHandle(SQL_HANDLE_STMT, stmt_handle);
         return DB_ERROR;
@@ -298,7 +298,7 @@ db_rc OdbcConnector::get_row(char *row_buffer) {
  *------------------------------*/
 
 db_rc MockConnector::submit_query(std::string query) {
-  LOG_INFO(query);
+  LOGGER_LOG_INFO(query);
   return DB_SUCCESS;
 }
 
@@ -342,7 +342,7 @@ std::unique_ptr<DBConnector> ConnectorFactory::create_connector(
 
     return std::make_unique<OdbcConnector>(dsn, username, password);
   } else {
-    LOG_ERROR("No valid database type found in connector string.");
+    LOGGER_LOG_ERROR("No valid database type found in connector string.");
     throw DBConnectionException();
   }
 }

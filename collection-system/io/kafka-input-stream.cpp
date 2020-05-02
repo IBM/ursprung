@@ -35,43 +35,43 @@ int KafkaInputStream::open() {
 
   // set brokers
   if (conf->set("metadata.broker.list", brokers, errstr) != RdKafka::Conf::CONF_OK) {
-    LOG_ERROR("Couldn't set brokers for KafkaInputStream: " << errstr);
+    LOGGER_LOG_ERROR("Couldn't set brokers for KafkaInputStream: " << errstr);
     return ERROR_NO_RETRY;
   }
   // set group ID
   if (conf->set("group.id", brokers, errstr) != RdKafka::Conf::CONF_OK) {
-    LOG_ERROR("Couldn't set group ID for KafkaInputStream: " << errstr);
+    LOGGER_LOG_ERROR("Couldn't set group ID for KafkaInputStream: " << errstr);
     return ERROR_NO_RETRY;
   }
   // enable auto commit
   if (conf->set("enable.auto.commit", "true", errstr) != RdKafka::Conf::CONF_OK) {
-    LOG_ERROR("Couldn't enable auto commit for KafkaInputStream: " << errstr);
+    LOGGER_LOG_ERROR("Couldn't enable auto commit for KafkaInputStream: " << errstr);
     return ERROR_NO_RETRY;
   }
   // set 60s session timeout
   if (conf->set("session.timeout.ms", "60000", errstr) != RdKafka::Conf::CONF_OK) {
-    LOG_ERROR("Couldn't set session timout for KafkaInputStream: " << errstr);
+    LOGGER_LOG_ERROR("Couldn't set session timout for KafkaInputStream: " << errstr);
     return ERROR_NO_RETRY;
   }
   // set SASL authentication options
   if (!Config::config[Config::CKEY_KAFKA_SASL_USER].empty() &&
       !Config::config[Config::CKEY_KAFKA_SASL_PASS].empty()) {
     if (conf->set("security.protocol", "sasl_plaintext", errstr) != RdKafka::Conf::CONF_OK) {
-      LOG_ERROR("Failed to set security protocol for KafkaInputStream: " << errstr);
+      LOGGER_LOG_ERROR("Failed to set security protocol for KafkaInputStream: " << errstr);
       return ERROR_NO_RETRY;
     }
     if (conf->set("sasl.mechanisms", "SCRAM-SHA-512", errstr) != RdKafka::Conf::CONF_OK) {
-      LOG_ERROR("Failed to set sasl mechanism for KafkaInputStream: " << errstr);
+      LOGGER_LOG_ERROR("Failed to set sasl mechanism for KafkaInputStream: " << errstr);
       return ERROR_NO_RETRY;
     }
     if (conf->set("sasl.username", Config::config[Config::CKEY_KAFKA_SASL_USER],
         errstr) != RdKafka::Conf::CONF_OK) {
-      LOG_ERROR("Failed to set sasl username for KafkaInputStream: " << errstr);
+      LOGGER_LOG_ERROR("Failed to set sasl username for KafkaInputStream: " << errstr);
       return ERROR_NO_RETRY;
     }
     if (conf->set("sasl.password", Config::config[Config::CKEY_KAFKA_SASL_PASS],
         errstr) != RdKafka::Conf::CONF_OK) {
-      LOG_ERROR("Failed to set sasl password for KafkaInputStream: " << errstr);
+      LOGGER_LOG_ERROR("Failed to set sasl password for KafkaInputStream: " << errstr);
       return ERROR_NO_RETRY;
     }
   }
@@ -79,14 +79,14 @@ int KafkaInputStream::open() {
   // create consumer
   consumer = RdKafka::KafkaConsumer::create(conf, errstr);
   if (!consumer) {
-    LOG_ERROR("Couldn't create Kafka consumer: " << errstr);
+    LOGGER_LOG_ERROR("Couldn't create Kafka consumer: " << errstr);
     return ERROR_NO_RETRY;
   }
 
   // subscribe to topic
   RdKafka::ErrorCode err = consumer->subscribe({ topic });
   if (err) {
-    LOG_ERROR("Couldn't subscribe to topic " << topic << ": " << RdKafka::err2str(err));
+    LOGGER_LOG_ERROR("Couldn't subscribe to topic " << topic << ": " << RdKafka::err2str(err));
     return ERROR_NO_RETRY;
   }
 
@@ -113,18 +113,18 @@ int KafkaInputStream::recv(std::string &next_msg) {
       rc = NO_ERROR;
     } else {
       rc = ERROR_RETRY;
-      LOG_WARN("Received empty message.");
+      LOGGER_LOG_WARN("Received empty message.");
     }
     break;
   case RdKafka::ERR__UNKNOWN_TOPIC:
   case RdKafka::ERR__UNKNOWN_PARTITION:
-    LOG_ERROR("Consume failed with: " << msg->errstr());
+    LOGGER_LOG_ERROR("Consume failed with: " << msg->errstr());
     rc = ERROR_NO_RETRY;
     break;
   default:
     // TODO Check whether ERROR_RETRY is ok for all other error codes (see rdkafkacpp.h).
     // Can they be fixed through retry?
-    LOG_ERROR("Consume failed with: " << msg->errstr());
+    LOGGER_LOG_ERROR("Consume failed with: " << msg->errstr());
     rc = ERROR_RETRY;
     break;
   }

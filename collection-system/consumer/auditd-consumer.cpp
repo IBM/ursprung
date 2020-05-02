@@ -34,7 +34,7 @@ int AuditdConsumer::evaluate_rules(evt_t msg) {
         std::string pid_str = msg->get_value("pid");
         std::string tracee = pid_str + node_name;
 
-        LOG_DEBUG("Received exit syscall for " << tracee);
+        LOGGER_LOG_DEBUG("Received exit syscall for " << tracee);
         if (active_tracees.find(tracee) != active_tracees.end()) {
           // we're tracing the process that just exited, signal the tracer
           int err;
@@ -45,7 +45,7 @@ int AuditdConsumer::evaluate_rules(evt_t msg) {
           if ((err = client.disconnect_from_server()) < 0) return ERROR_NO_RETRY;
           // remove tracee from list of active tracees
           active_tracees.erase(tracee);
-          LOG_DEBUG("Removed " << tracee << " from active tracees.");
+          LOGGER_LOG_DEBUG("Removed " << tracee << " from active tracees.");
         }
       }
     }
@@ -61,7 +61,7 @@ int AuditdConsumer::evaluate_rules(evt_t msg) {
           std::string nodeName = msg->get_value("nodeName");
           std::string pidStr = msg->get_value("pid");
           active_tracees.insert(pidStr + nodeName);
-          LOG_DEBUG("Inserted " << (pidStr + nodeName) << " into active tracees");
+          LOGGER_LOG_DEBUG("Inserted " << (pidStr + nodeName) << " into active tracees");
           break;
         }
       }

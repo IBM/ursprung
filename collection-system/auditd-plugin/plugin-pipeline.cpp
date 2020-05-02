@@ -46,7 +46,7 @@ void PipelineStep::mask_signals() {
 
   int rc = pthread_sigmask(SIG_BLOCK, &signal_mask, NULL);
   if (rc) {
-    LOG_ERROR("Stage: Error, pthread_sigmask failed: "
+    LOGGER_LOG_ERROR("Stage: Error, pthread_sigmask failed: "
             << std::string(strerror(errno)));
   }
 }
@@ -74,14 +74,14 @@ void ExtractorStep::handle_audisp_event(auparse_state_t *au,
     }
 
     if (record_key && Config::config[Config::CKEY_AUDITD_KEY].compare(record_key) == 0) {
-      LOG_DEBUG("Keeping event: key " << record_key_str);
+      LOGGER_LOG_DEBUG("Keeping event: key " << record_key_str);
     } else {
       if (record_key) {
-        LOG_DEBUG("Skipping event whose first record has key " << record_key_str
+        LOGGER_LOG_DEBUG("Skipping event whose first record has key " << record_key_str
                 << " != " << that->state_->cfg->_auditdKey);
         that->stats->skipped_auditd_event();
       } else {
-        LOG_DEBUG("Skipping event without key");
+        LOGGER_LOG_DEBUG("Skipping event without key");
         that->stats->skipped_auditd_event();
       }
       num++;
@@ -113,12 +113,12 @@ int ExtractorStep::run() {
   mask_signals();
   char tmp[MAX_AUDIT_MESSAGE_LENGTH];
   pid_t tid = syscall(GETTID);
-  LOG_DEBUG("Extractor running with pid " << tid);
+  LOGGER_LOG_DEBUG("Extractor running with pid " << tid);
 
   // initialize the auparse library
   au = auparse_init(AUSOURCE_FEED, 0);
   if (au == NULL) {
-    LOG_ERROR("Extractor exiting due to auparse init errors");
+    LOGGER_LOG_ERROR("Extractor exiting due to auparse init errors");
     // propagate
     if (out) {
       out->push(DONE_PTR);
@@ -137,7 +137,7 @@ int ExtractorStep::run() {
 
     // load configuration
     if (signal_handling::hup) {
-      LOG_INFO("Detected SIGHUP, reloading config.");
+      LOGGER_LOG_INFO("Detected SIGHUP, reloading config.");
       signal_handling::hup = 0;
       Config::parse_config(config_path);
       Config::print_config();
@@ -166,12 +166,12 @@ int ExtractorStep::run() {
     }
     // check EOF
     if (read_size == 0) {
-      LOG_INFO("Found EOF, stopping main loop.");
+      LOGGER_LOG_INFO("Found EOF, stopping main loop.");
       break;
     }
   } while (signal_handling::running);
 
-  LOG_INFO("Detected SIGTERM, shutting down.");
+  LOGGER_LOG_INFO("Detected SIGTERM, shutting down.");
 
   // flush any accumulated events from queue
   auparse_flush_feed(au);
@@ -192,7 +192,7 @@ int ExtractorStep::run() {
 int TransformerStep::run() {
   mask_signals();
   pid_t tid = syscall(GETTID);
-  LOG_INFO("Transformer running with pid " << tid);
+  LOGGER_LOG_INFO("Transformer running with pid " << tid);
 
   time_t start_readtime;
   time_t curr_time;
@@ -230,7 +230,7 @@ int TransformerStep::run() {
   }
 
   // cleanup
-  LOG_INFO("Transformer::stopping");
+  LOGGER_LOG_INFO("Transformer::stopping");
   send_ready_events();
   if (out) {
     out->push(DONE_PTR);
@@ -241,7 +241,7 @@ int TransformerStep::run() {
 
 void TransformerStep::send_ready_events() {
   std::vector<Event*> reaped_events = osModel.reap_os_events();
-  LOG_DEBUG("Transformer: Reaped " << std::to_string(reaped_events.size()) << " os events");
+  LOGGER_LOG_DEBUG("Transformer: Reaped " << std::to_string(reaped_events.size()) << " os events");
 
   for (Event *e : reaped_events) {
     assert(e);
@@ -258,7 +258,7 @@ void TransformerStep::send_ready_events() {
       // send event to next stage
       out->push(e);
     } else {
-      LOG_DEBUG("Transformer: Filtering out event " << e->serialize());
+      LOGGER_LOG_DEBUG("Transformer: Filtering out event " << e->serialize());
     }
   }
 }
@@ -293,7 +293,7 @@ LoaderStep::LoaderStep(SynchronizedQueue<void*> *in, SynchronizedQueue<void*> *o
 int LoaderStep::run() {
   mask_signals();
   pid_t tid = syscall(GETTID);
-  LOG_DEBUG("Loader running with pid " << tid);
+  LOGGER_LOG_DEBUG("Loader running with pid " << tid);
 
   while (1) {
     void *elt = in->pop();
@@ -331,14 +331,14 @@ int LoaderStep::run() {
     if (out_stream->send(evt->serialize(), RdKafka::Topic::PARTITION_UA, &combined_key) == NO_ERROR) {
       stats->sent_event();
     } else {
-      LOG_DEBUG("prov-auditd: sendData returned MoRc " << std::to_string(sendRc));
+      LOGGER_LOG_DEBUG("prov-auditd: sendData returned MoRc " << std::to_string(sendRc));
     }
 
     delete evt;
   }
 
   // cleanup
-  LOG_INFO("Loader::stopping");
+  LOGGER_LOG_INFO("Loader::stopping");
   if (out) {
     out->push(DONE_PTR);
   }

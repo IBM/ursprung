@@ -35,7 +35,7 @@ int ProvdClient::connect_to_server(std::string node) {
   struct sockaddr_in serv_addr;
 
   if ((socket_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    LOG_ERROR("Problems while creating socket: " << strerror(errno));
+    LOGGER_LOG_ERROR("Problems while creating socket: " << strerror(errno));
     return socket_fd;
   }
 
@@ -49,19 +49,19 @@ int ProvdClient::connect_to_server(std::string node) {
   struct in_addr **addr_list;
   if ((he = gethostbyname(node.c_str())) == NULL) {
     // get the host info
-    LOG_ERROR("Couldn't lookup " << node)
+    LOGGER_LOG_ERROR("Couldn't lookup " << node)
     return -1;
   }
   addr_list = (struct in_addr**) he->h_addr_list;
   strcpy(ip, inet_ntoa(*addr_list[0]));
 
   if (inet_pton(AF_INET, ip, &serv_addr.sin_addr) <= 0) {
-    LOG_ERROR("Invalid address provided: " << node);
+    LOGGER_LOG_ERROR("Invalid address provided: " << node);
     return -1;
   }
 
   if ((rc = connect(socket_fd, (struct sockaddr*) &serv_addr, sizeof(serv_addr))) < 0) {
-    LOG_ERROR("Can't connect to server: " << strerror(errno));
+    LOGGER_LOG_ERROR("Can't connect to server: " << strerror(errno));
     return rc;
   }
 
@@ -154,7 +154,7 @@ int NetworkHelper::write_to_socket(int fd, char *buffer, int len) {
 
   while (len > 0) {
     if ((rc = write(fd, buffer, len)) < 0) {
-      LOG_ERROR("Problems while writing: " << strerror(errno));
+      LOGGER_LOG_ERROR("Problems while writing: " << strerror(errno));
       return bytes_written;
     }
     bytes_written += rc;
@@ -170,7 +170,7 @@ int NetworkHelper::read_from_socket(int fd, char *buffer, int len) {
 
   while (len > 0) {
     if ((rc = read(fd, buffer, len)) < 0) {
-      LOG_ERROR("Problems while writing: " << strerror(errno));
+      LOGGER_LOG_ERROR("Problems while writing: " << strerror(errno));
       return bytes_read;
     }
     if (rc == 0) {

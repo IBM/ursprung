@@ -54,7 +54,7 @@ DBOutputStream::~DBOutputStream() {
 }
 
 void DBOutputStream::run_inserter() {
-  LOG_INFO("Running auditd inserter thread");
+  LOGGER_LOG_INFO("Running auditd inserter thread");
   std::vector<std::string> batch;
   while (running) {
     batch = batch_queue->pop();
@@ -62,7 +62,7 @@ void DBOutputStream::run_inserter() {
       send_sync(batch);
     }
   }
-  LOG_INFO("Inserter thread exiting.");
+  LOGGER_LOG_INFO("Inserter thread exiting.");
 }
 
 int DBOutputStream::open() {
@@ -83,7 +83,7 @@ std::string DBOutputStream::str() const {
 }
 
 int DBOutputStream::send(const std::string &msg_str, int partition, const std::string *key) {
-  LOG_WARN("Call to not implemented DBOutputStream::send.");
+  LOGGER_LOG_WARN("Call to not implemented DBOutputStream::send.");
   return NO_ERROR;
 }
 
@@ -98,7 +98,7 @@ int DBOutputStream::send_batch(const std::vector<std::string> &records) {
 
 void DBOutputStream::set_multiplex_group(std::string target_table, std::string target_schema, std::string key) {
   if (!multiplex) {
-    LOG_WARN("Stream is not multiplexed, not setting multiplex group.");
+    LOGGER_LOG_WARN("Stream is not multiplexed, not setting multiplex group.");
     return;
   }
   tablenames.push_back(target_table);
@@ -173,7 +173,7 @@ int DBOutputStream::send_sync(const std::vector<std::string> &records) {
   for (unsigned int k = 0; k < attr_keys.size(); k++) {
     rc = parallel_send_to_db(payload_contents[attr_keys[k]], tablenames[k], db_schemas[k]);
     if (rc != NO_ERROR) {
-      LOG_ERROR("Problems when sending auditd events for " << attr_keys[k]);
+      LOGGER_LOG_ERROR("Problems when sending auditd events for " << attr_keys[k]);
     }
   }
   return rc;
@@ -183,7 +183,7 @@ int DBOutputStream::parallel_send_to_db(const std::vector<std::vector<std::strin
     std::string table, std::string schema) {
   std::vector<std::thread> insert_threads;
   for (unsigned int i = 0; i < batches.size(); i++) {
-    LOG_DEBUG("Sending stream of size " << batches[i].size() << " to DB for " << table);
+    LOGGER_LOG_DEBUG("Sending stream of size " << batches[i].size() << " to DB for " << table);
     insert_threads.push_back(std::thread(&DBOutputStream::send_to_db,
         this, std::ref(batches[i]), table, schema));
     // TODO correct error handling using promises and futures
@@ -216,18 +216,18 @@ int DBOutputStream::send_to_db(const std::vector<std::string> &batch,
     query.append("(").append(batch[j]).append(")");
     query.append(j == batch.size() - 1 ? "" : ",");
   }
-  LOG_DEBUG(query);
+  LOGGER_LOG_DEBUG(query);
 
   // connect to the database and submit the query
   std::unique_ptr<DBConnector> db_conn = ConnectorFactory::create_connector(connection_string);
   err = db_conn->connect();
   if (err != DB_SUCCESS) {
-    LOG_ERROR("Error while connecting to target DB " << connection_string);
+    LOGGER_LOG_ERROR("Error while connecting to target DB " << connection_string);
     throw DBConnectionException();
   }
   err = db_conn->submit_query(query);
   if (err != DB_SUCCESS) {
-    LOG_ERROR("Problems when submitting query " << query << " to database: " << err);
+    LOGGER_LOG_ERROR("Problems when submitting query " << query << " to database: " << err);
     rc = ERROR_NO_RETRY;
   }
   db_conn->disconnect();

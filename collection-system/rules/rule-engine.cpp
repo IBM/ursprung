@@ -70,7 +70,7 @@ int RuleEngine::add_rule(std::string rule) {
   std::string action;
   while (getline(actions_ss, action, DELIM)) {
     if (r->add_action(action) != NO_ERROR) {
-      LOG_ERROR("Problems while adding action " << action << " to rule engine. "
+      LOGGER_LOG_ERROR("Problems while adding action " << action << " to rule engine. "
           << "Ignoring action.");
       return ERROR_NO_RETRY;
     }

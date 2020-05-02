@@ -117,104 +117,104 @@ SyscallEvent::SyscallEvent(const std::string &serialized_event) {
   // event type
   std::string evt_type;
   if (!getline(evt_ss, evt_type, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   // node_name
   if (!getline(evt_ss, node_name, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   // send_time
   if (!getline(evt_ss, send_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   // auditd_event_id
   std::string auditd_event_id_str;
   if (!getline(evt_ss, auditd_event_id_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   auditd_event_id = std::stoul(auditd_event_id_str);
   // pid
   std::string pid_str;
   if (!getline(evt_ss, pid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   pid = std::stoi(pid_str);
   // ppid
   std::string ppid_str;
   if (!getline(evt_ss, ppid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   ppid = std::stoi(ppid_str);
   // uid
   std::string uid_str;
   if (!getline(evt_ss, uid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   uid = std::stoi(uid_str);
   // gid
   std::string gid_str;
   if (!getline(evt_ss, gid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   gid = std::stoi(gid_str);
   // euid
   std::string euid_str;
   if (!getline(evt_ss, euid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   euid = std::stoi(euid_str);
   // egid
   std::string egid_str;
   if (!getline(evt_ss, egid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   egid = std::stoi(egid_str);
   // syscall_name
   if (!getline(evt_ss, syscall_name, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   // rc
   std::string rc_str;
   if (!getline(evt_ss, rc_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   rc = std::stoi(rc_str);
   // arg0 - arg4
   if (!getline(evt_ss, arg0, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   if (!getline(evt_ss, arg1, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   if (!getline(evt_ss, arg2, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   if (!getline(evt_ss, arg3, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   if (!getline(evt_ss, arg4, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   // event_time
   if (!getline(evt_ss, event_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SyscallEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SyscallEvent.");
   }
   // data
@@ -446,53 +446,53 @@ ProcessEvent::ProcessEvent(const std::string &serialized_event) {
   // event type
   std::string evt_type;
   if (!getline(evt_ss, evt_type, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessEvent.");
   }
   // node_name
   if (!getline(evt_ss, node_name, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessEvent.");
   }
   // send_time
   if (!getline(evt_ss, send_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessEvent.");
   }
   // pid
   std::string pid_str;
   if (!getline(evt_ss, pid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessEvent.");
   }
   pid = std::stoi(pid_str);
   // ppid
   std::string ppid_str;
   if (!getline(evt_ss, ppid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessEvent.");
   }
   ppid = std::stoi(ppid_str);
   // pgid
   std::string pgid_str;
   if (!getline(evt_ss, pgid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessEvent.");
   }
   pgid = std::stoi(pgid_str);
   // start_time_utc
   if (!getline(evt_ss, start_time_utc, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessEvent.");
   }
   // finish_time_utc
   if (!getline(evt_ss, finish_time_utc, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessEvent.");
   }
   // exec_cwd
   if (!getline(evt_ss, exec_cwd, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessEvent.");
   }
   // exec_cmd_line
@@ -658,34 +658,34 @@ ProcessGroupEvent::ProcessGroupEvent(const std::string &serialized_event) {
   // event type
   std::string evt_type;
   if (!getline(evt_ss, evt_type, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessGroupEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessGroupEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessGroupEvent.");
   }
   // node_name
   if (!getline(evt_ss, node_name, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessGroupEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessGroupEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessGroupEvent.");
   }
   // send_time
   if (!getline(evt_ss, send_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessGroupEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessGroupEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessGroupEvent.");
   }
   // pgid
   std::string pgid_str;
   if (!getline(evt_ss, pgid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessGroupEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessGroupEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessGroupEvent.");
   }
   pgid = std::stoi(pgid_str);
   // start_time_utc
   if (!getline(evt_ss, start_time_utc, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessGroupEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessGroupEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessGroupEvent.");
   }
   // finish_time_utc
   if (!getline(evt_ss, finish_time_utc, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessGroupEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as ProcessGroupEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a ProcessGroupEvent.");
   }
 }
@@ -744,41 +744,41 @@ IPCEvent::IPCEvent(const std::string &serialized_event) {
   // event type
   std::string evt_type;
   if (!getline(evt_ss, evt_type, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a IPCEvent.");
   }
   // node_name
   if (!getline(evt_ss, node_name, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a IPCEvent.");
   }
   // send_time
   if (!getline(evt_ss, send_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a IPCEvent.");
   }
   // src_pid
   std::string src_pid_str;
   if (!getline(evt_ss, src_pid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a IPCEvent.");
   }
   src_pid = std::stoi(src_pid_str);
   // dst_pid
   std::string dst_pid_str;
   if (!getline(evt_ss, dst_pid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a IPCEvent.");
   }
   dst_pid = std::stoi(dst_pid_str);
   // src_start_time_utc
   if (!getline(evt_ss, src_start_time_utc, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a IPCEvent.");
   }
   // dst_start_time_utc
   if (!getline(evt_ss, dst_start_time_utc, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as IPCEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a IPCEvent.");
   }
 }
@@ -842,40 +842,40 @@ SocketEvent::SocketEvent(const std::string &serialized_event) {
   // event type
   std::string evt_type;
   if (!getline(evt_ss, evt_type, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketEvent.");
   }
   // node_name
   if (!getline(evt_ss, node_name, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketEvent.");
   }
   // send_time
   if (!getline(evt_ss, send_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketEvent.");
   }
   // pid
   std::string pid_str;
   if (!getline(evt_ss, pid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketEvent.");
   }
   pid = std::stoi(pid_str);
   // open_time
   if (!getline(evt_ss, open_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketEvent.");
   }
   // close_time
   if (!getline(evt_ss, close_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketEvent.");
   }
   // port
   std::string port_str;
   if (!getline(evt_ss, port_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketEvent.");
   }
   port = std::stoi(port_str);
@@ -940,40 +940,40 @@ SocketConnectEvent::SocketConnectEvent(const std::string &serialized_event) {
   // event type
   std::string evt_type;
   if (!getline(evt_ss, evt_type, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketConnectEvent.");
   }
   // node_name
   if (!getline(evt_ss, node_name, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketConnectEvent.");
   }
   // send_time
   if (!getline(evt_ss, send_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketConnectEvent.");
   }
   // pid
   std::string pid_str;
   if (!getline(evt_ss, pid_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketConnectEvent.");
   }
   pid = std::stoi(pid_str);
   // connect_time
   if (!getline(evt_ss, connect_time, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketConnectEvent.");
   }
   // dst_node
   if (!getline(evt_ss, dst_node, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketConnectEvent.");
   }
   // dst_port
   std::string dst_port_str;
   if (!getline(evt_ss, dst_port_str, ',')) {
-    LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as SocketConnectEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a SocketConnectEvent.");
   }
   dst_port = std::stoi(dst_port_str);

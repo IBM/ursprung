@@ -46,7 +46,7 @@ Condition::Condition(std::string condition) {
     rvalue = boost::regex_replace(rvalue, boost::regex("\\["), "(");
     rvalue = boost::regex_replace(rvalue, boost::regex("\\]"), ")");
   } else {
-    LOG_WARN("No operator found in condition " << condition << "Valid operators are =, >, <, and @");
+    LOGGER_LOG_WARN("No operator found in condition " << condition << "Valid operators are =, >, <, and @");
   }
 }
 
@@ -169,7 +169,7 @@ bool ConditionExpr::eval_rec(Node *node, const Event &msg) const {
     } else if (op->get_op() == "||") {
       return eval_rec(op->get_lchild(), msg) || eval_rec(op->get_rchild(), msg);
     } else {
-      LOG_ERROR("Op not recognized");
+      LOGGER_LOG_ERROR("Op not recognized");
       return false;
     }
   } else {
@@ -178,7 +178,7 @@ bool ConditionExpr::eval_rec(Node *node, const Event &msg) const {
     if (!val.empty()) {
       return c->evaluate(val);
     } else {
-      LOG_ERROR("Field " << c->get_field_name() << " not part of message." << "Ignoring rule.");
+      LOGGER_LOG_ERROR("Field " << c->get_field_name() << " not part of message." << "Ignoring rule.");
       return false;
     }
   }

@@ -34,26 +34,26 @@
   );
 
 // always log fatal, errors, and warnings
-#define LOG_FATAL(msg) LOG(fatal_logger(), msg)
-#define LOG_ERROR(msg) LOG(error_logger(), msg)
-#define LOG_WARN(msg) LOG(warn_logger(), msg)
+#define LOGGER_LOG_FATAL(msg) LOG(fatal_logger(), msg)
+#define LOGGER_LOG_ERROR(msg) LOG(error_logger(), msg)
+#define LOGGER_LOG_WARN(msg) LOG(warn_logger(), msg)
 
 #ifndef INFO
-#define LOG_INFO(msg) do {} while(0)
+#define LOGGER_LOG_INFO(msg) do {} while(0)
 #else
-#define LOG_INFO(msg) LOG(info_logger(), msg)
+#define LOGGER_LOG_INFO(msg) LOG(info_logger(), msg)
 #endif
 
 #ifndef DEBUG
-#define LOG_DEBUG(msg) do {} while(0)
+#define LOGGER_LOG_DEBUG(msg) do {} while(0)
 #else
-#define LOG_DEBUG(msg) LOG(debug_logger(), msg)
+#define LOGGER_LOG_DEBUG(msg) LOG(debug_logger(), msg)
 #endif
 
 #ifndef PERF
-#define LOG_PERF(msg) do {} while(0)
+#define LOGGER_LOG_PERF(msg) do {} while(0)
 #else
-#define LOG_PERF(msg) LOG(performance_logger(), msg)
+#define LOGGER_LOG_PERF(msg) LOG(performance_logger(), msg)
 #endif
 
 enum class Level : uint8_t {

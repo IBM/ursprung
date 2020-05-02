@@ -65,7 +65,7 @@ std::unique_ptr<Action> Action::parse_action(std::string action) {
     } else if (action.substr(0, 11) == CAPTURESOUT_RULE) {
       return std::make_unique<StdoutCaptureAction>(action);
     } else {
-      LOG_WARN("No action matched for provided action " << action);
+      LOGGER_LOG_WARN("No action matched for provided action " << action);
       return nullptr;
     }
   } catch (const std::invalid_argument &e) {
@@ -77,13 +77,13 @@ std::unique_ptr<Action> Action::parse_action(std::string action) {
 
 void Action::run_consumer() {
   while (running) {
-    LOG_DEBUG(rule_id << " - waiting for action to consume");
+    LOGGER_LOG_DEBUG(rule_id << " - waiting for action to consume");
     evt_t msg = action_queue->pop();
     if (msg) {
-      LOG_DEBUG(rule_id << " - Received new message, executing action");
+      LOGGER_LOG_DEBUG(rule_id << " - Received new message, executing action");
 #ifdef PERF
       std::string val = msg->get_value("eventTime");
-      LOG_DEBUG("Got event time " << val);
+      LOGGER_LOG_DEBUG("Got event time " << val);
 
       // extract milliseconds from time
       size_t dot_pos = val.find(".", 0);
@@ -100,17 +100,17 @@ void Action::run_consumer() {
       // get current timestamp
       long ms = std::chrono::duration_cast<std::chrono::milliseconds>(
           std::chrono::system_clock::now().time_since_epoch()).count();
-      LOG_DEBUG("Got current time " << ms);
+      LOGGER_LOG_DEBUG("Got current time " << ms);
 
       // compute difference and log it
       long lat = ms - timestamp_millis;
-      LOG_PERF("Rulelatency: " << lat);
+      LOGGER_LOG_PERF("Rulelatency: " << lat);
 #endif
       execute(std::move(msg));
     }
   }
 
-  LOG_INFO(rule_id << " - finished");
+  LOGGER_LOG_INFO(rule_id << " - finished");
 }
 
 int Action::init_output_stream(std::string dst, size_t from) {
@@ -140,7 +140,7 @@ int Action::init_output_stream(std::string dst, size_t from) {
     out_dest = FILE_DST;
   } else {
     // no valid destination specified
-    LOG_ERROR("Action " << dst << " does not contain a valid output destination. Valid "
+    LOGGER_LOG_ERROR("Action " << dst << " does not contain a valid output destination. Valid "
         << "destinations are " << DB_DST << " and " << FILE_DST << ".");
     return ERROR_NO_RETRY;
   }
@@ -166,7 +166,7 @@ int Action::init_state(std::string dst, size_t from) {
     state_backend->connect();
   } else {
     // no valid destination specified
-    LOG_ERROR("Action " << dst << " does not contain a valid output destination. Valid "
+    LOGGER_LOG_ERROR("Action " << dst << " does not contain a valid output destination. Valid "
         << "destinations are " << DB_DST << " and " << FILE_DST << ".");
     return ERROR_NO_RETRY;
   }
@@ -175,7 +175,7 @@ int Action::init_state(std::string dst, size_t from) {
 }
 
 void Action::start_action_consumers(int num_threads) {
-  LOG_INFO(rule_id << " - starting action consumer");
+  LOGGER_LOG_INFO(rule_id << " - starting action consumer");
   for (int i = 0; i < num_threads; i++) {
     consumer_threads.push_back(std::thread(&Action::run_consumer, this));
   }

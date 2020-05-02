@@ -25,7 +25,7 @@ const std::regex DB_TRANSFER_SYNTAX = std::regex("DBTRANSFER (.*)/[a-zA-Z0-9]* F
 DBTransferAction::DBTransferAction(std::string action) {
   // check that the action has the right syntax
   if (!std::regex_match(action, DB_TRANSFER_SYNTAX)) {
-    LOG_ERROR("DBTransferAction " << action << " is not specified correctly.");
+    LOGGER_LOG_ERROR("DBTransferAction " << action << " is not specified correctly.");
     // TODO here we should also enforce the two requirement:
     // 1. attributes need to be specified explicitely in the select clause
     // 2. the first selected attribute has to be the state attribute
@@ -56,13 +56,13 @@ DBTransferAction::DBTransferAction(std::string action) {
   // set up ODBC connection to source database
   source_db_wrapper = ConnectorFactory::create_connector(connection_string);
   if (source_db_wrapper->connect() != DB_SUCCESS) {
-    LOG_ERROR("Error while connecting to source DB " << connection_string);
+    LOGGER_LOG_ERROR("Error while connecting to source DB " << connection_string);
     throw DBConnectionException();
   }
 }
 
 int DBTransferAction::execute(evt_t msg) {
-  LOG_DEBUG("Executing DBTransferAction " << this->str());
+  LOGGER_LOG_DEBUG("Executing DBTransferAction " << this->str());
 
   // restore any existing state
   int rc;
@@ -71,22 +71,22 @@ int DBTransferAction::execute(evt_t msg) {
     char state_buffer[1024];
     rc = state_backend->lookup_state(state_buffer, rule_id);
     if (rc == ERROR_NO_RETRY) {
-      LOG_ERROR("Problems while trying to restore state for " << this->str()
+      LOGGER_LOG_ERROR("Problems while trying to restore state for " << this->str()
           << ". Will work with existing query state " << query_state);
     } else {
       std::string query_state_string = (rc == NO_ERROR) ? std::string(state_buffer) : "";
       if (!query_state_string.empty()) {
-        LOG_INFO("DBTransferAction " << this->str() << ": restored "
+        LOGGER_LOG_INFO("DBTransferAction " << this->str() << ": restored "
             << query_state_string << " state from disk.");
         query_state = query_state_string;
       } else {
         // initialize state in the database
         rc = state_backend->insert_state(rule_id, query_state);
         if (rc != NO_ERROR) {
-          LOG_ERROR("Problems while adding state for rule " << this->str()
+          LOGGER_LOG_ERROR("Problems while adding state for rule " << this->str()
               << ". State can't be backed up at the moment.");
         } else {
-          LOG_INFO("DBTransferAction " << this->str() << ": no existing state found");
+          LOGGER_LOG_INFO("DBTransferAction " << this->str() << ": no existing state found");
         }
       }
     }
@@ -102,7 +102,7 @@ int DBTransferAction::execute(evt_t msg) {
   }
   prepared_query.append(" order by ").append(state_attribute_name).append(" desc");
   if (source_db_wrapper->submit_query(prepared_query) != DB_SUCCESS) {
-    LOG_ERROR("Error while submitting query to DB. Can't retrieve data from source db."
+    LOGGER_LOG_ERROR("Error while submitting query to DB. Can't retrieve data from source db."
         << " Provenance may be incomplete. Action: " << this->str());
     return ERROR_NO_RETRY;
   }
@@ -123,7 +123,7 @@ int DBTransferAction::execute(evt_t msg) {
       query_state = item;
       rc = state_backend->update_state(rule_id, query_state);
       if (rc != NO_ERROR) {
-        LOG_ERROR("Problems while updating state for rule " << this->str()
+        LOGGER_LOG_ERROR("Problems while updating state for rule " << this->str()
             << ". State can't be backed up at the moment.");
       }
       first_row = false;
@@ -141,11 +141,11 @@ int DBTransferAction::execute(evt_t msg) {
   if (!stream_empty) {
     rc = out->send_batch(records);
     if (rc != NO_ERROR) {
-      LOG_ERROR("Problems while adding newly retrieved db data to DB."
+      LOGGER_LOG_ERROR("Problems while adding newly retrieved db data to DB."
           << " Provenance may be incomplete. Action: " << this->str());
     }
   } else {
-    LOG_DEBUG("DBTransferAction " << this->str() << " didn't receive any new data.");
+    LOGGER_LOG_DEBUG("DBTransferAction " << this->str() << " didn't receive any new data.");
   }
 
   return rc;
