@@ -42,6 +42,7 @@ public:
   static const std::string CKEY_BROKER_HOST;
   static const std::string CKEY_BROKER_PORT;
   static const std::string CKEY_KAFKA_TOPIC;
+  static const std::string CKEY_KAFKA_GROUP_ID;
   static const std::string CKEY_KAFKA_SASL_USER;
   static const std::string CKEY_KAFKA_SASL_PASS;
   static const std::string CKEY_LOG_FILE;

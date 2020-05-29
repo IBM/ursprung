@@ -31,6 +31,7 @@ const std::string Config::CKEY_ODBC_PASS = "odbc-pass";
 const std::string Config::CKEY_BROKER_HOST = "broker-host";
 const std::string Config::CKEY_BROKER_PORT = "broker-port";
 const std::string Config::CKEY_KAFKA_TOPIC = "kafka-topic";
+const std::string Config::CKEY_KAFKA_GROUP_ID = "kafka-group-id";
 const std::string Config::CKEY_KAFKA_SASL_USER = "sasl-user";
 const std::string Config::CKEY_KAFKA_SASL_PASS = "sasl-password";
 const std::string Config::CKEY_LOG_FILE = "log-file";
@@ -108,6 +109,7 @@ void Config::print_config() {
       << Config::CKEY_ODBC_PASS << " = "  << Config::config[Config::CKEY_ODBC_PASS] << std::endl
       << Config::CKEY_BROKER_HOST << " = "  << Config::config[Config::CKEY_BROKER_HOST] << std::endl
       << Config::CKEY_BROKER_PORT << " = "  << Config::config[Config::CKEY_BROKER_PORT] << std::endl
+      << Config::CKEY_KAFKA_GROUP_ID << " = "  << Config::config[Config::CKEY_KAFKA_GROUP_ID] << std::endl
       << Config::CKEY_KAFKA_TOPIC << " = "  << Config::config[Config::CKEY_KAFKA_TOPIC] << std::endl
       << Config::CKEY_KAFKA_SASL_USER << " = "  << Config::config[Config::CKEY_KAFKA_SASL_USER] << std::endl
       << Config::CKEY_KAFKA_SASL_PASS << " = "  << Config::config[Config::CKEY_KAFKA_SASL_PASS] << std::endl
@@ -152,7 +154,9 @@ bool Config::is_conf_key_valid(std::string key) {
     return true;
   if (key == Config::CKEY_BROKER_PORT)
     return true;
-  if (key == Config::CKEY_KAFKA_TOPIC)
+  if (key == Config::CKEY_KAFKA_GROUP_ID)
+    return true;
+  if (key == Config::CKEY_KAFKA_GROUP_ID)
     return true;
   if (key == Config::CKEY_KAFKA_SASL_USER)
     return true;
