@@ -28,12 +28,11 @@
 const std::string Config::CKEY_ODBC_DSN = "odbc-dsn";
 const std::string Config::CKEY_ODBC_USER = "odbc-user";
 const std::string Config::CKEY_ODBC_PASS = "odbc-pass";
-const std::string Config::CKEY_BROKER_HOST = "broker-host";
-const std::string Config::CKEY_BROKER_PORT = "broker-port";
+const std::string Config::CKEY_KAFKA_BROKERS = "kafka-brokers";
 const std::string Config::CKEY_KAFKA_TOPIC = "kafka-topic";
 const std::string Config::CKEY_KAFKA_GROUP_ID = "kafka-group-id";
-const std::string Config::CKEY_KAFKA_SASL_USER = "sasl-user";
-const std::string Config::CKEY_KAFKA_SASL_PASS = "sasl-password";
+const std::string Config::CKEY_KAFKA_SASL_USER = "kafka-sasl-user";
+const std::string Config::CKEY_KAFKA_SASL_PASS = "kafka-sasl-password";
 const std::string Config::CKEY_LOG_FILE = "log-file";
 const std::string Config::CKEY_RULES_FILE = "rules-file";
 const std::string Config::CKEY_TRACK_VERSIONS = "enable-versioning";
@@ -107,8 +106,7 @@ void Config::print_config() {
       << Config::CKEY_ODBC_DSN << " = "  << Config::config[Config::CKEY_ODBC_DSN] << std::endl
       << Config::CKEY_ODBC_USER << " = "  << Config::config[Config::CKEY_ODBC_USER] << std::endl
       << Config::CKEY_ODBC_PASS << " = "  << Config::config[Config::CKEY_ODBC_PASS] << std::endl
-      << Config::CKEY_BROKER_HOST << " = "  << Config::config[Config::CKEY_BROKER_HOST] << std::endl
-      << Config::CKEY_BROKER_PORT << " = "  << Config::config[Config::CKEY_BROKER_PORT] << std::endl
+      << Config::CKEY_KAFKA_BROKERS << " = "  << Config::config[Config::CKEY_KAFKA_BROKERS] << std::endl
       << Config::CKEY_KAFKA_GROUP_ID << " = "  << Config::config[Config::CKEY_KAFKA_GROUP_ID] << std::endl
       << Config::CKEY_KAFKA_TOPIC << " = "  << Config::config[Config::CKEY_KAFKA_TOPIC] << std::endl
       << Config::CKEY_KAFKA_SASL_USER << " = "  << Config::config[Config::CKEY_KAFKA_SASL_USER] << std::endl
@@ -150,9 +148,7 @@ bool Config::is_conf_key_valid(std::string key) {
     return true;
   if (key == Config::CKEY_ODBC_PASS)
     return true;
-  if (key == Config::CKEY_BROKER_HOST)
-    return true;
-  if (key == Config::CKEY_BROKER_PORT)
+  if (key == Config::CKEY_KAFKA_BROKERS)
     return true;
   if (key == Config::CKEY_KAFKA_GROUP_ID)
     return true;

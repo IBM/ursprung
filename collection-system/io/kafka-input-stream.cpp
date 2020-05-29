@@ -39,7 +39,7 @@ int KafkaInputStream::open() {
     return ERROR_NO_RETRY;
   }
   // set group ID
-  if (conf->set("group.id", brokers, errstr) != RdKafka::Conf::CONF_OK) {
+  if (conf->set("group.id", group_id, errstr) != RdKafka::Conf::CONF_OK) {
     LOGGER_LOG_ERROR("Couldn't set group ID for KafkaInputStream: " << errstr);
     return ERROR_NO_RETRY;
   }

@@ -90,18 +90,18 @@ std::unique_ptr<AbstractConsumer> create_configured_consumer() {
   std::string in_src = Config::config[Config::CKEY_INPUT_SRC];
   if (in_src == constants::KAFKA_STREAM) {
     // make sure all Kafka relevant properties are set in config
-    if (Config::has_conf_key(Config::CKEY_BROKER_HOST)
-        && Config::has_conf_key(Config::CKEY_BROKER_PORT)
-        && Config::has_conf_key(Config::CKEY_KAFKA_TOPIC)) {
+    if (Config::has_conf_key(Config::CKEY_KAFKA_BROKERS)
+        && Config::has_conf_key(Config::CKEY_KAFKA_TOPIC)
+        && Config::has_conf_key(Config::CKEY_KAFKA_GROUP_ID)) {
       in = std::make_unique<KafkaInputStream>(
-          Config::config[Config::CKEY_BROKER_HOST],
-          Config::config[Config::CKEY_BROKER_PORT],
-          Config::config[Config::CKEY_KAFKA_TOPIC]);
+          Config::config[Config::CKEY_KAFKA_TOPIC],
+          Config::config[Config::CKEY_KAFKA_BROKERS],
+          Config::config[Config::CKEY_KAFKA_GROUP_ID]);
     } else {
       LOGGER_LOG_ERROR("Kafka input source needs to specify "
-          << Config::CKEY_BROKER_HOST << ", "
-          << Config::CKEY_BROKER_PORT << ", and "
-          << Config::CKEY_KAFKA_TOPIC << ".");
+          << Config::CKEY_KAFKA_BROKERS << ", "
+          << Config::CKEY_KAFKA_TOPIC << ", and "
+          << Config::CKEY_KAFKA_GROUP_ID << ".");
       return nullptr;
     }
   } else if (in_src == constants::FILE_STREAM) {
