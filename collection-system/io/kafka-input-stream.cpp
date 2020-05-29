@@ -102,7 +102,7 @@ int KafkaInputStream::recv(std::string &next_msg) {
   int rc;
 
   // get next message from Kafka
-  consumer->consume(TIMEOUT_MS);
+  msg = consumer->consume(TIMEOUT_MS);
   switch (msg->err()) {
   case RdKafka::ERR__TIMED_OUT:
     rc = ERROR_RETRY;

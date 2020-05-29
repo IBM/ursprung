@@ -54,7 +54,7 @@ DBOutputStream::~DBOutputStream() {
 }
 
 void DBOutputStream::run_inserter() {
-  LOGGER_LOG_INFO("Running auditd inserter thread");
+  LOGGER_LOG_INFO("Running inserter thread");
   std::vector<std::string> batch;
   while (running) {
     batch = batch_queue->pop();
