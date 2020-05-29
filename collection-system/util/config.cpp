@@ -150,7 +150,7 @@ bool Config::is_conf_key_valid(std::string key) {
     return true;
   if (key == Config::CKEY_KAFKA_BROKERS)
     return true;
-  if (key == Config::CKEY_KAFKA_GROUP_ID)
+  if (key == Config::CKEY_KAFKA_TOPIC)
     return true;
   if (key == Config::CKEY_KAFKA_GROUP_ID)
     return true;
