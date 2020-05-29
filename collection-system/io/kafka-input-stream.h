@@ -22,9 +22,6 @@
 
 const int TIMEOUT_MS = 500;
 
-/**
- * This class is only needed for testing purposes.
- */
 class KafkaInputStream: public MsgInputStream {
 private:
   std::string topic;
