@@ -1,0 +1,31 @@
+FROM centos:latest
+USER root
+RUN mkdir -p /opt/collection-system
+COPY collection-system /opt/collection-system
+RUN yum -y install 'mercurial'
+RUN yum -y groupinstall 'Development Tools'
+RUN /bin/bash -c 'yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm; yum -y install cmake3 wget'
+RUN /bin/bash -c 'yum -y install audit-libs-devel unixODBC-devel openssl-devel boost-devel'
+RUN mkdir -p /opt/collection-system/lib
+RUN /bin/bash -c 'cd /opt/collection-system/lib; \
+	hg clone https://bitbucket.org/mpmselenic/c-hglib; \
+	cd c-hglib/; \
+	make; \
+	cp libhg.so /usr/local/lib'
+RUN /bin/bash -c 'cd /opt/collection-system/lib; \
+	git clone https://github.com/emptymonkey/ptrace_do.git; \
+	cd ptrace_do; \
+	make; \
+	cp libptrace_do.a /usr/local/lib'
+RUN /bin/bash -c 'cd /opt/collection-system/lib; \
+	wget https://github.com/edenhill/librdkafka/archive/v1.4.2.tar.gz; \
+	tar xzvf v1.4.2.tar.gz; \
+	rm v1.4.2.tar.gz; \
+	cd librdkafka-1.4.2; \
+	./configure; \
+	make -j16; \
+	make install'
+RUN /bin/bash -c 'cd /opt/collection-system/lib; \
+	git clone https://github.com/google/googletest.git'
+RUN mkdir -p /opt/collection-system/build
+RUN /bin/bash -c 'cd /opt/collection-system/build; cmake3 -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=1 -DINFO=1 ../; make -j16; make test'
