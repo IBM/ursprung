@@ -38,8 +38,8 @@ TEST(scale_consumer_test, test1) {
   std::ifstream in_file("scale-consumer-test.out");
   std::string line;
   std::getline(in_file, line);
-  EXPECT_EQ("'CLOSE','scale-cluster','some-node','fs0',"
-      "'/tmp/some-file',4321,12,0,1234,'2020/04/22 - 01:01:00.123','',''", line);
+  EXPECT_EQ("'OPEN','gpfs-test-cluster','node','fs0',"
+      "'/gpfs/fs0/testfile',405523,0,0,29279,'2020-05-29 23:28:02.409261','_NULL_',''", line);
 }
 
 TEST(auditd_consumer_test, test1) {

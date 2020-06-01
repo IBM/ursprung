@@ -28,23 +28,31 @@ FSEvent::FSEvent(const std::string &serialized_event) {
     LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
+  // event
+  if (!getline(evt_ss, event, ',')) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEvent.");
+  }
+  // cluster_name
+  if (!getline(evt_ss, cluster_name, ',')) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEvent.");
+  }
   // node_name
   if (!getline(evt_ss, node_name, ',')) {
     LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
-  // send_time
-  if (!getline(evt_ss, send_time, ',')) {
+  // fs_name
+  if (!getline(evt_ss, fs_name, ',')) {
     LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
-  // pid
-  std::string pid_str;
-  if (!getline(evt_ss, pid_str, ',')) {
+  // path
+  if (!getline(evt_ss, path, ',')) {
     LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
-  pid = std::stoul(pid_str);
   // inode
   std::string inode_str;
   if (!getline(evt_ss, inode_str, ',')) {
@@ -66,8 +74,15 @@ FSEvent::FSEvent(const std::string &serialized_event) {
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
   bytes_written = std::stoi(bytes_written_str);
-  // path
-  if (!getline(evt_ss, path, ',')) {
+  // pid
+  std::string pid_str;
+  if (!getline(evt_ss, pid_str, ',')) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEvent.");
+  }
+  pid = std::stoul(pid_str);
+  // event_time
+  if (!getline(evt_ss, event_time, ',')) {
     LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
@@ -78,26 +93,6 @@ FSEvent::FSEvent(const std::string &serialized_event) {
   }
   // mode
   if (!getline(evt_ss, mode, ',')) {
-    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
-    throw std::invalid_argument(serialized_event + " is not a FSEvent.");
-  }
-  // event
-  if (!getline(evt_ss, event, ',')) {
-    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
-    throw std::invalid_argument(serialized_event + " is not a FSEvent.");
-  }
-  // event_time
-  if (!getline(evt_ss, event_time, ',')) {
-    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
-    throw std::invalid_argument(serialized_event + " is not a FSEvent.");
-  }
-  // cluster_name
-  if (!getline(evt_ss, cluster_name, ',')) {
-    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
-    throw std::invalid_argument(serialized_event + " is not a FSEvent.");
-  }
-  // fs_name
-  if (!getline(evt_ss, fs_name, ',')) {
     LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as FSEvent. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEvent.");
   }
@@ -123,23 +118,20 @@ FSEvent::FSEvent(osm_pid_t pid, int inode, size_t bytes_read,
 
 std::string FSEvent::serialize() const {
   std::stringstream evt;
-  evt << get_type() << SER_DELIM
+  evt << get_type() << SER_DELIM;
+  evt << event << SER_DELIM
+      << cluster_name << SER_DELIM
       << node_name << SER_DELIM
-      << send_time << SER_DELIM;
+      << fs_name << SER_DELIM;
 
-  evt << pid << SER_DELIM
-      << inode << SER_DELIM;
-
-  evt << bytes_read << SER_DELIM
+  evt << path << SER_DELIM
+      << inode << SER_DELIM
+      << bytes_read << SER_DELIM
       << bytes_written << SER_DELIM
-      << path << SER_DELIM
+      << pid << SER_DELIM
+      << event_time << SER_DELIM
       << dst_path << SER_DELIM
       << mode << SER_DELIM;
-
-  evt << event << SER_DELIM
-      << event_time << SER_DELIM
-      << cluster_name << SER_DELIM
-      << fs_name << SER_DELIM;
 
   return evt.str();
 }

@@ -45,32 +45,29 @@ TEST(event_test, test_event_test2) {
 }
 
 TEST(event_test, fs_event_test1) {
-  FSEvent e(1, 2, 3, 4, "event", "event_time", "cluster_name", "fs_name",
-      "path", "dst_path", "mode", "hash");
-  e.set_node_name("node1");
-  e.set_send_time("time1");
+  std::string event = "1,OPEN,gpfs-test-cluster,node,fs0,"
+      "/gpfs/fs0/testfile,405523,0,0,29279,"
+      "2020-05-29 23:28:02.409261,_NULL_,-rw-r--r--";
 
-  // test serialization
-  std::string e_serialized = e.serialize();
-  EXPECT_EQ("1,node1,time1,1,2,3,4,path,dst_path,mode,event,event_time,cluster_name,fs_name,",
-      e_serialized);
+  std::shared_ptr<Event> e_deserialized = Event::deserialize_event(event);
 
   // test deserialization
-  std::shared_ptr<Event> e_deserialized = Event::deserialize_event(e_serialized);
   EXPECT_EQ(FS_EVENT, e_deserialized->get_type());
-  EXPECT_EQ("node1", e_deserialized->get_node_name());
-  EXPECT_EQ("time1", e_deserialized->get_send_time());
-  EXPECT_EQ("event",  e_deserialized->get_value("event"));
-  EXPECT_EQ("cluster_name",  e_deserialized->get_value("cluster_name"));
-  EXPECT_EQ("fs_name",  e_deserialized->get_value("fs_name"));
-  EXPECT_EQ("path",  e_deserialized->get_value("path"));
-  EXPECT_EQ("2",  e_deserialized->get_value("inode"));
-  EXPECT_EQ("3",  e_deserialized->get_value("bytes_read"));
-  EXPECT_EQ("4",  e_deserialized->get_value("bytes_written"));
-  EXPECT_EQ("1",  e_deserialized->get_value("pid"));
-  EXPECT_EQ("event_time",  e_deserialized->get_value("event_time"));
-  EXPECT_EQ("dst_path",  e_deserialized->get_value("dst_path"));
+  EXPECT_EQ("node", e_deserialized->get_node_name());
+  EXPECT_EQ("OPEN",  e_deserialized->get_value("event"));
+  EXPECT_EQ("gpfs-test-cluster",  e_deserialized->get_value("cluster_name"));
+  EXPECT_EQ("fs0",  e_deserialized->get_value("fs_name"));
+  EXPECT_EQ("/gpfs/fs0/testfile",  e_deserialized->get_value("path"));
+  EXPECT_EQ("405523",  e_deserialized->get_value("inode"));
+  EXPECT_EQ("0",  e_deserialized->get_value("bytes_read"));
+  EXPECT_EQ("0",  e_deserialized->get_value("bytes_written"));
+  EXPECT_EQ("29279",  e_deserialized->get_value("pid"));
+  EXPECT_EQ("2020-05-29 23:28:02.409261",  e_deserialized->get_value("event_time"));
+  EXPECT_EQ("_NULL_",  e_deserialized->get_value("dst_path"));
   EXPECT_EQ("",  e_deserialized->get_value("version_hash"));
+
+  std::string e_serialized = e_deserialized->serialize();
+  EXPECT_EQ(event + ",", e_serialized);
 }
 
 TEST(event_test, syscall_event_test1) {
