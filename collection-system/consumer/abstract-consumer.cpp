@@ -77,7 +77,7 @@ int AbstractConsumer::run() {
         signal_handling::running = false;
       } else {
         // log and ignore error
-        LOGGER_LOG_WARN("Got error " << rc << " during receive. Continuing.");
+        LOGGER_LOG_DEBUG("Got error " << rc << " during receive. Continuing.");
       }
 
       if (msg_buffer.size() > batch_size) {
@@ -86,7 +86,7 @@ int AbstractConsumer::run() {
       // check if the batch has timed out and if so, send it
         auto curr_time = std::chrono::steady_clock::now();
         long elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                batch_start - curr_time).count();
+                curr_time - batch_start).count();
         if (elapsed_time >= BATCH_TIMEOUT && msg_buffer.size() > 0) {
           LOGGER_LOG_DEBUG("Batch timed out and will be sent with size " << msg_buffer.size());
           batch_done = true;
@@ -95,6 +95,7 @@ int AbstractConsumer::run() {
     }
 
     // normalize messages for destination
+    LOGGER_LOG_INFO("Submitting batch of size " << msg_buffer.size());
     std::vector<std::string> normalized_msgs;
     for (evt_t evt : msg_buffer) {
       normalized_msgs.push_back(evt->format_for_dst(c_dst));
@@ -106,6 +107,9 @@ int AbstractConsumer::run() {
       LOGGER_LOG_ERROR("Problems while sending batch. Messages might have been lost.");
       // TODO better error handling
     }
+
+    // clear buffer
+    msg_buffer.clear();
   }
 
   return NO_ERROR;

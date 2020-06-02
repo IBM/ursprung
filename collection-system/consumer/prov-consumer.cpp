@@ -156,7 +156,7 @@ std::unique_ptr<AbstractConsumer> create_configured_consumer() {
             constants::AUDIT_SOCKETCONNECT_EVENTS_SCHEMA,
             constants::AUDIT_SOCKETCONNECT_EVENTS_KEY);
       } else if (Config::config[Config::CKEY_PROV_SRC] == constants::SCALE_SRC) {
-        out = std::make_unique<DBOutputStream>(conn, constants::SCALE_EVENTS_TABLENAME,
+        out = std::make_unique<DBOutputStream>(conn, constants::SCALE_EVENTS_SCHEMA,
             constants::SCALE_EVENTS_TABLENAME, true, false);
       } else {
         LOGGER_LOG_ERROR("Unsupported provenance source "

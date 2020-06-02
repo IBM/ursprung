@@ -123,8 +123,7 @@ int KafkaInputStream::recv(std::string &next_msg) {
     break;
   default:
     // TODO Check whether ERROR_RETRY is ok for all other error codes (see rdkafkacpp.h).
-    // Can they be fixed through retry?
-    LOGGER_LOG_ERROR("Consume failed with: " << msg->errstr());
+    LOGGER_LOG_DEBUG("Consume returned error: " << msg->errstr());
     rc = ERROR_RETRY;
     break;
   }

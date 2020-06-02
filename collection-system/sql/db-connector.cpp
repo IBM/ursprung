@@ -331,7 +331,7 @@ std::unique_ptr<DBConnector> ConnectorFactory::create_connector(
     return std::make_unique<MockConnector>();
   } else if  ((db_type_pos = connection_string.find(ODBC_DB, 0)) != std::string::npos) {
     size_t at_pos = connection_string.find("@", 0);
-    std::string user_password = connection_string.substr(5, at_pos);
+    std::string user_password = connection_string.substr(5, at_pos - 5);
     size_t colon_pos = user_password.find(":");
 
     std::string dsn = connection_string.substr(at_pos + 1,
