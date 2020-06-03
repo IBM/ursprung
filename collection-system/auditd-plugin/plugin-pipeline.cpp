@@ -77,8 +77,7 @@ void ExtractorStep::handle_audisp_event(auparse_state_t *au,
       LOGGER_LOG_DEBUG("Keeping event: key " << record_key_str);
     } else {
       if (record_key) {
-        LOGGER_LOG_DEBUG("Skipping event whose first record has key " << record_key_str
-                << " != " << that->state_->cfg->_auditdKey);
+        LOGGER_LOG_DEBUG("Skipping event whose first record has key " << record_key_str);
         that->stats->skipped_auditd_event();
       } else {
         LOGGER_LOG_DEBUG("Skipping event without key");
@@ -156,7 +155,7 @@ int ExtractorStep::run() {
         retval = select(1, &read_mask, NULL, NULL, &tv);
       else
         retval = select(1, &read_mask, NULL, NULL, NULL);
-    } while (retval <= 0 && signal_handling::running); // no need to check for errno == EINTR, we masked off all signals
+    } while (retval <= 0 && signal_handling::running);
 
     // main event loop
     if (retval > 0) {
@@ -328,10 +327,11 @@ int LoaderStep::run() {
     }
     std::string combined_key = key + hostname;
 
-    if (out_stream->send(evt->serialize(), RdKafka::Topic::PARTITION_UA, &combined_key) == NO_ERROR) {
+    int rc = 0;
+    if ((rc = out_stream->send(evt->serialize(), RdKafka::Topic::PARTITION_UA, &combined_key)) == NO_ERROR) {
       stats->sent_event();
     } else {
-      LOGGER_LOG_DEBUG("prov-auditd: sendData returned MoRc " << std::to_string(sendRc));
+      LOGGER_LOG_DEBUG("send returned  " << rc);
     }
 
     delete evt;
@@ -339,6 +339,7 @@ int LoaderStep::run() {
 
   // cleanup
   LOGGER_LOG_INFO("Loader::stopping");
+  out_stream->flush();
   if (out) {
     out->push(DONE_PTR);
   }

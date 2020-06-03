@@ -19,11 +19,10 @@
 #include "error.h"
 #include "config.h"
 
-KafkaOutputStream::KafkaOutputStream(std::string topic, std::string brokers, std::string group,
+KafkaOutputStream::KafkaOutputStream(std::string topic, std::string brokers,
     std::string buffer_max_msgs, std::string buffer_max_ms, std::string batch_num_msgs) :
     topic { topic },
     brokers { brokers },
-    group_id { group },
     buffer_max_msgs { buffer_max_msgs },
     buffer_max_ms { buffer_max_ms },
     batch_num_msgs { batch_num_msgs } {

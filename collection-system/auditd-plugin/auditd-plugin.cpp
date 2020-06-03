@@ -26,6 +26,8 @@
 #include "config.h"
 #include "signal-handling.h"
 #include "constants.h"
+#include "error.h"
+#include "kafka-output-stream.h"
 
 std::unique_ptr<MsgOutputStream> create_configured_output_stream() {
   // create the output stream for the plugin
@@ -39,11 +41,23 @@ std::unique_ptr<MsgOutputStream> create_configured_output_stream() {
       LOGGER_LOG_ERROR("File ouput destination needs to specify " << Config::CKEY_OUT_FILE << ".");
       return nullptr;
     }
+  } else if (out_dst == constants::KAFKA_STREAM) {
+    if (Config::has_conf_key(Config::CKEY_KAFKA_BROKERS)
+        && Config::has_conf_key(Config::CKEY_KAFKA_TOPIC)) {
+      out = std::make_unique<KafkaOutputStream>(
+          Config::config[Config::CKEY_KAFKA_TOPIC],
+          Config::config[Config::CKEY_KAFKA_BROKERS]);
+    } else {
+      LOGGER_LOG_ERROR("Kafka input source needs to specify "
+          << Config::CKEY_KAFKA_BROKERS << ", "
+          << Config::CKEY_KAFKA_TOPIC << ", and "
+          << Config::CKEY_KAFKA_GROUP_ID << ".");
+      return nullptr;
+    }
   } else {
     LOGGER_LOG_ERROR("Unknown output destination " << out_dst);
     return nullptr;
   }
-  // TODO add Kafka output stream
 
   return out;
 }
@@ -81,7 +95,7 @@ int main(int argc, char *argv[]) {
     return -1;
 
   }
-  if (!out->open()) {
+  if (out->open() != NO_ERROR) {
     LOGGER_LOG_ERROR("Error, could not open output stream.");
     return -1;
   }

@@ -26,7 +26,6 @@ class KafkaOutputStream: public MsgOutputStream {
 private:
   std::string topic;
   std::string brokers;
-  std::string group_id;
   std::string buffer_max_msgs;
   std::string buffer_max_ms;
   std::string batch_num_msgs;
@@ -37,7 +36,7 @@ private:
   RdKafka::Producer *producer;
 
 public:
-  KafkaOutputStream(std::string topic, std::string brokers, std::string group_id,
+  KafkaOutputStream(std::string topic, std::string brokers,
       std::string buffer_max_msgs = "20000", std::string buffer_max_ms = "100",
       std::string batch_num_msgs = "5000");
   virtual ~KafkaOutputStream();
