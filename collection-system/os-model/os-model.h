@@ -35,7 +35,7 @@
 class OSModel {
 private:
   ProcessTable pt;
-  std::vector<SyscallEvent*> appliedSyscalls;
+  std::vector<SyscallEvent*> applied_syscalls;
 
 public:
   OSModel();

@@ -50,7 +50,7 @@ osm_rc_t OSModel::apply_syscall(SyscallEvent *se) {
   }
 
   // save se, we own it and must delete it later
-  appliedSyscalls.push_back(se);
+  applied_syscalls.push_back(se);
 
   if (string_to_syscall.find(se->syscall_name) != string_to_syscall.end()) {
     switch (string_to_syscall[se->syscall_name]) {
@@ -83,9 +83,9 @@ std::vector<Event*> OSModel::reap_os_events() {
   std::vector<Event*> ret;
 
   // get all raw syscalls first
-  ret.reserve(ret.size() + appliedSyscalls.size());
-  ret.insert(ret.end(), appliedSyscalls.begin(), appliedSyscalls.end());
-  appliedSyscalls.clear();
+  ret.reserve(ret.size() + applied_syscalls.size());
+  ret.insert(ret.end(), applied_syscalls.begin(), applied_syscalls.end());
+  applied_syscalls.clear();
 
   // then get all aggregated events (process, process group, etc.)
   std::vector<Event*> processEvents = pt.reap_os_events();
