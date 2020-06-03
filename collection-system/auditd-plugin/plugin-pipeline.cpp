@@ -301,6 +301,9 @@ int LoaderStep::run() {
     }
     Event *evt = (Event*) elt;
 
+    // set the node name
+    evt->set_node_name(hostname);
+
     // extract the partition key component (pid or pgid)
     std::string key;
     switch (evt->get_type()) {
