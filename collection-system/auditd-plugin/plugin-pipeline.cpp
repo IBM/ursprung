@@ -248,7 +248,7 @@ void TransformerStep::send_ready_events() {
     // filter syscall events if configured
     bool keep = true;
     if (e->get_type() == EventType::SYSCALL_EVENT) {
-      if (!Config::get_bool(Config::CKEY_EMIT_SYSCALL_EVENTS)) {
+      if (!Config::get_bool(Config::config[Config::CKEY_EMIT_SYSCALL_EVENTS])) {
         keep = false;
       }
     }
