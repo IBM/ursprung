@@ -1,5 +1,3 @@
-@import "carbon-components/scss/globals/scss/styles.scss";
-
 body {
     margin: 0;
     padding: 0;
@@ -14,3 +12,8 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
         monospace;
 }
+
+$feature-flags: (
+  ui-shell: true,
+  grid-columns-16: true,
+);

@@ -16,13 +16,19 @@
 
 import React,  { Component }  from 'react';
 import './App.css';
+import './app.scss';
+import { Content } from "carbon-components-react/lib/components/UIShell";
+import SiteHeader from "./components/SiteHeader";
 import ProvenancePanel from "./components/ProvenancePanel";
 
 class App extends Component {
   render() {
     return (
       <>
-        <ProvenancePanel />
+      <SiteHeader />
+        <Content>
+          <ProvenancePanel />
+        </Content>
       </>
     );
   }

@@ -1,0 +1,19 @@
+@import "./mixins.scss";
+
+.ppanel__r2 .bx--tabs__nav {
+  left: 0;
+}
+
+.ppanel__illo {
+  max-width: 100%;
+}
+
+.ppanel__banner {
+  padding-top: $spacing-05;
+  padding-bottom: $spacing-07 * 2;
+  @include ppanel-background;
+}
+
+.ppanel__heading {
+  @include carbon--type-style("productive-heading-05");
+}

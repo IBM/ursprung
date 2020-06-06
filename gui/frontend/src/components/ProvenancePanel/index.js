@@ -15,7 +15,7 @@
  */
 
 import React, { Component } from 'react';
-import { Tab, Tabs } from 'carbon-components-react';
+import { Tabs, Tab } from "carbon-components-react";
 
 class ProvenancePanel extends Component {
   constructor(props) {
@@ -41,19 +41,63 @@ class ProvenancePanel extends Component {
   render() {
     console.log(`Rendering displayProvenance`);
 
+    const props = {
+      tabs: {
+        selected: 0,
+        triggerHref: "#",
+        role: "navigation",
+      },
+      tab: {
+        href: "#",
+        role: "presentation",
+        tabIndex: 0,
+      },
+    };
+
     return (
-      <div id="provenance_workflows_panel_tabs">
-        <Tabs>
-          <Tab label="Provenance" id="provenance_panel_graph2">
-            <div>Hello Provenance!</div>
-          </Tab>
-          <Tab label="Workflows" id="provenance_panel_workflows">
-            <div>Hello Workflows!</div>
-          </Tab>
-          <Tab label="ML Pipelines" id="provenance_panel_mlpipelines">
-            <div>Hello Pipelines!</div>
-          </Tab>
-        </Tabs>
+      <div className="bx--grid bx--grid--full-width ppanel">
+        <div className="bx--row ppanel__banner">
+          <div className="bx--col-lg-16">
+            <h1 className="ppanel__heading">
+              Provenance Explorer
+            </h1>
+          </div>
+        </div>
+        <div className="bx--row ppanel__r2">
+          <div className="bx--col bx--no-gutter">
+            <Tabs {...props.tabs} aria-label="Tab navigation">
+              <Tab {...props.tab} label="About">
+                <div className="bx--grid bx--grid--no-gutter bx--grid--full-width">
+                  <div className="bx--row ppanel__tab-content">
+                    <div className="bx--col-lg-16">
+                      blabla
+                    </div>
+                  </div>
+                </div>
+              </Tab>
+              <Tab {...props.tab} label="Design">
+                <div className="bx--grid bx--grid--no-gutter bx--grid--full-width">
+                  <div className="bx--row ppanel__tab-content">
+                    <div className="bx--col-lg-16">
+                      Rapidly build beautiful and accessible experiences. The Carbon kit
+                      contains all resources you need to get started.
+                    </div>
+                  </div>
+                </div>
+              </Tab>
+              <Tab {...props.tab} label="Develop">
+                <div className="bx--grid bx--grid--no-gutter bx--grid--full-width">
+                  <div className="bx--row ppanel__tab-content">
+                    <div className="bx--col-lg-16">
+                      Carbon provides styles and components in Vanilla, React, Angular,
+                      and Vue for anyone building on the web.
+                    </div>
+                  </div>
+                </div>
+              </Tab>
+            </Tabs>
+          </div>
+        </div>
       </div>
     );
   }
