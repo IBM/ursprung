@@ -1,21 +1,18 @@
-import React from "react";
-import {
-  Header,
-  HeaderName,
-  HeaderNavigation,
-  HeaderGlobalBar,
-  SkipToContent,
-} from "carbon-components-react/lib/components/UIShell";
+import React from 'react';
+import Navbar from 'react-bootstrap/Navbar';
+import Jumbotron from 'react-bootstrap/Jumbotron'
+import './site-header.css';
 
 const SiteHeader = () => (
-  <Header aria-label="Ursprung Provenance GUI">
-    <SkipToContent />
-    <HeaderName href="/" prefix="IBM">
-      Ursprung Provenance GUI
-    </HeaderName>
-    <HeaderNavigation aria-label="Ursprung Provenance GUI">
-    </HeaderNavigation>
-    <HeaderGlobalBar />
-  </Header>
+  <div>
+    <Navbar variant="dark" bg="dark">
+      <Navbar.Brand href="#home">Ursprung GUI</Navbar.Brand>
+      <Navbar.Toggle aria-controls="basic-navbar-nav" />
+    </Navbar>
+    <Jumbotron>
+      <h1 className="header">Welcome to the Ursprung UI!</h1>
+    </Jumbotron>
+  </div>
 );
+
 export default SiteHeader;
