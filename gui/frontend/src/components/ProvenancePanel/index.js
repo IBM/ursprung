@@ -17,6 +17,7 @@
 import React, { Component } from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import ProvenanceWorkflows from '../ProvenanceWorkflows';
+import ProvenanceMLPipeline from '../ProvenanceMLPipeline';
 import './provenance-panel.css';
 
 class ProvenancePanel extends Component {
@@ -50,7 +51,7 @@ class ProvenancePanel extends Component {
           <ProvenanceWorkflows callbackToParent={this.parentCallback} />
         </Tab>
         <Tab eventKey="mlpipeline" title="ML Pipelines">
-          Contact
+          <ProvenanceMLPipeline callbackToParent={this.parentCallback} />
         </Tab>
       </Tabs>
     );

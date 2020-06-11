@@ -66,7 +66,7 @@ class ProvenanceWorkflows extends Component {
           {item.records.map((record) => {
             return (<tr>
               <td><input id={record.id} type="radio" value={record.id} name="radio-button"
-                tabindex="0" onChange={this.onSelectionChanged} /></td>
+                tabIndex="0" onChange={this.onSelectionChanged} /></td>
               <td>{record.id}</td>
               <td>{record.name}</td>
               <td id={record.id + 'starttime'}>{convertTime(record.starttime)}</td>
