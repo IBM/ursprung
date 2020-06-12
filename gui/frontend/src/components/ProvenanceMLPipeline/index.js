@@ -18,11 +18,13 @@ import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Table from 'react-bootstrap/Table'
+import Form from 'react-bootstrap/Form'
 import { Container, Row, Col } from 'react-bootstrap';
+import './provenance-ml-pipeline.css';
 import logo from "./assets/5.gif"
+import { fetchJobProcesses, fillWorkflow, fillWorkflowOutputs, fixWeirdBackendTimestamp } from './helpers';
 
 var ProvNodes = require('../ProvenanceWorkflows/provNodes');
-var helpers = require('./helpers');
 var Workflows = require('./workflows');
 
 class ProvenanceMLPipeline extends Component {
@@ -100,14 +102,14 @@ class ProvenanceMLPipeline extends Component {
       // TODO the owner field is reused to store the nodename
       // the nodename should be stored explicitely in the table
       const owner = document.getElementById(workflowId + 'owner').innerHTML;
-      let workflowPromise = helpers.fillWorkflow(workflowId, startTime, endTime, owner, undefined);
+      let workflowPromise = fillWorkflow(workflowId, startTime, endTime, owner, undefined);
       workflowPromises.push(workflowPromise);
     }
 
     return Promise.all(workflowPromises).then((workflowsPerPromise) => {
       var workflowOutputPromises = [];
       workflowsPerPromise.forEach((workflow) => {
-        let workflowOutputPromise = helpers.fillWorkflowOutputs(workflow);
+        let workflowOutputPromise = fillWorkflowOutputs(workflow);
         workflowOutputPromises.push(workflowOutputPromise);
       });
       return Promise.all(workflowOutputPromises);
@@ -134,7 +136,7 @@ class ProvenanceMLPipeline extends Component {
     // the nodename should be stored explicitely in the table
     const owner = document.getElementById(workflowId + 'owner').innerHTML;
     const cmdLine = document.getElementById(workflowId + 'name').innerHTML;
-    let workflowPromise = helpers.fillWorkflow(workflowId, startTime, endTime, owner, cmdLine);
+    let workflowPromise = fillWorkflow(workflowId, startTime, endTime, owner, cmdLine);
 
     return workflowPromise.then((workflow) => {
       return workflow
@@ -153,8 +155,8 @@ class ProvenanceMLPipeline extends Component {
             return (<tr>
               <td>{record.id}</td>
               <td id={record.id + 'name'}>{record.name}</td>
-              <td id={record.id + 'starttime'}>{helpers.fixWeirdBackendTimestamp(record.starttime)}</td>
-              <td id={record.id + 'endtime'}>{helpers.fixWeirdBackendTimestamp(record.endtime)}</td>
+              <td id={record.id + 'starttime'}>{fixWeirdBackendTimestamp(record.starttime)}</td>
+              <td id={record.id + 'endtime'}>{fixWeirdBackendTimestamp(record.endtime)}</td>
               <td id={record.id + 'owner'}>{record.owner}</td>
               <td>{record.exitcode}</td>
               <td><input id={record.id + 'compare'} type="checkbox"
@@ -171,8 +173,8 @@ class ProvenanceMLPipeline extends Component {
       <Container fluid>
         <Row>
           <Col>
-            <Button id="show_provenance_button"
-              type="button" onClick={(e) => {
+            <Button className="navbutton" id="show_provenance_button"
+              type="button" block onClick={(e) => {
                 e.preventDefault();
 
                 var mlWorkflowProcesses = [];
@@ -200,8 +202,9 @@ class ProvenanceMLPipeline extends Component {
               }}>
               Show Provenance
             </Button>
-            <br />
-            <Button id="compare_workflows_button" type="button" onClick={(e) => {
+            
+            <Button className="navbutton" id="compare_workflows_button"
+              type="button" block onClick={(e) => {
                 e.preventDefault();
                 this.setState({ modalContent: "Waiting...", showComparisonModal: true });
 
@@ -222,9 +225,9 @@ class ProvenanceMLPipeline extends Component {
               }}>
               Compare Workflows
             </Button>
-            <br />
-            <Button id="rerun_workflow_button"
-              type="button" data-modal-target="#modal-rerun" onClick={(e) => {
+            
+            <Button className="navbutton" id="rerun_workflow_button"
+              type="button" block onClick={(e) => {
                 e.preventDefault();
                 this.setState({ rerunModalContent: "Waiting...", showRerunModal: true });
 
@@ -270,8 +273,8 @@ class ProvenanceMLPipeline extends Component {
             </Modal>
           </Col>
 
-          <Col xs={6}>
-            <Table striped bordered hover>
+          <Col xs={9}>
+            <Table striped bordered hover className="mljobtable">
               <thead>
                 <tr>
                   <th>ID</th>
@@ -288,7 +291,25 @@ class ProvenanceMLPipeline extends Component {
           </Col>
 
           <Col>
-            <p>Job Search</p>
+            <Form className="mljobform">
+              <Form.Group>
+                <Form.Label>Job Description</Form.Label>
+                <Form.Control type="input" id="job_description" placeholder="Enter job information" />
+              </Form.Group>
+
+              <Button variant="primary" type="button" id="btn-find-jobs" onClick={(e) => {
+                // get initial filename
+                var jobDescription = document.getElementById('job_description').value;
+                console.log(`Searching jobs: ${jobDescription}`);
+                fetchJobProcesses(jobDescription)
+                  .then((workflows) => {
+                    console.log(`Query successful: ${JSON.stringify(workflows)}`);
+                    this.setState({ workflowItems: workflows });
+                  });
+              }}>
+                Find Jobs
+              </Button>
+            </Form>
           </Col>
         </Row>
       </Container>

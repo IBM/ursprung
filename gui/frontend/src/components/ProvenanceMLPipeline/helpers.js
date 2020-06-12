@@ -23,7 +23,7 @@ const assert = require('assert').strict;
 
 const TARGET_URL = `${BACKEND_ROOT_URL}`;
 
-class PriorityQueue {
+export class PriorityQueue {
 
   constructor() {
     this.heap = [null]
@@ -91,7 +91,7 @@ class PriorityQueue {
 /**
  * Retrieve the processes for the specified regex.
  */
-function fetchJobProcesses(jobDescription) {
+export function fetchJobProcesses(jobDescription) {
   console.log(`fetchJobProcesses`);
 
   const requestType = "WORKFLOWS_PROCESSES"
@@ -119,7 +119,7 @@ function fetchJobProcesses(jobDescription) {
 /**
  * Finds and returns the output files for the given workflow.
  */
-function fillWorkflowOutputs(workflow) {
+export function fillWorkflowOutputs(workflow) {
   console.log(`fillWorkflowOutputs`);
 
   const requestType = "PROCESSPROV_FS_ACCESSES"
@@ -145,7 +145,7 @@ function fillWorkflowOutputs(workflow) {
  * Creates a new Workflow object instance (from workflows.js) and
  * fills the attributes based on the specified workflowId.
  */
-function fillWorkflow(workflowId, startTime, endTime, nodeName, cmdLine) {
+export function fillWorkflow(workflowId, startTime, endTime, nodeName, cmdLine) {
   console.log(`fillWorkflow`);
 
   // start BFS
@@ -183,7 +183,7 @@ function fillWorkflow(workflowId, startTime, endTime, nodeName, cmdLine) {
  * Creates a new Workflow object instance (from workflows.js) and
  * fills the attributes based on the specified file object.
  */
-function fillWorkflowForFile(fileNode) {
+export function fillWorkflowForFile(fileNode) {
   console.log(`fillWorkflow`);
 
   // start BFS
@@ -369,7 +369,7 @@ function _post(url, reqBody) {
  * Convert a unixTimestamp to a UTC date. The timestamp is expected to
  * include milliseconds.
  */
-function convertTime(unixTimestamp) {
+export function convertTime(unixTimestamp) {
   if (!unixTimestamp) {
     return "N/A";
   }
@@ -397,18 +397,8 @@ function convertTime(unixTimestamp) {
  * The DB2 REST endpoint returns weird timestamps.
  * Conversion: 2018-07-26T23:14:24.577Z -> 2018-07-26 23:14:24.577
  */
-function fixWeirdBackendTimestamp(ts) {
+export function fixWeirdBackendTimestamp(ts) {
   return ts
     .replace(/(\d+)T(\d+)/, "$1 $2")
     .replace(/(\d+)Z$/, "$1");
-}
-
-export default fetchJobProcesses;
-export {
-  convertTime,
-  fillWorkflow,
-  fillWorkflowForFile,
-  fillWorkflowOutputs,
-  fixWeirdBackendTimestamp,
-  PriorityQueue
 }
