@@ -18,6 +18,7 @@ import React, { Component } from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import ProvenanceWorkflows from '../ProvenanceWorkflows';
 import ProvenanceMLPipeline from '../ProvenanceMLPipeline';
+import ProvenanceGraph from '../ProvenanceGraph';
 import './provenance-panel.css';
 
 class ProvenancePanel extends Component {
@@ -45,7 +46,9 @@ class ProvenancePanel extends Component {
     return (
       <Tabs defaultActiveKey="graph" id="provenance-panel-tabs">
         <Tab eventKey="graph" title="Provenance Graph">
-          Home
+          <ProvenanceGraph callbackToParent={this.parentCallback}
+            provStartPath={this.state.provenanceStartPath} workflowOutFiles={this.state.workflowOutputFiles}
+            mlWorkflowProcess={this.state.mlWorkflowProcess} />
         </Tab>
         <Tab eventKey="workflow" title="Workflows">
           <ProvenanceWorkflows callbackToParent={this.parentCallback} />

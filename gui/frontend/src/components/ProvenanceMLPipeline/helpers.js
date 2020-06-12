@@ -18,7 +18,7 @@ import axios from 'axios';
 import { BACKEND_ROOT_URL } from '../../constants'
 import Workflow from './workflows';
 
-var ProvNodes = require('../ProvenanceWorkflows/provNodes');
+var ProvNodes = require('../ProvenanceGraph/provNodes');
 const assert = require('assert').strict;
 
 const TARGET_URL = `${BACKEND_ROOT_URL}`;

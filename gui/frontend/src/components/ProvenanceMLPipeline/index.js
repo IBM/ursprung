@@ -24,7 +24,7 @@ import './provenance-ml-pipeline.css';
 import logo from "./assets/5.gif"
 import { fetchJobProcesses, fillWorkflow, fillWorkflowOutputs, fixWeirdBackendTimestamp } from './helpers';
 
-var ProvNodes = require('../ProvenanceWorkflows/provNodes');
+var ProvNodes = require('../ProvenanceGraph/provNodes');
 var Workflows = require('./workflows');
 
 class ProvenanceMLPipeline extends Component {

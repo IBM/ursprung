@@ -17,7 +17,7 @@
 import axios from 'axios';
 import { BACKEND_ROOT_URL } from '../../constants'
 
-var ProvNodes = require('./provNodes');
+var ProvNodes = require('../ProvenanceGraph/provNodes');
 
 const TARGET_URL = `${BACKEND_ROOT_URL}`;
 
