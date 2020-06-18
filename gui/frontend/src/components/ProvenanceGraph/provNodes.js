@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-const NODE_TYPE_INITIAL_FILE = "FILE_WITH_NAME";
-const NODE_TYPE_FILE = "FILE_WITH_INODE";
-const NODE_TYPE_INITIAL_PROCESS = "PROCESS_WITH_CMDLINE";
-const NODE_TYPE_PROCESS = "PROCESS";
+export const NODE_TYPE_INITIAL_FILE = "FILE_WITH_NAME";
+export const NODE_TYPE_FILE = "FILE_WITH_INODE";
+export const NODE_TYPE_INITIAL_PROCESS = "PROCESS_WITH_CMDLINE";
+export const NODE_TYPE_PROCESS = "PROCESS";
 
 /**
  * Determines the interaction of the record. Records can either be 
@@ -75,7 +75,7 @@ function getProcessProcessInteraction(event) {
   return desc;
 }
 
-class Node {
+export class Node {
 
   constructor() {
     // this structure stores for each node, what type of interaction
@@ -116,7 +116,7 @@ class Node {
   }
 }
 
-class InitialFileNode extends Node {
+export class InitialFileNode extends Node {
 
   constructor(path) {
     super();
@@ -148,7 +148,7 @@ class InitialFileNode extends Node {
 
 }
 
-class FileNode extends Node {
+export class FileNode extends Node {
 
   constructor(path, inode, event = undefined, bytesRead = -1, bytesWritten = -1, dstpath = undefined) {
     super();
@@ -186,7 +186,7 @@ class FileNode extends Node {
 
 }
 
-class InitialProcessNode extends Node {
+export class InitialProcessNode extends Node {
 
   constructor(name) {
     super();
@@ -218,7 +218,7 @@ class InitialProcessNode extends Node {
 
 }
 
-class ProcessNode extends Node {
+export class ProcessNode extends Node {
 
   constructor(nodeName, pid, ppid, birthTime, deathTime, pgid, execCmdLine, inode,
     path = undefined, dstpath = undefined, event = undefined, bytesRead = -1, bytesWritten = -1,
@@ -279,16 +279,4 @@ class ProcessNode extends Node {
     return `${this.execCmdLine} - ${this.nodeName} pid ${this.pid} birth ${this.birthTime}`;
   }
 
-}
-
-module.exports = {
-  Node: Node,
-  InitialFileNode: InitialFileNode,
-  FileNode: FileNode,
-  InitialProcessNode: InitialProcessNode,
-  ProcessNode: ProcessNode,
-  nodeTypeInitialFile: NODE_TYPE_INITIAL_FILE,
-  nodeTypeFile: NODE_TYPE_FILE,
-  nodeTypeInitialProcess: NODE_TYPE_INITIAL_PROCESS,
-  nodeTypeProcess: NODE_TYPE_PROCESS
 }

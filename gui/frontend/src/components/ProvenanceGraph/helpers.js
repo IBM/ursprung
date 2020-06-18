@@ -99,9 +99,9 @@ export function isProvNode(node) {
 
   const nodeType = node.data('type');
   return nodeType &&
-    (nodeType === ProvNodes.nodeTypeInitialFile ||
-      nodeType === ProvNodes.nodeTypeFile ||
-      nodeType === ProvNodes.nodeTypeProcess);
+    (nodeType === ProvNodes.NODE_TYPE_INITIAL_FILE ||
+      nodeType === ProvNodes.NODE_TYPE_FILE ||
+      nodeType === ProvNodes.NODE_TYPE_PROCESS);
 };
 
 /**
@@ -111,11 +111,11 @@ export function isProvNode(node) {
 export function toProvNodeObject(node) {
   const nodeType = node.data('type');
 
-  if (nodeType === ProvNodes.nodeTypeInitialFile) {
+  if (nodeType === ProvNodes.NODE_TYPE_INITIAL_FILE) {
     return new ProvNodes.InitialFileNode(node.data('path'));
-  } else if (nodeType === ProvNodes.nodeTypeFile) {
+  } else if (nodeType === ProvNodes.NODE_TYPE_FILE) {
     return new ProvNodes.FileNode(node.data('path'), node.data('inode'))
-  } else if (nodeType === ProvNodes.nodeTypeProcess) {
+  } else if (nodeType === ProvNodes.NODE_TYPE_PROCESS) {
     return new ProvNodes.ProcessNode(node.data('nodeName'),
       node.data('pid'), node.data('ppid'),
       node.data('birthTime'), node.data('deathTime'),
@@ -136,11 +136,11 @@ export function toProvNodeObject(node) {
 export function fetchProv(node) {
   // Route to the appropriate handler.
   const nodeType = node.type;
-  if (nodeType === ProvNodes.nodeTypeInitialFile || nodeType === ProvNodes.nodeTypeFile) {
+  if (nodeType === ProvNodes.NODE_TYPE_INITIAL_FILE || nodeType === ProvNodes.NODE_TYPE_FILE) {
     return fetchProvForFileNode(node);
-  } else if (nodeType === ProvNodes.nodeTypeProcess) {
+  } else if (nodeType === ProvNodes.NODE_TYPE_PROCESS) {
     return fetchProvForProcessNode(node);
-  } else if (nodeType === ProvNodes.nodeTypeInitialProcess) {
+  } else if (nodeType === ProvNodes.NODE_TYPE_INITIAL_PROCESS) {
     return fetchProvForInitialProcessNode(node);
   } else {
     return Promise.reject(`Error, unexpected node type ${nodeType}`);
@@ -159,10 +159,10 @@ function fetchProvForFileNode(node) {
 
   // Build the request body based on the node type
   const nodeType = node.type;
-  if (nodeType === ProvNodes.nodeTypeInitialFile) {
+  if (nodeType === ProvNodes.NODE_TYPE_INITIAL_FILE) {
     requestType = "FILEPROV_BY_PATH";
     params = { path: node.path };
-  } else if (nodeType === ProvNodes.nodeTypeFile) {
+  } else if (nodeType === ProvNodes.NODE_TYPE_FILE) {
     requestType = "FILEPROV_BY_INODE";
     params = { inode: node.inode, path: node.path };
   } else {

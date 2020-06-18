@@ -217,7 +217,7 @@ class ProvenanceGraph extends Component {
   handleMouseRightClickEvent(evt) {
     if (helpers.isProvNode(evt.target)) {
       const nodeObj = helpers.toProvNodeObject(evt.target);
-      if (nodeObj.type === ProvNodes.nodeTypeProcess) {
+      if (nodeObj.type === ProvNodes.NODE_TYPE_PROCESS) {
         // retrieve any associated warning or error logs and display as tooltip
         let ref = evt.target.popperRef();
         helpers.fetchLogsForProcessNode(nodeObj)
@@ -242,7 +242,7 @@ class ProvenanceGraph extends Component {
 
             tip.show();
           });
-      } else if (nodeObj.type === ProvNodes.nodeTypeFile || nodeObj.type === ProvNodes.nodeTypeInitialFile) {
+      } else if (nodeObj.type === ProvNodes.NODE_TYPE_FILE || nodeObj.type === ProvNodes.NODE_TYPE_INITIAL_FILE) {
         helpers.fetchProv(nodeObj).then((procNodes) => {
           let procNodesList = procNodes[0].records;
           procNodesList.sort(function (a, b) {
@@ -269,7 +269,7 @@ class ProvenanceGraph extends Component {
   handleHoldEvent(evt) {
     if (helpers.isProvNode(evt.target)) {
       const nodeObj = helpers.toProvNodeObject(evt.target);
-      if (nodeObj.type === ProvNodes.nodeTypeFile || nodeObj.type === ProvNodes.nodeTypeInitialFile) {
+      if (nodeObj.type === ProvNodes.NODE_TYPE_FILE || nodeObj.type === ProvNodes.NODE_TYPE_INITIAL_FILE) {
         let findWorkflowPromise = workflowHelpers.fetchOutputFilesWorkflow(nodeObj.path, nodeObj.inode);
 
         return findWorkflowPromise.then((workflows) => {
@@ -447,7 +447,7 @@ class ProvenanceGraph extends Component {
     helpers.assert(provInfo, `updateGraphWithProvInfo: Error, undefined provInfo`);
     helpers.assert(provInfo.length, `updateGraphWithProvInfo: Error, nothing in the provInfo array`);
 
-    if (node.type === ProvNodes.nodeTypeInitialFile || node.type === ProvNodes.nodeTypeInitialProcess) {
+    if (node.type === ProvNodes.NODE_TYPE_INITIAL_FILE || node.type === ProvNodes.NODE_TYPE_INITIAL_PROCESS) {
       // the graph is empty and we're adding the first node
       console.log(`updateGraphWithProvInfo: Placing initial node`);
       return [this.placeInitialNode(node, provInfo)]; // must return an array
@@ -477,7 +477,7 @@ class ProvenanceGraph extends Component {
 
     // Ensure we got some info on the file.
     const initialNodes = provInfo.filter((e) => {
-      return e.type === helpers.processUsedFileInteraction;
+      return e.type === helpers.PROCESS_USED_FILE_INTERACTION;
     });
 
     if (!initialNodes.length || initialNodes[0].records.length < 1) {
@@ -500,9 +500,9 @@ class ProvenanceGraph extends Component {
     provNodes.forEach((r) => {
       let nodeToDisplay = null;
 
-      if (node.type === ProvNodes.nodeTypeInitialFile) {
+      if (node.type === ProvNodes.NODE_TYPE_INITIAL_FILE) {
         nodeToDisplay = new ProvNodes.FileNode(node.path, r.inode);
-      } else if (node.type === ProvNodes.nodeTypeInitialProcess) {
+      } else if (node.type === ProvNodes.NODE_TYPE_INITIAL_PROCESS) {
         nodeToDisplay = r;
       }
 
@@ -543,13 +543,13 @@ class ProvenanceGraph extends Component {
           }
         }
 
-        if (prov.type === helpers.ipcInteraction) {
+        if (prov.type === helpers.IPC_INTERACTION) {
           console.log(`Building process node from record: ${JSON.stringify(r, null, 2)}`);
 
           // TODO Could be west or east, this is a "communication group".
           relativeLocation = helpers.cardinal.west;
           bidirectional = true;
-        } else if (prov.type === helpers.trueIpcInteraction) {
+        } else if (prov.type === helpers.TRUEIPC_INTERACTION) {
           console.log(`Building true process node from record: ${JSON.stringify(r, null, 2)}`);
 
           if (r.desc.read) {
@@ -558,7 +558,7 @@ class ProvenanceGraph extends Component {
             relativeLocation = helpers.cardinal.west;
           }
           bidirectional = false;
-        } else if (prov.type === helpers.netInteraction) {
+        } else if (prov.type === helpers.NET_INTERACTION) {
           console.log(`Building network process node from record: ${JSON.stringify(r, null, 2)}`);
 
           if (r.desc.read) {
@@ -567,7 +567,7 @@ class ProvenanceGraph extends Component {
             relativeLocation = helpers.cardinal.west;
           }
           bidirectional = false;
-        } else if (prov.type === helpers.processUsedFileInteraction) {
+        } else if (prov.type === helpers.PROCESS_USED_FILE_INTERACTION) {
           console.log(`Building process node from record: ${JSON.stringify(r, null, 2)}`);
 
           if (r.desc.renamed) {
@@ -586,7 +586,7 @@ class ProvenanceGraph extends Component {
             relativeLocation = helpers.interactionDescToCardinal(r, false);
           }
           bidirectional = false;
-        } else if (prov.type === helpers.fileUsedbyProcessInteraction) {
+        } else if (prov.type === helpers.FILE_USEDBY_PROCESS_INTERACTION) {
           console.log(`Building file node from record: ${JSON.stringify(r, null, 2)}`);
 
           if (r.desc.renamed) {
@@ -853,7 +853,7 @@ class ProvenanceGraph extends Component {
                 </Button>
                 <Button className="navbutton2" variant="primary" type="button" id="btn-find-prov-proc" onClick={(e) => {
                     e.preventDefault();
-                    // get initial filename
+                    // get initial process name
                     var processname = document.getElementById('prov_path2').value;
                     console.log(`Starting provenance graph for processes ${processname}`);
                     this.prom_cyNodesAddedLastTime = this.startProvenanceGraph(processname, 'process');
@@ -912,7 +912,7 @@ class ProvenanceGraph extends Component {
               </Form>
 
               <Modal show={this.state.isOpen}>
-                <Modal.Header closeButton>
+                <Modal.Header>
                   <Modal.Title>Processes which updated file:</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -934,7 +934,7 @@ class ProvenanceGraph extends Component {
               </Modal>
 
               <Modal show={this.state.isRerunOpen}>
-                <Modal.Header closeButton>
+                <Modal.Header>
                   <Modal.Title>Processes which updated file:</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
