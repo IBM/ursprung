@@ -19,8 +19,9 @@ import cytoscape from 'cytoscape';
 import popper from 'cytoscape-popper';
 import tippy from 'tippy.js'
 import $ from "jquery";
-import ProcessSelectionModal from './processSelectionModal';
-import FileRerunModal from './fileRerunModal';
+import { Container, Row, Col } from 'react-bootstrap';
+import { Form, Button, Table, Modal } from 'react-bootstrap';
+import './provenance-graph.css';
 
 var ProvNodes = require('./provNodes');
 var helpers = require('./helpers');
@@ -482,7 +483,7 @@ class ProvenanceGraph extends Component {
     if (!initialNodes.length || initialNodes[0].records.length < 1) {
       console.log(`Warning, found no provenance for ${JSON.stringify(node)}`);
       alert(`No provenance found for ${node.path}`);
-      var bla = this.cy.elements().remove;
+      var tmp = this.cy.elements().remove;
       return null;
     }
 
@@ -758,15 +759,6 @@ class ProvenanceGraph extends Component {
   render() {
     console.log(`Rendering displayProvenanceGraph with ${this.props.provStartPath}`);
 
-    const sty_inputs_title = {
-      width: '80%'
-    };
-    const sty_inputs = {
-      width: '80%'
-    };
-    const sty_buttons = {
-      width: '75%'
-    };
     const cy_style = {
       height: '1000px',
       width: '100%',
@@ -839,66 +831,48 @@ class ProvenanceGraph extends Component {
 
     return (
       <div id="provenance_panel">
-        <h3><span>Provenance</span></h3>
-        <div className="bx--row">
-          <div className="bx--col-md-9">
-            <div className="mo-tile bx--tile">
-              <div>
-                <div style={cy_style} id="cy2" />
-              </div>
-            </div>
-          </div>
-          <div className="bx--col-md-2">
-            <div className="mo-tile bx--tile">
-              <div className="bx--form-item">
-                <label htmlFor="provenance_path" style={sty_inputs_title} className="bx--label">Start file/process for provenance</label>
-                <input style={sty_inputs} type="text" id="prov_path2" className="bx--text-input" placeholder={this.props.provStartPath} />
-              </div>
-              <div>
-                <div>
-                  <button className="bx--btn bx--btn--primary" style={sty_buttons} type="button" id="btn-find-prov" onClick={(e) => {
+        <Container fluid>
+          <Row>
+            <Col xs={9}>
+              <div style={cy_style} id="cy2" />
+            </Col>
+            <Col>
+              <Form className="searchnodeform">
+                <Form.Group>
+                  <Form.Label>Start file/process for provenance</Form.Label>
+                  <Form.Control type="input" id="prov_path2" placeholder={this.props.provStartPath} />
+                </Form.Group>
+                <Button className="navbutton2" variant="primary" type="button" id="btn-find-prov" onClick={(e) => {
+                    e.preventDefault();
                     // get initial filename
                     var filename = document.getElementById('prov_path2').value;
-                    e.preventDefault();
                     console.log(`Starting provenance graph for file ${filename}`);
                     this.prom_cyNodesAddedLastTime = this.startProvenanceGraph(filename, 'file');
                   }} >
-                    Find File
-                  </button>
-                </div>
-                <div>
-                  <br />
-                  <button className="bx--btn bx--btn--primary" style={sty_buttons} type="button" id="btn-find-prov-proc" onClick={(e) => {
+                  Find File
+                </Button>
+                <Button className="navbutton2" variant="primary" type="button" id="btn-find-prov-proc" onClick={(e) => {
+                    e.preventDefault();
                     // get initial filename
                     var processname = document.getElementById('prov_path2').value;
-                    e.preventDefault();
                     console.log(`Starting provenance graph for processes ${processname}`);
                     this.prom_cyNodesAddedLastTime = this.startProvenanceGraph(processname, 'process');
                   }} >
-                    Find Process
-                  </button>
-                </div>
-                <div className="bx--form-item bx--checkbox-wrapper">
-                  <br />
-                  <input id="bx--checkbox-new" className="bx--checkbox" type="checkbox" value="true" name="enable_ipc_prov" />
-                  <label htmlFor="bx--checkbox-new" className="bx--checkbox-label">Enable IPC Provenance</label>
-                  <br />
-                  <input id="bx--checkbox-trueipc" className="bx--checkbox" type="checkbox" value="true" name="enable_trueipc_prov" />
-                  <label htmlFor="bx--checkbox-trueipc" className="bx--checkbox-label">Enable True IPC Provenance</label>
-                  <br />
-                  <input id="bx--checkbox-netprov" className="bx--checkbox" type="checkbox" value="true" name="enable_net_prov" />
-                  <label htmlFor="bx--checkbox-netprov" className="bx--checkbox-label">Enable Network Provenance</label>
-                </div>
-              </div>
-            </div>
-            <div className="mo-tile bx--tile">
-              <div className="bx--form-item">
-                <label htmlFor="provenance_filter" style={sty_inputs_title} className="bx--label">New filter</label>
-                <input style={sty_inputs} type="text" id="prov_filter" className="bx--text-input" placeholder="Filters" />
-              </div>
-              <div>
-                <div>
-                  <button className="bx--btn bx--btn--primary" style={sty_buttons} type="button" id="btn-add-filter" onClick={(e) => {
+                  Find Process
+                </Button>
+
+                <Form.Check type="checkbox" id="bx--checkbox-new" name="enable_ipc_prov"
+                  value="true" label="Enable IPC Provenance" />
+                <Form.Check type="checkbox" id="bx--checkbox-trueipc" name="enable_trueipc_prov"
+                  value="true" label="Enable True IPC Provenance" />
+                <Form.Check type="checkbox" id="bx--checkbox-netprov" name="enable_netipc_prov"
+                  value="true" label="Enable Network Provenance" />
+
+                <Form.Group>
+                  <Form.Label>New filter</Form.Label>
+                  <Form.Control type="input" id="prov_filter" placeholder="Filters" />
+                </Form.Group>
+                <Button variant="primary" type="button" id="btn-find-prov" onClick={(e) => {
                     // get initial filename
                     var filterVal = document.getElementById('prov_filter').value;
                     if (!filterVal.includes(":")) {
@@ -911,13 +885,10 @@ class ProvenanceGraph extends Component {
                     e.preventDefault();
                     console.log(`${JSON.stringify(this.state.filters)}`);
                   }} >
-                    Add Filter
-                  </button>
-                </div>
-              </div>
-              <div>
-                <br />
-                <table className="bx--data-table-v2 bx--data-table-v2--zebra">
+                  Add Filter
+                </Button>
+
+                <Table striped bordered hover>
                   <thead>
                     <tr>
                       <th>Configured Filters</th>
@@ -927,50 +898,58 @@ class ProvenanceGraph extends Component {
                   <tbody>
                     {tableElements}
                   </tbody>
-                </table>
-              </div>
-              <div>
-                <br />
-                <button className="bx--btn bx--btn--primary" style={sty_buttons} type="button" id="btn-delete-filter" onClick={(e) => {
-                  // get initial filename
-                  var filterName = this.state.selectedFilter;
-                  this.state.filters.delete(filterName);
-                  this.setState({ filtersUpdated: true });
-                  e.preventDefault();
-                  console.log(`${JSON.stringify(this.state.filters)}`);
-                }} >
+                </Table>
+                <Button variant="primary" type="button" id="btn-find-prov" onClick={(e) => {
+                    // get initial filename
+                    var filterName = this.state.selectedFilter;
+                    this.state.filters.delete(filterName);
+                    this.setState({ filtersUpdated: true });
+                    e.preventDefault();
+                    console.log(`${JSON.stringify(this.state.filters)}`);
+                  }} >
                   Delete Filter
-                </button>
-              </div>
-              <div>
-                <ProcessSelectionModal show={this.state.isOpen} onClose={this.closeModal}>
-                  <fieldset className="bx--fieldset">
-                    <legend className="bx--label">Processes which updated file:</legend>
-                    <div className="bx--form-item">
-                      <div className="bx--radio-button-group bx--radio-button-group--vertical ">
-                        {processSelectionElements}
-                      </div>
-                      <div>
-                        <br />
-                        <h4>Content:</h4>
-                        <span style={content_style}>{this.state.filecontent}</span>
-                      </div>
+                </Button>
+              </Form>
+
+              <Modal show={this.state.isOpen}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Processes which updated file:</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <p>{processSelectionElements}</p>
+                  <p>
+                    <div>
+                      <br />
+                      <h4>Content:</h4>
+                      <span style={content_style}>{this.state.filecontent}</span>
                     </div>
-                  </fieldset>
-                </ProcessSelectionModal>
-              </div>
-              <div>
-                <FileRerunModal show={this.state.isRerunOpen} onClose={this.closeRerunModal}>
-                  <fieldset className="bx--fieldset">
-                    <div className="bx--form-item">
-                      {processRerunElements}
-                    </div>
-                  </fieldset>
-                </FileRerunModal>
-              </div>
-            </div>
-          </div>
-        </div>
+                  </p>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={(e) => {
+                    e.preventDefault();
+                    this.setState({ modalContent: "Waiting...", isOpen: false });
+                  }}>Close</Button>
+                </Modal.Footer>
+              </Modal>
+
+              <Modal show={this.state.isRerunOpen}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Processes which updated file:</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <p>{processRerunElements}</p>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={(e) => {
+                    e.preventDefault();
+                    this.setState({ modalContent: "Waiting...", isRerunOpen: false });
+                  }}>Close</Button>
+                </Modal.Footer>
+              </Modal>
+            </Col>
+          </Row>
+        </Container>
       </div>
     );
   }

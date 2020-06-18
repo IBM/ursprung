@@ -21,24 +21,24 @@ var ProvNodes = require('./provNodes');
 
 const TARGET_URL = `${BACKEND_ROOT_URL}`;
 
-const PROCESS_USED_FILE_INTERACTION = "prov_processesThatInteractedWithFile";
-const FILE_USEDBY_PROCESS_INTERACTION = "prov_filesThatProcessInteractedWith";
-const IPC_INTERACTION = "prov_processesThatProcessInteractedWith";
-const TRUEIPC_INTERACTION = "prov_processesThatProcessTruelyInteractedWith";
-const NET_INTERACTION = "prov_processesThatProcessInteractedWithThroughNetwork";
-const PROCESS_LOGS = "prov_processLogs";
-const FILECONTENT = "file_conent";
+export const PROCESS_USED_FILE_INTERACTION = "prov_processesThatInteractedWithFile";
+export const FILE_USEDBY_PROCESS_INTERACTION = "prov_filesThatProcessInteractedWith";
+export const IPC_INTERACTION = "prov_processesThatProcessInteractedWith";
+export const TRUEIPC_INTERACTION = "prov_processesThatProcessTruelyInteractedWith";
+export const NET_INTERACTION = "prov_processesThatProcessInteractedWithThroughNetwork";
+export const PROCESS_LOGS = "prov_processLogs";
+export const FILECONTENT = "file_conent";
 
 //TODO This idea of 'cardinal' is skipping the abstraction of "readFrom"
 //and "wroteTo" and jumping straight to visualization. This is inelegant.
-const cardinal = {
+export const cardinal = {
   north: 'north',
   south: 'south',
   east: 'east',
   west: 'west'
 };
 
-const cardinalOpposite = {};
+export const cardinalOpposite = {};
 cardinalOpposite[cardinal.north] = cardinal.south;
 cardinalOpposite[cardinal.south] = cardinal.north;
 cardinalOpposite[cardinal.east] = cardinal.west;
@@ -49,7 +49,7 @@ cardinalOpposite[cardinal.west] = cardinal.east;
  * checks the specified condition and outputs
  * the msg in case the condition is false.
  */
-function assert(cond, msg) {
+export function assert(cond, msg) {
   if (!cond) {
     alert(`Assert failed: ${msg}`);
   }
@@ -59,7 +59,7 @@ function assert(cond, msg) {
  * POST the specified request to the specified URL
  * using axios.
  */
-function _post(url, reqBody) {
+export function _post(url, reqBody) {
   console.log(`Making post to ${url} with body: ${JSON.stringify(reqBody)}`);
   return axios.post(url, reqBody);
 }
@@ -68,7 +68,7 @@ function _post(url, reqBody) {
  * Takes an interaction description and a subject and determines
  * the perceived directionality of the interaction.
  */
-function interactionDescToCardinal(record, subject) {
+export function interactionDescToCardinal(record, subject) {
   let relativeLocationFromSubject = "";
 
   if (record.desc.write) {
@@ -92,7 +92,7 @@ function interactionDescToCardinal(record, subject) {
  * Checks whether the passed object is an instance
  * of a provenance node as defined in provNodes.js.
  */
-function isProvNode(node) {
+export function isProvNode(node) {
   if (!node || !node.data) {
     return false;
   }
@@ -108,7 +108,7 @@ function isProvNode(node) {
  * Converts the passed node Pojo into its corresponding
  * Node object.
  */
-function toProvNodeObject(node) {
+export function toProvNodeObject(node) {
   const nodeType = node.data('type');
 
   if (nodeType === ProvNodes.nodeTypeInitialFile) {
@@ -133,7 +133,7 @@ function toProvNodeObject(node) {
  * The type indicates the provenance type of the records.
  * The records are from the backend.
  */
-function fetchProv(node) {
+export function fetchProv(node) {
   // Route to the appropriate handler.
   const nodeType = node.type;
   if (nodeType === ProvNodes.nodeTypeInitialFile || nodeType === ProvNodes.nodeTypeFile) {
@@ -338,7 +338,7 @@ function fetchProvForInitialProcessNode(node) {
  *
  * Returns a promise fulfilled with an array of log entries.
  */
-function fetchLogsForProcessNode(node) {
+export function fetchLogsForProcessNode(node) {
   const reqBody = {
     requestType: "PROCESSLOGS",
     params: {
@@ -364,7 +364,7 @@ function fetchLogsForProcessNode(node) {
  *
  * Returns a promise fulfilled with an array of log entries.
  */
-function fetchContentForFile(fileNode, procNode) {
+export function fetchContentForFile(fileNode, procNode) {
   const reqBody = {
     requestType: "FILECOMMITID",
     params: {
@@ -406,7 +406,7 @@ function fetchContentForFile(fileNode, procNode) {
  * Calculate x position for a new node based on current
  * x position and relative location.
  */
-function calcXPos(x, d_x, relativeLocation) {
+export function calcXPos(x, d_x, relativeLocation) {
   console.log(`calcXPos: x ${x} d_x ${d_x} relativeLocation ${relativeLocation}`);
 
   if (relativeLocation === cardinal.west) {
@@ -422,7 +422,7 @@ function calcXPos(x, d_x, relativeLocation) {
  * Calculate y position for a new node based on current
  * y position and relative location.
  */
-function calcYPos(y, d_y, relativeLocation) {
+export function calcYPos(y, d_y, relativeLocation) {
   console.log(`calcYPos: y ${y} d_y ${d_y} relativeLocation ${relativeLocation}`);
 
   if (relativeLocation === cardinal.sourth) {
@@ -437,7 +437,7 @@ function calcYPos(y, d_y, relativeLocation) {
 /**
  * Calculate distance between nodes.
  */
-function calcYStepSize(nNodes) {
+export function calcYStepSize(nNodes) {
   return (nNodes === 1) ? 0 : (nNodes * 100) / (nNodes - 1);
 }
 
@@ -452,27 +452,4 @@ function fixWeirdBackendTimestamp(ts) {
   return ts
     .replace(/(\d+)T(\d+)/, "$1 $2")
     .replace(/(\d+)Z$/, "$1");
-}
-
-module.exports = {
-  assert: assert,
-  post: _post,
-  interactionDescToCardinal: interactionDescToCardinal,
-  isProvNode: isProvNode,
-  toProvNodeObject: toProvNodeObject,
-  fetchProv: fetchProv,
-  fetchLogsForProcessNode: fetchLogsForProcessNode,
-  fetchContentForFile: fetchContentForFile,
-  calcXPos: calcXPos,
-  calcYPos: calcYPos,
-  calcYStepSize: calcYStepSize,
-  processUsedFileInteraction: PROCESS_USED_FILE_INTERACTION,
-  fileUsedbyProcessInteraction: FILE_USEDBY_PROCESS_INTERACTION,
-  ipcInteraction: IPC_INTERACTION,
-  trueIpcInteraction: TRUEIPC_INTERACTION,
-  netInteraction: NET_INTERACTION,
-  processLogs: PROCESS_LOGS,
-  fileContent: FILECONTENT,
-  cardinal: cardinal,
-  cardinalOpposite: cardinalOpposite
 }
