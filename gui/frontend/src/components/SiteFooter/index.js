@@ -14,22 +14,5 @@
  * limitations under the License.
  */
 
-import React,  { Component }  from 'react';
-import './App.css';
-import SiteHeader from './components/SiteHeader';
-import SiteFooter from './components/SiteFooter';
-import ProvenancePanel from './components/ProvenancePanel'
-
-class App extends Component {
-  render() {
-    return (
-      <>
-        <SiteHeader />
-        <ProvenancePanel />
-        <SiteFooter />
-      </>
-    );
-  }
-}
-
-export default App;
+import SiteFooter from "./SiteFooter";
+export default SiteFooter;

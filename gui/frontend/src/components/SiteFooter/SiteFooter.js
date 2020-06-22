@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-import React,  { Component }  from 'react';
-import './App.css';
-import SiteHeader from './components/SiteHeader';
-import SiteFooter from './components/SiteFooter';
-import ProvenancePanel from './components/ProvenancePanel'
+import React from 'react';
+import Container from 'react-bootstrap/Container';
+import './site-footer.css';
 
-class App extends Component {
-  render() {
-    return (
-      <>
-        <SiteHeader />
-        <ProvenancePanel />
-        <SiteFooter />
-      </>
-    );
-  }
-}
+const SiteFooter = () => (
+  <div>
+    <Container fluid>
+      <hr />
+      <div className="footer">
+        &copy; 2020 IBM
+      </div>
+    </Container>
+  </div>
+);
 
-export default App;
+export default SiteFooter;
