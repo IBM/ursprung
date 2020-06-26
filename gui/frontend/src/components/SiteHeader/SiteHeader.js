@@ -15,15 +15,28 @@
  */
 
 import React from 'react';
-import Navbar from 'react-bootstrap/Navbar';
-import Jumbotron from 'react-bootstrap/Jumbotron'
+import { LinkContainer } from "react-router-bootstrap";
+import { Navbar, Nav } from 'react-bootstrap';
+import { Link } from "react-router-dom";
+import Jumbotron from 'react-bootstrap/Jumbotron';
 import './site-header.css';
 
 const SiteHeader = () => (
   <div>
     <Navbar variant="dark" bg="dark">
-      <Navbar.Brand href="#home">Ursprung GUI</Navbar.Brand>
+      <Navbar.Brand><Link to="/">Ursprung UI</Link></Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
+      <Nav pullRight>
+        <LinkContainer to="/graph">
+          <Nav.Link>Graph Viewer</Nav.Link>
+        </LinkContainer>
+        <LinkContainer to="/workflows">
+          <Nav.Link>Workflows</Nav.Link>
+        </LinkContainer>
+        <LinkContainer to="/pipelines">
+          <Nav.Link>ML Pipelines</Nav.Link>
+        </LinkContainer>
+      </Nav>
     </Navbar>
     <Jumbotron>
       <h1 className="header">Welcome to the Ursprung UI!</h1>

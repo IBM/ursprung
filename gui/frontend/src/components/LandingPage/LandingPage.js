@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-import React,  { Component }  from 'react';
-import './App.css';
-import SiteHeader from './components/SiteHeader';
-import SiteFooter from './components/SiteFooter';
-import Routes from "./Routes";
+import React from 'react';
+import Container from 'react-bootstrap/Container';
 
-class App extends Component {
-  render() {
-    return (
-      <>
-        <SiteHeader />
-        <Routes />
-        <SiteFooter />
-      </>
-    );
-  }
-}
+const LandingPage = () => (
+  <div>
+    <Container>
+      <h1>Hello World!</h1>
+    </Container>
+  </div>
+);
 
-export default App;
+export default LandingPage;
