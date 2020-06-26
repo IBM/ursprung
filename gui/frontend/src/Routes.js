@@ -15,28 +15,54 @@
  */
 
 
-import React from "react";
+import React, { Component } from 'react';
 import { Route, Switch } from "react-router-dom";
 import LandingPage from "./components/LandingPage";
 import ProvenanceWorkflows from './components/ProvenanceWorkflows';
 import ProvenanceMLPipeline from './components/ProvenanceMLPipeline';
 import ProvenanceGraph from './components/ProvenanceGraph';
 
-export default function Routes() {
-  return (
+class Routes extends Component {
+
+  constructor(props) {
+    super(props);
+    this.componentDidMount = this.componentDidMount.bind(this);
+    this.state = {
+      provenanceStartPath: "/path/to/file",
+      workflowOutputFiles: []
+    };
+  }
+
+  componentDidMount() {}
+
+  parentCallback = (childData) => {
+    this.setState({
+      provenanceStartPath: childData.provStartPath,
+      workflowOutputFiles: childData.workflowOutputFiles,
+      mlWorkflowProcess: childData.mlWorkflowProcess
+    });
+  }
+
+  render() {
+    return (
     <Switch>
       <Route exact path="/">
         <LandingPage />
       </Route>
       <Route exact path="/graph">
-        <ProvenanceGraph  />
+       <ProvenanceGraph callbackToParent={this.parentCallback}
+            provStartPath={this.state.provenanceStartPath} workflowOutFiles={this.state.workflowOutputFiles}
+            mlWorkflowProcess={this.state.mlWorkflowProcess} />
       </Route>
 	  <Route exact path="/workflows">
-        <ProvenanceWorkflows />
+        <ProvenanceWorkflows callbackToParent={this.parentCallback} />
       </Route>
 	  <Route exact path="/pipelines">
-        <ProvenanceMLPipeline  />
+        <ProvenanceMLPipeline callbackToParent={this.parentCallback} />
       </Route>
     </Switch>
-  );
+    );
+  }
 }
+
+export default Routes;
