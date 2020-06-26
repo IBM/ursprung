@@ -43,6 +43,8 @@ const renameEdgeStyle = {
   'opacity': '0.25'
 };
 
+cytoscape.use(popper);
+
 class ProvenanceGraph extends Component {
 
   /**
@@ -81,7 +83,6 @@ class ProvenanceGraph extends Component {
    */
   constructor(props) {
     super(props);
-    cytoscape.use(popper);
 
     this.state = {
       workflowGraphRendered: false,
