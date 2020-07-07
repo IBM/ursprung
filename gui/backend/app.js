@@ -123,17 +123,17 @@ const requestTypeTable = {
  * Names of tables for use in SELECT, JOIN ON, and WHERE clauses.
  */
 const sqlTableNames = {
-    gpfs: "gpfsEvents"
-    , process: "processEvents"
-    , processGroup: "processGroupEvents"
-    , ipc: "ipcEvents"
-    , socket: "socketEvents"
-    , socketconnect: "socketConnectEvents"
-    , workflows: "workflowEvents"
-    , workflowSteps: "workflowStepEvents"
-    , scheduler: "schedulerEvents"
-    , processlogs: "processlogs"
-    , versions: "versions"
+    gpfs: "gpfsEvents",
+    process: "processEvents",
+    processGroup: "processGroupEvents",
+    ipc: "ipcEvents",
+    socket: "socketEvents",
+    socketconnect: "socketConnectEvents",
+    workflows: "workflowEvents",
+    workflowSteps: "workflowStepEvents",
+    scheduler: "schedulerEvents",
+    processlogs: "processlogs",
+    versions: "versions"
 };
 
 /**
@@ -317,7 +317,7 @@ function sqlAsOneLiner(sql) {
 }
 
 /**
- *  SQL query to get provenance information for the file identified by fileFilterClause.
+ * SQL query to get provenance information for the file identified by fileFilterClause.
  * 
  * TODO We could use UNIQUE to reduce duplicates. For example:
  * a process opens and closes the same file repeatedly
