@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
+// load environment variables from .env
+const dotenv = require('dotenv');
+dotenv.config();
+
 var constants = require('./constants');
 var express = require('express');
 var request = require('request');
 var assert = require('assert');
 var bodyParser = require('body-parser');
 var cors = require('cors');
+const odbc = require('odbc');
 
 var app = express();
 app.use(bodyParser.json());
@@ -30,7 +35,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 // start app
 app.listen(constants.PORT, function () {
-    console.log('UI backend started');
+    console.log(`UI backend started on port ${constants.PORT}`);
 });
 
 // configure logger
@@ -214,18 +219,29 @@ app.post('/provenance', function (req, res) {
     }
 
     // query REST service
-    const promiseSearchResult = promiseSearch(options);
+    const promiseSearchResult = promiseQuery(sql);
     Promise.all([promiseSearchResult])
         .then(function (result) {
-            // REST_URL is to the JSON endpoint.
-            const records = JSON.parse(result[0]);
-            logger.info(`Got ${records.length} records: ${JSON.stringify(records)}`);
+            const records = result[0];
+            logger.debug(`Got ${records.length} records: ${JSON.stringify(records)}`);
+
+            // make object keys all lowercase
+            const recordsLower = records.map((item) => {
+                var key, keys = Object.keys(item);
+                var n = keys.length;
+                var newItem = {}
+                while (n--) {
+                    key = keys[n];
+                    newItem[key.toLowerCase()] = item[key];
+                }
+                return newItem;
+            });
 
             const response = {
-                request: req.body
-                , records: records
+                request: req.body,
+                records: recordsLower
             };
-            logger.info(`Sending: ${JSON.stringify(response, null, 2)}`);
+            logger.debug(`Sending: ${JSON.stringify(response, null, 2)}`);
             res.send(response);
         })
         .catch((err) => {
@@ -250,6 +266,21 @@ function promiseSearch(options) {
             }
         })
     })
+}
+
+function promiseQuery(queryStr) {
+    console.log(`Query: ${JSON.stringify(queryStr)}`);
+    return new Promise(function (resolve, reject) {
+        odbc.connect('DSN=dashdb', function (error, conn) {
+            conn.query(queryStr, function (error, result) {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    });
 }
 
 function isPostBodyValid(requestBody) {
