@@ -15,11 +15,5 @@
  */
 
 module.exports = {
-    PORT: process.env.PORT,
-    DB2WHREST_PROTOCOL: process.env.DB2WHREST_PROTOCOL,
-    DB2WHREST_HOST: process.env.DB2WHREST_HOST,
-    DB2WHREST_PORT: process.env.DB2WHREST_PORT,
-    DB2WHREST_QUERY_JSON: process.env.DB2WHREST_ENDPOINT + 'sql_query_json?',
-    DB2WHREST_USER: process.env.DB2WHREST_USER,
-    DB2WHREST_PASSWORD: process.env.DB2WHREST_PASSWORD,
+    PORT: process.env.PORT
 };

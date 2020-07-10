@@ -51,13 +51,6 @@ const logger = winston.createLogger({
     ]
 });
 
-// set up credentials for DB2
-let credentials = "";
-if (`${constants.DB2WHREST_USER}` != '') {
-    credentials = `${constants.DB2WHREST_USER}:${constants.DB2WHREST_PASSWORD}` + '@';
-}
-const REST_URL = `${constants.DB2WHREST_PROTOCOL}://${credentials}${constants.DB2WHREST_HOST}:${constants.DB2WHREST_PORT}${constants.DB2WHREST_QUERY_JSON}`;
-
 /**
  * Table for various request types.
  * Each entry's name is the requestType string.
@@ -163,30 +156,30 @@ function stringifyObjectProperties(o) {
  * same base URL as the SQL queries.
  */
 app.post('/provenance/filecontent', function (req, res) {
-    const requestBody = req.body;
-    assert(isPostBodyValid(requestBody), `Error, invalid post body. body ${JSON.stringify(requestBody)}`);
+    // TODO rewrite to talk directly to database
+    console.log("Not supported.");
+    // const requestBody = req.body;
+    // assert(isPostBodyValid(requestBody), `Error, invalid post body. body ${JSON.stringify(requestBody)}`);
 
-    let path = requestBody.params.path;
-    let commitid = requestBody.params.commitid;
-    // TODO make URL dynamic once integrated with actual REST service running on MetaOcean VM
-    var targetURL = `http://${credentials}${constants.DB2WHREST_HOST}:5002/db2whrest/v1/get_file_content?path=${path}&commitid=${commitid}`;
-    const options = { url: targetURL }
+    // let path = requestBody.params.path;
+    // let commitid = requestBody.params.commitid;
+    // const options = { url: targetURL }
 
-    const promiseSearchResult = promiseSearch(options);
-    Promise.all([promiseSearchResult])
-        .then(function (result) {
-            const response = {
-                request: req.body
-                , filecontent: result
-            };
-            logger.info(`Sending: ${JSON.stringify(response, null, 2)}`);
-            res.send(response);
-        })
-        .catch((err) => {
-            const msg = `Caught err: ${JSON.stringify(err)}`;
-            logger.info(msg);
-            res.send(msg);
-        });
+    // const promiseSearchResult = promiseSearch(options);
+    // Promise.all([promiseSearchResult])
+    //     .then(function (result) {
+    //         const response = {
+    //             request: req.body
+    //             , filecontent: result
+    //         };
+    //         logger.info(`Sending: ${JSON.stringify(response, null, 2)}`);
+    //         res.send(response);
+    //     })
+    //     .catch((err) => {
+    //         const msg = `Caught err: ${JSON.stringify(err)}`;
+    //         logger.info(msg);
+    //         res.send(msg);
+    //     });
 });
 
 /**
@@ -207,18 +200,7 @@ app.post('/provenance', function (req, res) {
     // generate SQL
     const sql = genSQL(requestBody);
 
-    // convert to query to REST service
-    const options = {
-        url: REST_URL + encodeURIComponent(sql),
-        auth: {
-            'user': constants.DB2WHREST_USER,
-            'pass': constants.DB2WHREST_PASSWORD
-        },
-        timeout: 1000 * 60 * 20, // 20 mins in ms
-        forever: true
-    }
-
-    // query REST service
+    // query DB
     const promiseSearchResult = promiseQuery(sql);
     Promise.all([promiseSearchResult])
         .then(function (result) {
@@ -252,22 +234,12 @@ app.post('/provenance', function (req, res) {
 });
 
 /**
- * Promisified 'request.get'.
+ * Submit the specified query to the provenance database
+ * through the ODBC DSN 'dashdb'. Return a promise with
+ * the query results.
+ * 
+ * TODO make DSN configurable through environment
  */
-function promiseSearch(options) {
-    logger.info(`promiseSearch: options ${JSON.stringify(options)}`);
-    return new Promise(function (resolve, reject) {
-        request.get(options, function (err, resp, body) {
-            if (err) {
-                reject(err)
-            }
-            else {
-                resolve(body)
-            }
-        })
-    })
-}
-
 function promiseQuery(queryStr) {
     console.log(`Query: ${JSON.stringify(queryStr)}`);
     return new Promise(function (resolve, reject) {
@@ -283,6 +255,9 @@ function promiseQuery(queryStr) {
     });
 }
 
+/**
+ * Check whether the request contains all necessary parameters.
+ */
 function isPostBodyValid(requestBody) {
     // validate requestType
     const requestType = requestBody.requestType;
