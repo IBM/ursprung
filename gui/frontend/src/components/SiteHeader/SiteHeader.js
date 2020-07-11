@@ -18,7 +18,7 @@ import React from 'react';
 import { LinkContainer } from "react-router-bootstrap";
 import { Navbar, Nav } from 'react-bootstrap';
 import { Link } from "react-router-dom";
-import Jumbotron from 'react-bootstrap/Jumbotron';
+import Breadcrumb from 'react-bootstrap/Breadcrumb';
 import './site-header.css';
 
 const SiteHeader = () => (
@@ -38,9 +38,7 @@ const SiteHeader = () => (
         </LinkContainer>
       </Nav>
     </Navbar>
-    <Jumbotron>
-      <h1 className="header">Welcome to the Ursprung UI!</h1>
-    </Jumbotron>
+    <Breadcrumb></Breadcrumb>
   </div>
 );
 

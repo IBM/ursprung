@@ -834,9 +834,6 @@ class ProvenanceGraph extends Component {
       <div id="provenance_panel">
         <Container fluid>
           <Row>
-            <Col xs={9}>
-              <div style={cy_style} id="cy2" />
-            </Col>
             <Col>
               <Form className="searchnodeform">
                 <Form.Group>
@@ -951,6 +948,9 @@ class ProvenanceGraph extends Component {
                   }}>Close</Button>
                 </Modal.Footer>
               </Modal>
+            </Col>
+            <Col xs={9}>
+              <div style={cy_style} id="cy2" />
             </Col>
           </Row>
         </Container>
