@@ -840,7 +840,7 @@ class ProvenanceGraph extends Component {
             <Col>
               <Form className="searchnodeform">
                 <Form.Group>
-                  <Form.Label>Start file/process for provenance</Form.Label>
+                  <legend>File/Process Search</legend>
                   <Form.Control type="input" id="prov_path2" placeholder={this.props.provStartPath} />
                 </Form.Group>
                 <Button className="navbutton2" variant="primary" type="button" id="btn-find-prov" onClick={(e) => {
@@ -862,6 +862,9 @@ class ProvenanceGraph extends Component {
                   Find Process
                 </Button>
 
+                <Form.Group>
+                  <legend>Provenance Classes</legend>
+                </Form.Group>
                 <Form.Check type="checkbox" id="bx--checkbox-new" name="enable_ipc_prov"
                   value="true" label="Enable IPC Provenance" />
                 <Form.Check type="checkbox" id="bx--checkbox-trueipc" name="enable_trueipc_prov"
@@ -870,10 +873,10 @@ class ProvenanceGraph extends Component {
                   value="true" label="Enable Network Provenance" />
 
                 <Form.Group>
-                  <Form.Label>New filter</Form.Label>
-                  <Form.Control type="input" id="prov_filter" placeholder="Filters" />
+                  <legend>Graph Filters</legend>
+                  <Form.Control type="input" id="prov_filter" placeholder="New filter" />
                 </Form.Group>
-                <Button variant="primary" type="button" id="btn-find-prov" onClick={(e) => {
+                <Button className="navbutton2" variant="primary" type="button" id="btn-find-prov" onClick={(e) => {
                     // get initial filename
                     var filterVal = document.getElementById('prov_filter').value;
                     if (!filterVal.includes(":")) {
