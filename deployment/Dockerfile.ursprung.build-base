@@ -1,0 +1,11 @@
+# use Centos 8 as base image
+FROM centos:latest
+USER root
+
+# install mercurial and build tools
+RUN yum -y install 'mercurial'
+RUN yum -y groupinstall 'Development Tools'
+RUN /bin/bash -c 'yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm; yum -y install cmake3 wget'
+
+# install library dependencies necessary for building the collection system
+RUN /bin/bash -c 'yum -y install audit-libs-devel unixODBC-devel openssl-devel boost-devel'

@@ -1,0 +1,16 @@
+# Use Centos 8 as base image
+FROM ursprung-base:latest
+USER root
+
+# copy sources and binaries
+RUN mkdir -p /opt/gui
+COPY gui /opt/gui
+
+# install NodeJS 12
+RUN dnf -y module enable nodejs:12
+RUN dnf -y install @nodejs:12
+
+# build GUI
+RUN /bin/bash -c 'cd /opt/gui/backend; npm install'
+RUN /bin/bash -c 'cd /opt/gui/frontend; npm install'
+
