@@ -35,7 +35,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 // start app
 app.listen(constants.PORT, function () {
-    console.log(`UI backend started on port ${constants.PORT}`);
+    console.log(`UI backend started on port ${constants.PORT} with dsn ${constants.DSN}`);
 });
 
 // configure logger
@@ -243,7 +243,7 @@ app.post('/provenance', function (req, res) {
 function promiseQuery(queryStr) {
     console.log(`Query: ${JSON.stringify(queryStr)}`);
     return new Promise(function (resolve, reject) {
-        odbc.connect('DSN=dashdb', function (error, conn) {
+        odbc.connect(`DSN=${DSN}`, function (error, conn) {
             conn.query(queryStr, function (error, result) {
                 if (error) {
                     reject(error);
