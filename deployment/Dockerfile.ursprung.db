@@ -1,0 +1,14 @@
+# Use Centos 8 as base image
+FROM postgres:latest
+USER root
+
+# copy sources and binaries
+RUN mkdir -p /docker-entrypoint-initdb.d
+ENV POSTGRES_USER ursprung
+ENV POSTGRES_PASSWORD ursprung
+ENV POSTGRES_DB ursprung
+ADD prov-db/create-db2-schema.sql /docker-entrypoint-initdb.d
+
+RUN apt-get update && apt-get install -y unixodbc unixodbc-dev odbc-postgresql
+ADD prov-db/odbc.ini /etc
+ADD prov-db/odbcinst.ini /etc
