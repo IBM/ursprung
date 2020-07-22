@@ -1,0 +1,14 @@
+# provenance source
+prov-src = scale
+# output database
+out-dst = ODBC
+odbc-dsn = ursprung-db
+odbc-user = ursprung
+odbc-pass = ursprung
+# input kafka
+in-src = Kafka
+kafka-brokers = broker1:port,broker2:port,...
+kafka-topic = gpfs
+kafka-group-id = gpfs
+kafka-sasl-user = USERNAME
+kafka-sasl-password = PASSWORD

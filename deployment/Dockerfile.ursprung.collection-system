@@ -32,3 +32,6 @@ RUN /bin/bash -c 'cd /opt/collection-system/lib; git clone https://github.com/go
 RUN mkdir -p /opt/collection-system/build
 RUN /bin/bash -c 'cd /opt/collection-system/build; cmake3 -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=1 -DINFO=1 ../; make -j16; make test'
 
+# add requirements to establish ODBC connection to local postgres DB
+RUN yum -y install postgresql-odbc
+ADD deployment/prov-db/odbc.ini /etc

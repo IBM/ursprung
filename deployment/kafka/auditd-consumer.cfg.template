@@ -1,0 +1,14 @@
+# provenance source
+prov-src = auditd
+# output database
+out-dst = ODBC
+odbc-dsn = ursprung-db
+odbc-user = ursprung
+odbc-pass = ursprung
+# input kafka
+in-src = Kafka
+kafka-brokers = broker1:port,broker2:port,...
+kafka-topic = auditd
+kafka-group-id = auditd
+kafka-sasl-user = USERNAME
+kafka-sasl-password = PASSWORD
