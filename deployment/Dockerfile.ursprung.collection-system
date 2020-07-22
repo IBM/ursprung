@@ -35,3 +35,5 @@ RUN /bin/bash -c 'cd /opt/collection-system/build; cmake3 -DCMAKE_BUILD_TYPE=Deb
 # add requirements to establish ODBC connection to local postgres DB
 RUN yum -y install postgresql-odbc
 ADD deployment/prov-db/odbc.ini /etc
+
+ENTRYPOINT ["/opt/collection-system/build/consumer/prov-consumer"]
