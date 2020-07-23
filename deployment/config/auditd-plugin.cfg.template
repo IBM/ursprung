@@ -1,0 +1,9 @@
+# output destination
+out-dst = Kafka
+kafka-brokers = broker1:port,broker2:port,...
+kafka-topic = auditd
+kafka-sasl-user = USERNAME
+kafka-sasl-password = PASSWORD
+
+# auditd specifics
+auditd-key = "ursprung"
