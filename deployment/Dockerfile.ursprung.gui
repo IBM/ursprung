@@ -14,3 +14,7 @@ RUN dnf -y install @nodejs:12
 RUN /bin/bash -c 'cd /opt/gui/backend; npm install'
 RUN /bin/bash -c 'cd /opt/gui/frontend; npm install'
 
+# add requirements to establish ODBC connection to local postgres DB
+RUN yum -y install postgresql-odbc
+ADD deployment/prov-db/odbc.ini /etc
+ADD gui/backend/.env /
