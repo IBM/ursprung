@@ -17,7 +17,7 @@ All Dockerfiles are located in `deployment`.
 
 1. Add cluster-specific Kafka configuration to the consumer config templates under `deployment/kafka`
 2. Copy consumer configs to `/opt/ursprung/config`
-3. Start DB container: `docker run -p 5432:5432 -it ursprung-db`
+3. Start DB container: `docker run -v /opt/ursprung/data:/var/lib/postgresql/data -p 5432:5432 -it ursprung-db`
 4. Start Consumers:
     * Scale: `docker run -v /opt/ursprung/config/:/opt/ursprung/config --network host -it ursprung-collection-system /opt/collection-system/build/consumer/prov-consumer -c /opt/ursprung/config/scale-consumer.cfg`
     * Auditd: `docker run -v /opt/ursprung/config/:/opt/ursprung/config --network host -it ursprung-collection-system /opt/collection-system/build/consumer/prov-consumer -c /opt/ursprung/config/auditd-consumer.cfg`
