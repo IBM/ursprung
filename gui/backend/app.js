@@ -243,7 +243,7 @@ app.post('/provenance', function (req, res) {
 function promiseQuery(queryStr) {
     console.log(`Query: ${JSON.stringify(queryStr)}`);
     return new Promise(function (resolve, reject) {
-        odbc.connect(`DSN=${DSN}`, function (error, conn) {
+        odbc.connect(`DSN=${constants.DSN}`, function (error, conn) {
             conn.query(queryStr, function (error, result) {
                 if (error) {
                     reject(error);
@@ -388,7 +388,7 @@ function sqlForProv_File(fileFilterClause, onlyWrite, dateConstraint) {
     WHERE (
         (${fileFilterClause})
         AND (${filter})
-        AND (1970 < YEAR(${sqlTableNames.process}.birthTime) /* TODO Processes with unknown start times are set to epoch (1970-01-01). But there should be no such processes. */)
+        AND (1970 < EXTRACT(YEAR from ${sqlTableNames.process}.birthTime) /* TODO Processes with unknown start times are set to epoch (1970-01-01). But there should be no such processes. */)
         AND (${dateFilter})
       )
     `;
@@ -830,7 +830,7 @@ function sql_fuzzyLT(t1, t2, errMs) {
     const TSD_US = 1; // See mapping in DB2 TIMESTAMPDIFF docs
     const us_per_ms = 1000;
     const errUs = errMs * us_per_ms;
-    return `( ${t1} < (${t2} + ${errUs} MICROSECONDS) )`;
+    return `( ${t1} < (${t2} + '${errUs} MICROSECONDS') )`;
 }
 
 /**
@@ -843,8 +843,8 @@ function sql_fuzzyEquals(t1, t2, errMs) {
     const errUs = errMs * us_per_ms;
     // TODO Implement using two calls to sql_fuzzyLT instead of repeating this code.
     return `(
-    ( ${t1} < (${t2} + ${errUs} MICROSECONDS) )
+    ( ${t1} < (${t2} + '${errUs} MICROSECONDS') )
     AND
-    ( ${t2} < (${t1} + ${errUs} MICROSECONDS) )
+    ( ${t2} < (${t1} + '${errUs} MICROSECONDS') )
   )`;
 }
