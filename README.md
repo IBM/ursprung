@@ -19,7 +19,8 @@ All Dockerfiles are located in `deployment`.
 2. Copy consumer configs to `/opt/ursprung/config`
 3. Start DB container: `docker run -p 5432:5432 -it ursprung-db`
 4. Start Consumers:
-    * Scale: `docker run -v /opt/ursprung/config/:/opt/ursprung/config --network host -it ursprung-collection-system -c /opt/ursprung/config/scale-consumer.cfg`
-    * Auditd: `docker run -v /opt/ursprung/config/:/opt/ursprung/config --network host -it ursprung-collection-system -c /opt/ursprung/config/auditd-consumer.cfg`
+    * Scale: `docker run -v /opt/ursprung/config/:/opt/ursprung/config --network host -it ursprung-collection-system /opt/collection-system/build/consumer/prov-consumer -c /opt/ursprung/config/scale-consumer.cfg`
+    * Auditd: `docker run -v /opt/ursprung/config/:/opt/ursprung/config --network host -it ursprung-collection-system /opt/collection-system/build/consumer/prov-consumer -c /opt/ursprung/config/auditd-consumer.cfg`
+5. Start provd `docker run -v /opt/ursprung/config/:/opt/ursprung/config -it ursprung-collection-system /opt/collection-system/build/provd/provd /opt/ursprung/config/provd.cfg`
 5. Start GUI Backend: `docker run --network host -it ursprung-gui node /opt/gui/backend/app.js`
 6. Start GUI Frontend: `docker run -p 3000:3000 -it ursprung-gui /bin/bash -c "cd /opt/gui/frontend; npm start"` 
