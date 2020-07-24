@@ -246,8 +246,10 @@ function promiseQuery(queryStr) {
         odbc.connect(`DSN=${constants.DSN}`, function (error, conn) {
             conn.query(queryStr, function (error, result) {
                 if (error) {
+                    conn.close();
                     reject(error);
                 } else {
+                    conn.close();
                     resolve(result);
                 }
             });
