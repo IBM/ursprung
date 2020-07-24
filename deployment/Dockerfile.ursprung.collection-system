@@ -36,5 +36,3 @@ RUN /bin/bash -c 'cd /opt/collection-system/build; cmake3 -DCMAKE_BUILD_TYPE=Deb
 RUN yum -y install postgresql-odbc
 ADD deployment/prov-db/odbc.ini /etc
 
-# create repository for contenttracking
-RUN /bin/bash -c 'cd /opt/ursprung/contenttracking; hg init'
