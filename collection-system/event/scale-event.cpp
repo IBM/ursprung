@@ -98,8 +98,8 @@ FSEvent::FSEvent(const std::string &serialized_event) {
   }
 }
 
-FSEvent::FSEvent(osm_pid_t pid, int inode, size_t bytes_read,
-    size_t bytes_written, std::string event, std::string event_time,
+FSEvent::FSEvent(osm_pid_t pid, int inode, long bytes_read,
+    long bytes_written, std::string event, std::string event_time,
     std::string cluster_name, std::string fs_name, std::string path,
     std::string dst_path, std::string mode, std::string version_hash) :
     pid { pid },
