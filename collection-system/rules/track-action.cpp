@@ -21,7 +21,7 @@
 
 #include "action.h"
 
-const std::string DEFAULT_REPO_LOCATION = "/tmp/ursprung/contenttracking";
+const std::string DEFAULT_REPO_LOCATION = "/opt/ursprung/contenttracking";
 const std::regex TRACK_SYNTAX = std::regex("TRACK (.*) AT (.*) "
     "INTO (FILE (.*)|DB (.*):(.*)@(.*) USING (.*)/(.*))");
 
