@@ -15,6 +15,7 @@
  */
 
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom'
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import { Container, Row, Col } from 'react-bootstrap';
@@ -119,7 +120,7 @@ class ProvenanceWorkflows extends Component {
                         provStartPath: this.state.selectedWorkflow,
                         workflowOutputFiles: workflows.records
                       });
-                      this.setState({ currentPage: 'menuItemProvenance' });
+                      this.props.history.push('/graph');
                     } else {
                       alert("No provenance found for selected workflow. Please check the database manually.")
                     }
@@ -135,4 +136,4 @@ class ProvenanceWorkflows extends Component {
   }
 }
 
-export default ProvenanceWorkflows;
+export default withRouter(ProvenanceWorkflows);

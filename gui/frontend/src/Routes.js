@@ -54,10 +54,10 @@ class Routes extends Component {
             provStartPath={this.state.provenanceStartPath} workflowOutFiles={this.state.workflowOutputFiles}
             mlWorkflowProcess={this.state.mlWorkflowProcess} />
       </Route>
-	  <Route exact path="/workflows">
+      <Route exact path="/workflows">
         <ProvenanceWorkflows callbackToParent={this.parentCallback} />
       </Route>
-	  <Route exact path="/pipelines">
+      <Route exact path="/pipelines">
         <ProvenanceMLPipeline callbackToParent={this.parentCallback} />
       </Route>
     </Switch>

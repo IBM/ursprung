@@ -143,8 +143,13 @@ class ProvenanceGraph extends Component {
    * Component mount handler.
    */
   componentDidMount() {
-    $('.mo-sidebar-link').removeClass('disabled');
-    $('#menuItemProvenance').addClass('disabled');
+    if (this.props.workflowOutFiles.length > 0 && !this.state.workflowGraphRendered) {
+      console.log(`Got ${this.props.workflowOutFiles.length} workflow output files: ${JSON.stringify(this.props.workflowOutFiles)}`);
+      this.startWorkflowProvenanceGraph();
+    } else if (this.props.mlWorkflowProcess !== undefined && !this.state.workflowGraphRendered) {
+      console.log(`${JSON.stringify(this.props.mlWorkflowProcess)}`);
+      this.startMLProvenanceGraph();
+    }
   }
 
   /**
@@ -767,14 +772,6 @@ class ProvenanceGraph extends Component {
 
     const content_style = {
       whiteSpace: 'pre-line'
-    }
-
-    if (this.props.workflowOutFiles.length > 0 && !this.state.workflowGraphRendered) {
-      console.log(`Got ${this.props.workflowOutFiles.length} workflow output files: ${JSON.stringify(this.props.workflowOutFiles)}`);
-      this.startWorkflowProvenanceGraph();
-    } else if (this.props.mlWorkflowProcess !== undefined && !this.state.workflowGraphRendered) {
-      console.log(`${JSON.stringify(this.props.mlWorkflowProcess)}`);
-      this.startMLProvenanceGraph();
     }
 
     if (this.state.filters.size === 0 || !this.state.filtersUpdated) {

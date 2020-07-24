@@ -15,6 +15,7 @@
  */
 
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Table from 'react-bootstrap/Table'
@@ -199,6 +200,7 @@ class ProvenanceMLPipeline extends Component {
                   workflowOutputFiles: [],
                   mlWorkflowProcess: mlWorkflowProcesses
                 });
+                this.props.history.push('/graph');
               }}>
               Show Provenance
             </Button>
@@ -317,4 +319,4 @@ class ProvenanceMLPipeline extends Component {
   }
 }
 
-export default ProvenanceMLPipeline;
+export default withRouter(ProvenanceMLPipeline);
