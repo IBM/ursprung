@@ -439,8 +439,8 @@ function sqlForProv_Process_FSAccess(params) {
     // so we only need to examine gpfseventsNarrow.
     console.log(`sqlForProv_Process_FSAccess`);
 
-    const p_birthTime = `TIMESTAMP(${params.birthTime})`;
-    const p_deathTime = `TIMESTAMP(${params.deathTime})`;
+    const p_birthTime = `TO_TIMESTAMP(${params.birthTime}, 'YYYY-MM-DD HH24:MI:SS.MS')`;
+    const p_deathTime = `TO_TIMESTAMP(${params.deathTime}, 'YYYY-MM-DD HH24:MI:SS.MS')`;
     const x_eventTime = `${sqlTableNames.gpfs}.eventTime`;
 
     var filter;
