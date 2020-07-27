@@ -170,7 +170,8 @@ int TrackAction::execute(evt_t msg) {
   // run 'hg commit'
   std_out = "";
   std_err = "";
-  const char *commit[] = { "commit", "-m", "commit", "--cwd", repo_path.c_str(), NULL };
+  const char *commit[] = { "commit", "-m", "commit", "-u", "ursprung",
+      "--cwd", repo_path.c_str(), NULL };
   hg_rawcommand(repo_handle, (char**) commit);
   if (parse_hg_return_code(repo_handle, std_out, std_err) != 0) {
     LOGGER_LOG_ERROR("Problems while running hg commit: " << std_err
