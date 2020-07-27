@@ -106,7 +106,7 @@ void Action::run_consumer() {
       long lat = ms - timestamp_millis;
       LOGGER_LOG_PERF("Rulelatency: " << lat);
 #endif
-      execute(std::move(msg));
+      execute(msg);
     }
   }
 

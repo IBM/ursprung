@@ -84,7 +84,7 @@ std::vector<uint32_t> RuleEngine::evaluate_conditions(evt_t msg) {
   std::string value;
   std::vector<uint32_t> idx;
 
-  for (uint32_t i; i < rules.size(); i++) {
+  for (uint32_t i = 0; i < rules.size(); i++) {
     if (rules[i]->eval_condition_expr(msg)) {
       idx.push_back(i);
     }
@@ -102,7 +102,7 @@ int RuleEngine::run_actions(std::vector<uint32_t> rule_ids, evt_t msg) {
 }
 
 int RuleEngine::shutdown() {
-  for (size_t i; i < rules.size(); i++) {
+  for (size_t i = 0; i < rules.size(); i++) {
     rules[i]->remove_actions();
   }
   return NO_ERROR;
@@ -137,13 +137,13 @@ bool Rule::eval_condition_expr(evt_t msg) const {
 }
 
 void Rule::run_actions(evt_t msg) const {
-  for (size_t i; i < actions.size(); i++) {
+  for (size_t i = 0; i < actions.size(); i++) {
     actions[i]->get_action_queue()->push(msg);
   }
 }
 
 void Rule::remove_actions() {
-  for (size_t i; i < actions.size(); i++) {
+  for (size_t i = 0; i < actions.size(); i++) {
     actions[i]->stop_action_consumers();
   }
   actions.clear();
@@ -151,7 +151,7 @@ void Rule::remove_actions() {
 
 std::vector<std::string> Rule::get_action_types() {
   std::vector<std::string> types;
-  for (size_t i; i < actions.size(); i++) {
+  for (size_t i = 0; i < actions.size(); i++) {
     types.push_back(actions[i]->get_type());
   }
   return types;
