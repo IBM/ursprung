@@ -42,7 +42,7 @@ static void setup_handlers() {
   sa.sa_flags = 0;
   sigemptyset(&sa.sa_mask);
   // by default, set ignore handler for all signals
-  sa.sa_handler = SIG_IGN;
+  sa.sa_handler = SIG_DFL;
   for (int i = 1; i < NSIG; i++)
     sigaction(i, &sa, NULL);
   // now set the handlers for SIGTERM, SIGINT, and SIGHUP
