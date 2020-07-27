@@ -222,7 +222,7 @@ class ProvenanceMLPipeline extends Component {
                     return;
                   }
                   var comparison = Workflows.WorkflowComparison.compare(workflows[0], workflows[1]);
-                  this.setState({ modalContent: comparison.toHtml() });
+                  this.setState({ modalContent: comparison.toHtml(), showModalContent: true });
                 });
               }}>
               Compare Workflows
@@ -240,7 +240,7 @@ class ProvenanceMLPipeline extends Component {
               Rerun Workflow
             </Button>
 
-            <Modal show={this.state.showRerunModal}>
+            <Modal show={this.state.showModalContent}>
               <Modal.Header closeButton>
                 <Modal.Title>Comparison Summary</Modal.Title>
               </Modal.Header>
