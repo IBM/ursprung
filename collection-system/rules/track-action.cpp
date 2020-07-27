@@ -191,10 +191,10 @@ int TrackAction::execute(evt_t msg) {
   }
 
   // insert commit record into database
-  std::string cluster_name = msg->get_value("clusterName");
-  std::string node_name = msg->get_value("nodeName");
-  std::string fs_name = msg->get_value("fsName");
-  std::string event_time = msg->get_value("eventTime");
+  std::string cluster_name = msg->get_value("cluster_name");
+  std::string node_name = msg->get_node_name();
+  std::string fs_name = msg->get_value("fs_name");
+  std::string event_time = msg->get_value("event_time");
   std::ostringstream record;
   record << "'" << cluster_name << "',";
   record << "'" << node_name << "',";
