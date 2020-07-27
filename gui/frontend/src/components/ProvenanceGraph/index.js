@@ -124,7 +124,7 @@ class ProvenanceGraph extends Component {
     helpers.fetchContentForFile(this.state.selectedFileNode, procNode).then((result) => {
       console.log(`Content: ${JSON.stringify(result.filecontent)}`);
       // TODO why is result.filecontent an array?
-      var lines = result.filecontent[0].split("\n");
+      var lines = result.filecontent.split("\n");
       var formattedFileContent = [];
       for (var i = 0; i < lines.length; i++) {
         if (lines[i].startsWith("-")) {
@@ -216,9 +216,11 @@ class ProvenanceGraph extends Component {
   }
 
   /**
-   * Onrightclick handler for nodes. This only works for process
-   * nodes and will retrieve any associated logs for the process
-   * from the backend.
+   * Onrightclick handler for nodes. For process nodes, this will
+   * retrieve any associated logs. For file nodes, this will show
+   * a list of process who modified the files and allow to retrieve
+   * the content at different points in time if the content is
+   * tracked.
    */
   handleMouseRightClickEvent(evt) {
     if (helpers.isProvNode(evt.target)) {
@@ -915,13 +917,11 @@ class ProvenanceGraph extends Component {
                 </Modal.Header>
                 <Modal.Body>
                   <p>{processSelectionElements}</p>
-                  <p>
-                    <div>
-                      <br />
-                      <h4>Content:</h4>
-                      <span style={content_style}>{this.state.filecontent}</span>
-                    </div>
-                  </p>
+                  <div>
+                    <br />
+                    <h4>Content:</h4>
+                    <span style={content_style}>{this.state.filecontent}</span>
+                  </div>
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={(e) => {

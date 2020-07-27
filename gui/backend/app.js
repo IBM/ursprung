@@ -148,38 +148,33 @@ function stringifyObjectProperties(o) {
 
 /**
  * This is the endpoint for retrieving file content.
- * 
- * NOTE: The URL is currently hardcoded just for testing
- * (as this is the only request that has to go to our
- * custom REST service). Once we can update the REST
- * service in Kubernetes, we can send this to the
- * same base URL as the SQL queries.
  */
 app.post('/provenance/filecontent', function (req, res) {
-    // TODO rewrite to talk directly to database
-    console.log("Not supported.");
-    // const requestBody = req.body;
-    // assert(isPostBodyValid(requestBody), `Error, invalid post body. body ${JSON.stringify(requestBody)}`);
+    const requestBody = req.body;
+    assert(isPostBodyValid(requestBody), `Error, invalid post body. body ${JSON.stringify(requestBody)}`);
 
-    // let path = requestBody.params.path;
-    // let commitid = requestBody.params.commitid;
-    // const options = { url: targetURL }
+    let path = requestBody.params.path;
+    let commitid = requestBody.params.commitid;
+    // TODO make nicer
+    // The commit ID is retrieved by the consumer ending with a "'\n" sequence
+    // which we manually remove here. Would be nicer to have the commit ID clean
+    // in the database.
+    let commitidTrimmed = commitid.slice(0, commitid.length - 2);
 
-    // const promiseSearchResult = promiseSearch(options);
-    // Promise.all([promiseSearchResult])
-    //     .then(function (result) {
-    //         const response = {
-    //             request: req.body
-    //             , filecontent: result
-    //         };
-    //         logger.info(`Sending: ${JSON.stringify(response, null, 2)}`);
-    //         res.send(response);
-    //     })
-    //     .catch((err) => {
-    //         const msg = `Caught err: ${JSON.stringify(err)}`;
-    //         logger.info(msg);
-    //         res.send(msg);
-    //     });
+    const { exec } = require('child_process');
+    exec(`hg diff -c ${commitidTrimmed} --cwd /opt/ursprung/contenttracking ${path}`, (err, stdout, stderr) => {
+        if (err) {
+            const msg = `Caught err: ${JSON.stringify(err)}`;
+            logger.info(msg);
+            res.send(msg);
+        } else {
+            const response = {
+                request: req.body,
+                filecontent: stdout
+            };
+            res.send(response);
+        }
+    });
 });
 
 /**
