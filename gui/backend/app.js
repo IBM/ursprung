@@ -162,7 +162,7 @@ app.post('/provenance/filecontent', function (req, res) {
     let commitidTrimmed = commitid.slice(0, commitid.length - 2);
 
     const { exec } = require('child_process');
-    exec(`hg diff -c ${commitidTrimmed} --cwd /opt/ursprung/contenttracking ${path}`, (err, stdout, stderr) => {
+    exec(`hg diff -c ${commitidTrimmed} --cwd ${constants.HG_REPO} ${path}`, (err, stdout, stderr) => {
         if (err) {
             const msg = `Caught err: ${JSON.stringify(err)}`;
             logger.info(msg);
