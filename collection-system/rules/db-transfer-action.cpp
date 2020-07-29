@@ -15,6 +15,7 @@
  */
 
 #include <regex>
+#include <climits>
 
 #include "action.h"
 #include "db-output-stream.h"
@@ -71,8 +72,15 @@ int DBTransferAction::execute(evt_t msg) {
     char state_buffer[1024];
     rc = state_backend->lookup_state(state_buffer, rule_id);
     if (rc == ERROR_NO_RETRY) {
-      LOGGER_LOG_ERROR("Problems while trying to restore state for " << this->str()
-          << ". Will work with existing query state " << query_state);
+      LOGGER_LOG_WARN("Problems while trying to restore state for " << this->str()
+          << ". Will add new entry for " << rule_id << " into DB.");
+      // initialize query state and add to the DB
+      query_state = std::to_string(LONG_MIN);
+      rc = state_backend->insert_state(rule_id, query_state);
+      if (rc != NO_ERROR) {
+        LOGGER_LOG_ERROR("Problems while adding state for rule " << this->str()
+            << ". State can't be backed up at the moment.");
+      }
     } else {
       std::string query_state_string = (rc == NO_ERROR) ? std::string(state_buffer) : "";
       if (!query_state_string.empty()) {

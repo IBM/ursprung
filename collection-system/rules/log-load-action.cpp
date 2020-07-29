@@ -162,7 +162,7 @@ int LogLoadAction::execute(evt_t msg) {
     char stateBuffer[1024];
     rc = state_backend->lookup_state(stateBuffer, rule_id, path);
     if (rc == ERROR_NO_RETRY) {
-      LOGGER_LOG_ERROR("Problems while trying to restore state for " << this->str()
+      LOGGER_LOG_WARN("Problems while trying to restore state for " << this->str()
           << ". Will start" << " parsing " << path << " from 0.");
       state.first = 0;
       state.second = inode;
@@ -170,6 +170,10 @@ int LogLoadAction::execute(evt_t msg) {
       // try to add state to DB
       state_backend->insert_state(rule_id, std::to_string(parsing_state[path].first) + ","
           + std::to_string(parsing_state[path].second), path);
+      if (rc != NO_ERROR) {
+        LOGGER_LOG_ERROR("Problems while adding state for new rule " << this->str()
+            << ". State can't be backed up at the moment.");
+      }
     } else {
       std::string existing_state = (rc == NO_ERROR) ? std::string(stateBuffer) : "";
       if (!existing_state.empty()) {
