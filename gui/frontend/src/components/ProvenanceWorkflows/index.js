@@ -85,24 +85,8 @@ class ProvenanceWorkflows extends Component {
       <div id="provenance-workflows-panel">
         <Container fluid>
           <Row>
-            <Col xs={11}>
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Starttime (UTC)</th>
-                    <th>Finishtime (UTC)</th>
-                    <th>Owner</th>
-                    <th>Exit Code</th>
-                  </tr>
-                </thead>
-                {tableElements}
-              </Table>
-            </Col>
             <Col>
-              <Button variant="primary" size="sm" id="show-provenance-button" type="button" onClick={(e) => {
+              <Button id="show-provenance-button" type="button" onClick={(e) => {
                 e.preventDefault();
 
                 // fetch the output files from the selected workflow
@@ -128,6 +112,22 @@ class ProvenanceWorkflows extends Component {
               }} >
                 Show Provenance
               </Button>
+            </Col>
+            <Col xs={11}>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Starttime (UTC)</th>
+                    <th>Finishtime (UTC)</th>
+                    <th>Owner</th>
+                    <th>Exit Code</th>
+                  </tr>
+                </thead>
+                {tableElements}
+              </Table>
             </Col>
           </Row>
         </Container >
