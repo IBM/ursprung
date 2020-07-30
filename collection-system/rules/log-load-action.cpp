@@ -168,7 +168,7 @@ int LogLoadAction::execute(evt_t msg) {
       state.second = inode;
       parsing_state[path] = state;
       // try to add state to DB
-      state_backend->insert_state(rule_id, std::to_string(parsing_state[path].first) + ","
+      rc = state_backend->insert_state(rule_id, std::to_string(parsing_state[path].first) + ","
           + std::to_string(parsing_state[path].second), path);
       if (rc != NO_ERROR) {
         LOGGER_LOG_ERROR("Problems while adding state for new rule " << this->str()
