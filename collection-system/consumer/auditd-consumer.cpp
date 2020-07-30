@@ -29,8 +29,8 @@ int AuditdConsumer::evaluate_rules(evt_t msg) {
   if (rule_engine && rule_engine->has_rules()) {
     // Check if we got an exit event and then see, if we're tracing the exited process
     if (msg->get_type() == SYSCALL_EVENT) {
-      if (msg->get_value("syscallName") == "exit_group") {
-        std::string node_name = msg->get_value("nodeName");
+      if (msg->get_value("syscall_name") == "exit_group") {
+        std::string node_name = msg->get_node_name();
         std::string pid_str = msg->get_value("pid");
         std::string tracee = pid_str + node_name;
 
@@ -58,7 +58,7 @@ int AuditdConsumer::evaluate_rules(evt_t msg) {
         if (action_type == CAPTURESOUT_RULE) {
           // store the process in the list of active tracees so we can
           // check for subsequent exit events
-          std::string nodeName = msg->get_value("nodeName");
+          std::string nodeName = msg->get_node_name();
           std::string pidStr = msg->get_value("pid");
           active_tracees.insert(pidStr + nodeName);
           LOGGER_LOG_DEBUG("Inserted " << (pidStr + nodeName) << " into active tracees");

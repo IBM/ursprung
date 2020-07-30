@@ -54,6 +54,8 @@ class LogLoadField;
 
 // helper functions
 std::string convert_date_field(std::string date, LogLoadField *field);
+std::string extract_record_from_line(std::string line, std::string delimiter,
+    std::vector<LogLoadField*> fields, evt_t msg);
 
 typedef SynchronizedQueue<evt_t> a_queue_t;
 typedef std::map<std::string, std::pair<long long int, unsigned long long>> parse_state_t;

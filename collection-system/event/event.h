@@ -19,6 +19,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 class Event;
 
@@ -39,6 +40,19 @@ enum EventType : int {
   SOCKET_EVENT =          6,
   SOCKET_CONNECT_EVENT =  7,
   TEST_EVENT =            8
+};
+
+// names for the different event types
+const std::vector<std::string> event_type_to_string = {
+    "NA",
+    "FSEvent",
+    "ProcessEvent",
+    "ProcessGroupEvent",
+    "SyscallEvent",
+    "IPCEvent",
+    "SocketEvent",
+    "SocketConnectEvent",
+    "TestEvent"
 };
 
 enum ConsumerSource {

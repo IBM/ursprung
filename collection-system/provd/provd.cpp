@@ -191,7 +191,7 @@ void TraceProcessReqHandler::handle() {
   buffer = (char*) ptrace_do_malloc(target, buffer_size);
   memset(buffer, 0, buffer_size);
   snprintf(buffer, buffer_size, "%s-%d", tracee_out_base_path, tracee_pid);
-  snprintf(buffer_cpy, buffer_size, "$s-%d", tracee_out_base_path, tracee_pid);
+  snprintf(buffer_cpy, buffer_size, "%s-%d", tracee_out_base_path, tracee_pid);
   void *remote_addr = ptrace_do_push_mem(target, buffer);
 
   int remote_fd = ptrace_do_syscall(target, __NR_open, (unsigned long) remote_addr,

@@ -73,7 +73,7 @@ private:
   std::vector<std::string> get_execve_args(auparse_state_t *au);
   std::vector<std::string> get_pipe_fds(auparse_state_t *au);
   std::vector<std::string> get_sockaddr(auparse_state_t *au);
-  std::string get_data_as_string();
+  std::string get_data_as_string() const;
   std::string get_cwd(auparse_state_t *au);
 #endif
 

@@ -18,7 +18,7 @@
 
 #include "action.h"
 #include "db-output-stream.h"
-//#include "provd-client.h"
+#include "provd-client.h"
 
 const std::regex CAPTURESOUT_SYNTAX = std::regex("CAPTURESOUT MATCH (.)* FIELDS "
     "(.)* DELIM (.*) INTO (FILE (.*)|DB (.*):(.*)@(.*) USING (.*)/(.*))");
@@ -61,44 +61,45 @@ StdoutCaptureAction::StdoutCaptureAction(std::string action) {
 
 int StdoutCaptureAction::execute(evt_t msg) {
   // retrieve name and pid of node and process to trace
-  std::string node_name = msg->get_value("nodeName");
+  std::string node_name = msg->get_node_name();
   std::string pid_str = msg->get_value("pid");
   LOGGER_LOG_DEBUG("Executing stdout capture action for " << node_name << ":" << pid_str);
 
   // send trace request to provd daemon on target node
   uint32_t pid = atoi(pid_str.c_str());
-//  ProvdClient client;
-//  if ((err = client.connectToServer(nodeName)) < 0) {
-//    LOG_ERROR("Couldn't connect to provd server on " << nodeName);
-//    return ERROR_NO_RETRY;
-//  }
-//  if ((err = client.submitTraceProcRequest(pid, matchingString)) < 0) {
-//    LOG_ERROR("Couldn't submit trace proc request.");
-//    return ERROR_NO_RETRY;
-//  }
+  ProvdClient client;
+  int rc;
+  if ((rc = client.connect_to_server(node_name)) < 0) {
+    LOGGER_LOG_ERROR("Couldn't connect to provd server on " << node_name);
+    return ERROR_NO_RETRY;
+  }
+  if ((rc = client.submit_trace_proc_request(pid, matching_string)) < 0) {
+    LOGGER_LOG_ERROR("Couldn't submit trace proc request.");
+    return ERROR_NO_RETRY;
+  }
 
   // receive matching lines from target node until process finishes
   std::vector<std::string> records;
   bool found_entries = false;
   std::string line;
   uint32_t line_counter = 0;
-//  while (client.receiveLine(&line) > 0) {
-//    LOG_DEBUG("Received matching line " << line);
-//    foundEntries = true;
-//    // we found a matching line, extract the information
-//    std::string record = extractRecordFromLine(line, delimiter, fields, msg);
-//    if (record.size() > 0) {
-//      records.push_back(record);
-//      lineCounter++;
-//    }
-//  }
+  while (client.receive_line(&line) > 0) {
+    LOGGER_LOG_DEBUG("Received matching line " << line);
+    found_entries = true;
+    // we found a matching line, extract the information
+    std::string record = extract_record_from_line(line, delimiter, fields, msg);
+    if (record.size() > 0) {
+      records.push_back(record);
+      line_counter++;
+    }
+  }
   LOGGER_LOG_DEBUG("StdoutCapture Action done, received " << line_counter << " lines.");
 
   // finish up
-//  if ((err = client.disconnectFromServer()) < 0) {
-//    LOG_ERROR("Problems while disconnecting from provd server " << err);
-//    return ERROR_NO_RETRY;
-//  }
+  if ((rc = client.disconnect_from_server()) < 0) {
+    LOGGER_LOG_ERROR("Problems while disconnecting from provd server " << rc);
+    return ERROR_NO_RETRY;
+  }
   if (found_entries) {
     if (out->send_batch(records) != NO_ERROR) {
       LOGGER_LOG_ERROR("Problems while bulk loading data from  into DB."

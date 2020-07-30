@@ -313,6 +313,12 @@ std::string SyscallEvent::get_value(std::string field) const {
     return std::to_string(rc);
   else if (field == "event_time")
     return event_time;
+  else if (field == "type")
+    return event_type_to_string[get_type()];
+#ifdef __linux__
+  else if (field == "data")
+    return get_data_as_string();
+#endif
   else
     return "";
 }
@@ -428,7 +434,7 @@ std::string SyscallEvent::get_cwd(auparse_state_t *au) {
   return cwd;
 }
 
-std::string SyscallEvent::get_data_as_string() {
+std::string SyscallEvent::get_data_as_string() const {
   std::string data_str;
   for (std::string item : data) {
     data_str += item + " ";
@@ -565,6 +571,8 @@ std::string ProcessEvent::get_value(std::string field) const {
     return finish_time_utc;
   else if (field == "exec_cwd")
     return exec_cwd;
+  else if (field == "type")
+    return event_type_to_string[get_type()];
   else
     return "";
 }
@@ -731,6 +739,8 @@ std::string ProcessGroupEvent::get_value(std::string field) const {
     return start_time_utc;
   else if (field == "finish_time_utc")
     return finish_time_utc;
+  else if (field == "type")
+    return event_type_to_string[get_type()];
   else
     return "";
 }
@@ -829,6 +839,8 @@ std::string IPCEvent::get_value(std::string field) const {
     return src_start_time_utc;
   else if (field == "dst_start_time_utc")
     return dst_start_time_utc;
+  else if (field == "type")
+    return event_type_to_string[get_type()];
   else
     return "";
 }
@@ -927,6 +939,8 @@ std::string SocketEvent::get_value(std::string field) const {
     return open_time;
   else if (field == "close_time")
     return close_time;
+  else if (field == "type")
+    return event_type_to_string[get_type()];
   else
     return "";
 }
@@ -1025,6 +1039,8 @@ std::string SocketConnectEvent::get_value(std::string field) const {
     return connect_time;
   else if (field == "dst_node")
     return dst_node;
+  else if (field == "type")
+    return event_type_to_string[get_type()];
   else
     return "";
 }

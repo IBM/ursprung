@@ -48,6 +48,65 @@ std::string convert_date_field(std::string date, LogLoadField *field) {
   return std::string(new_date);
 }
 
+/**
+ * Helper function to extract a record from a line based on a specified
+ * delimiter and a set of LogLoadFields.
+ */
+std::string extract_record_from_line(std::string line, std::string delimiter,
+    std::vector<LogLoadField*> fields, evt_t msg) {
+  size_t pos = 0;
+  std::stringstream record;
+  std::string token;
+  std::vector<std::string> tokens;
+
+  while ((pos = line.find(delimiter)) != std::string::npos) {
+    token = line.substr(0, pos);
+    tokens.push_back(token);
+    line.erase(0, pos + delimiter.length());
+  }
+  tokens.push_back(line);
+
+  // TODO add range check on fieldIDs and tokens
+  for (unsigned int k = 0; k < fields.size(); k++) {
+    LogLoadField *field = fields.at(k);
+    if (field->is_range_field()) {
+      std::string field_value;
+      int parse_until = field->get_until_field_id() == -1 ?
+              tokens.size() - 1 : field->get_until_field_id();
+
+      for (int j = field->get_field_id(); j <= parse_until; j++) {
+        field_value += tokens.at(j) + ((j == parse_until) ? "" : " ");
+      }
+
+      if (field->is_timestamp_field()) {
+        record << convert_date_field(field_value, field);
+      } else {
+        record << field_value;
+      }
+      record << ((k == fields.size() - 1) ? "" : ",");
+    } else if (field->is_event_field()) {
+      std::string event_field_val = msg->get_value(field->get_field_name());
+      record << event_field_val << ((k == fields.size() - 1) ? "" : ",");
+    } else if (field->is_composite_field()) {
+      std::vector<int> ids = field->get_field_ids();
+      for (unsigned int j = 0; j < ids.size(); j++) {
+        record << tokens.at(ids.at(j));
+      }
+      record << ",";
+    } else {
+      if (field->is_timestamp_field()) {
+        record << convert_date_field(tokens.at(field->get_field_id()), field)
+            << ((k == fields.size() - 1) ? "" : ",");
+      } else {
+        record << tokens.at(field->get_field_id())
+            << ((k == fields.size() - 1) ? "" : ",");
+      }
+    }
+  }
+
+  return record.str();
+}
+
 /*------------------------------
  * Action
  *------------------------------*/
