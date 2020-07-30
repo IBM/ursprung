@@ -190,8 +190,8 @@ void TraceProcessReqHandler::handle() {
   struct ptrace_do *target = ptrace_do_init(tracee_pid);
   buffer = (char*) ptrace_do_malloc(target, buffer_size);
   memset(buffer, 0, buffer_size);
-  snprintf(buffer, buffer_size, "%s-%d", tracee_out_base_path, tracee_pid);
-  snprintf(buffer_cpy, buffer_size, "%s-%d", tracee_out_base_path, tracee_pid);
+  snprintf(buffer, buffer_size, "%s-%d", tracee_out_base_path.c_str(), tracee_pid);
+  snprintf(buffer_cpy, buffer_size, "%s-%d", tracee_out_base_path.c_str(), tracee_pid);
   void *remote_addr = ptrace_do_push_mem(target, buffer);
 
   int remote_fd = ptrace_do_syscall(target, __NR_open, (unsigned long) remote_addr,
@@ -202,7 +202,7 @@ void TraceProcessReqHandler::handle() {
   ptrace_do_cleanup(target);
 
   // Now we have to read the file and look for provenance records
-  int local_fd = open(buffer_cpy, O_RDONLY);
+  int local_fd = open(buffer_cpy, O_RDONLY | O_CREAT);
   if (local_fd <= 0) {
     LOGGER_LOG_ERROR("Problems while opening file: " << local_fd << " " << strerror(errno));
   }
