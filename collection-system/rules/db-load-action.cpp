@@ -48,12 +48,21 @@ int DBLoadAction::execute(evt_t msg) {
     return ERROR_NO_RETRY;
   }
 
+  // get augmentation string to annotate loaded records with time and path
+  std::string augment_str = "'" + msg->get_value("path") + "','" + msg->get_value("event_time") + "',";
+
   std::vector<std::string> records;
-  // TODO make sure to add info and remove header
   std::ifstream in_file(path);
   std::string line;
+
+  // TODO make 'skip first line' configurable
+  bool first_line = true;
   while (std::getline(in_file, line)) {
-    records.push_back(line);
+    if (first_line) {
+      first_line = false;
+      continue;
+    }
+    records.push_back(augment_str + line);
   }
   int rc = out->send_batch(records);
   if (rc != NO_ERROR) {

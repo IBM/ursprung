@@ -49,11 +49,11 @@ TEST(db_load_action_test, test_execute) {
   }
 
   EXPECT_EQ(5, lines.size());
-  EXPECT_EQ("a1,b1,c1", lines[0]);
-  EXPECT_EQ("a2,b2,c2", lines[1]);
-  EXPECT_EQ("a3,b3,c3", lines[2]);
-  EXPECT_EQ("a4,b4,c4", lines[3]);
-  EXPECT_EQ("a5,b5,c5", lines[4]);
+  EXPECT_EQ("'','',a1,b1,c1", lines[0]);
+  EXPECT_EQ("'','',a2,b2,c2", lines[1]);
+  EXPECT_EQ("'','',a3,b3,c3", lines[2]);
+  EXPECT_EQ("'','',a4,b4,c4", lines[3]);
+  EXPECT_EQ("'','',a5,b5,c5", lines[4]);
 }
 
 TEST(db_load_action_test, test_str) {
