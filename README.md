@@ -1,8 +1,40 @@
 # The Ursprung Provenance Collection System
 
-This is the main repository for the Ursprung provenance collection system.
-The system consists of the collection backend (which includes the auditd
-plugin, the provd daemon, and the kafka consumer) and the GUI.
+The Ursprung provenance collection system is a flexible provenance collection framework +
+a GUI for tracking machine learning and data science experiments and pipelines in a
+cluster.
+
+The collection framework
+combines low-level provenance information from system sources (operating and file system)
+with application-specific provenance that can be collected through rules in Ursprung's
+rule language.
+
+The GUI allows users to navigate the provenance graph and has additional features to
+view and compare past pipeline executions.
+
+Ursprung is currently in pre-alpha phase.
+
+## Architecture overview
+
+**System requirements**
+
+Ursprung currently only supports Linux and requires a
+[IBM Spectrum Scale](https://www.ibm.com/products/scale-out-file-and-object-storage) file system
+to generate file system notifications. The recommended Linux distribution is RedHat or Centos.
+
+**Components**
+
+Ursprung consists of six main components:
+1. The provenance consumers
+2. The provenance GUI
+3. The provenance database
+4. The `provd` provenance daemons
+5. An [auditd](https://man7.org/linux/man-pages/man8/auditd.8.html) pluging to collect operating system events through Linux's auditing subsystem
+6. A Kafka message queue
+
+Below is an overview of how the different components interact with each other.
+
+![Ursprung Architecture](doc/architecture.svg?raw=true)
 
 ## Building the container images
 
