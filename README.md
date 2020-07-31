@@ -34,7 +34,7 @@ Ursprung consists of six main components:
 
 Below is an overview of how the different components interact with each other.
 
-![Ursprung Architecture](doc/architecture.svg?raw=true)
+![Ursprung Architecture](doc/architecture.svg)
 
 ## Building the container images
 
