@@ -80,8 +80,12 @@ std::string Event::format_as_varchar(const std::string &str, int limit) const {
 evt_t Event::deserialize_event(const std::string &event) {
   std::stringstream ss(event);
   std::string evt_type;
-  // first field is the event type
-  if(!getline(ss, evt_type, ',')) {
+  // We expect either of two kinds of events:
+  // 1. a watch folder json, identified by WF_JSON in the string
+  // 2. a csv string with the event type as the first field
+  if (event.find("WF_JSON") != std::string::npos) {
+      evt_type = std::to_string(FS_EVENT_JSON);
+  } else if(!getline(ss, evt_type, ',')) {
     LOGGER_LOG_ERROR("Can't deserialize event " << event << " Dropping event.");
     return nullptr;
   }
@@ -90,6 +94,7 @@ evt_t Event::deserialize_event(const std::string &event) {
   try {
     switch (std::stoi(evt_type)) {
     case FS_EVENT: return std::make_shared<FSEvent>(event); break;
+    case FS_EVENT_JSON: return std::make_shared<FSEventJson>(event); break;
     case PROCESS_EVENT: return std::make_shared<ProcessEvent>(event); break;
     case PROCESS_GROUP_EVENT: return std::make_shared<ProcessGroupEvent>(event); break;
     case SYSCALL_EVENT: return std::make_shared<SyscallEvent>(event); break;

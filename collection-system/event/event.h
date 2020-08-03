@@ -39,7 +39,8 @@ enum EventType : int {
   IPC_EVENT =             5,
   SOCKET_EVENT =          6,
   SOCKET_CONNECT_EVENT =  7,
-  TEST_EVENT =            8
+  TEST_EVENT =            8,
+  FS_EVENT_JSON =         9
 };
 
 // names for the different event types

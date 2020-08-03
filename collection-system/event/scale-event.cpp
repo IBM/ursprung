@@ -16,9 +16,14 @@
 
 #include <sstream>
 #include <assert.h>
+#include <rapidjson/document.h>
 
 #include "scale-event.h"
 #include "logger.h"
+
+/*------------------------------
+ * FSEvent
+ *------------------------------*/
 
 FSEvent::FSEvent(const std::string &serialized_event) {
   std::stringstream evt_ss(serialized_event);
@@ -182,4 +187,142 @@ std::string FSEvent::get_value(std::string field) const {
     return version_hash;
   else
     return "";
+}
+
+/*------------------------------
+ * FSEventJson
+ *------------------------------*/
+
+std::map<std::string, std::string> FSEventJson::WFEVENT_TO_FSEVENT = {
+    { "IN_OPEN", "OPEN" },
+    { "IN_CLOSE_WRITE", "CLOSE" },
+    { "IN_CLOSE_NOWRITE", "CLOSE" },
+    { "IN_CREATE", "CREATE" },
+    { "IN_DELETE", "UNLINK" },
+    { "IN_DELETE_SELF", "UNLINK" },
+    { "IN_MOVED_FROM", "RENAME" },
+    { "IN_MOVED_TO", "RENAME" }
+};
+
+std::map<long, std::string> FSEventJson::COOKIE_STATE = {};
+
+FSEventJson::FSEventJson(const std::string &serialized_event) {
+  rapidjson::Document doc;
+  doc.Parse(serialized_event.c_str());
+
+  if (!doc.IsObject()) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as"
+        " FSEventJson. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
+  }
+
+  // event
+  if (!doc.HasMember("event")) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as"
+        " FSEventJson. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
+  }
+  std::string wf_event = doc["event"].GetString();
+  event = FSEventJson::WFEVENT_TO_FSEVENT[wf_event];
+
+  // cluster name
+  if (!doc.HasMember("clusterName")) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as"
+        " FSEventJson. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
+  }
+  cluster_name = doc["clusterName"].GetString();
+
+
+  // node_name
+  if (!doc.HasMember("nodeName")) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as"
+        " FSEventJson. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
+  }
+  node_name = doc["nodeName"].GetString();
+
+  // fs_name
+  if (!doc.HasMember("fsName")) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as"
+        " FSEventJson. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
+  }
+  fs_name = doc["fsName"].GetString();
+
+  // path
+  if (!doc.HasMember("path")) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as"
+        " FSEventJson. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
+  }
+  path = doc["path"].GetString();
+
+  // inode
+  if (!doc.HasMember("inode")) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as"
+        " FSEventJson. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
+  }
+  inode = std::stoi(doc["inode"].GetString());
+
+  // bytes_read
+  bytes_read = 0;
+  if (wf_event == "IN_CLOSE_NOWRITE") bytes_read = 1;
+
+  // bytes_written
+  bytes_written = 0;
+  if (wf_event == "IN_CLOSE_WRITE") bytes_written = 1;
+
+  // pid
+  if (!doc.HasMember("processId")) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as"
+        " FSEventJson. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
+  }
+  pid = std::stoi(doc["processId"].GetString());
+
+  // event_time
+  if (!doc.HasMember("eventTime")) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as"
+        " FSEventJson. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
+  }
+  event_time = doc["eventTime"].GetString();
+
+  // dst_path
+  dst_path = "_NULL_";
+  // TODO check that order is always IN_MOVED_FROM first and then IN_MOVED_TO
+  if (!doc.HasMember("cookie")) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as"
+        " FSEventJson. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
+  }
+  if (wf_event == "IN_MOVED_FROM") {
+    long cookie = std::stoul(doc["cookie"].GetString());
+    COOKIE_STATE[cookie] = path;
+    // TODO make less hacky: we want the constructor to fail as the actual
+    // RENAME event will be created once we receive the IN_MOVED_TO event
+    throw std::invalid_argument(serialized_event + ": waiting for IN_MOVE_TO.");
+  } else if (wf_event == "IN_MOVED_TO") {
+    // make sure that an entry for this cookie exists
+    long cookie = std::stoul(doc["cookie"].GetString());
+    if (COOKIE_STATE.find(cookie) == COOKIE_STATE.end()) {
+      throw std::invalid_argument(serialized_event + ": did not see corresponding "
+          "IN_MOVED_FROM. Discarding event");
+    }
+    std::string src_path = COOKIE_STATE[cookie];
+    dst_path = path;
+    path = src_path;
+    // clean up map entry
+    COOKIE_STATE.erase(cookie);
+  }
+
+  // mode
+  if (!doc.HasMember("permissions")) {
+    LOGGER_LOG_ERROR("Can't deserialize event " << serialized_event << " as"
+        " FSEventJson. Wrong format!");
+    throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
+  }
+  mode = doc["permissions"].GetString();
 }

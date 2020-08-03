@@ -17,10 +17,12 @@
 #ifndef EVENT_SCALE_EVENT_H_
 #define EVENT_SCALE_EVENT_H_
 
+#include <map>
+
 #include "event.h"
 
 class FSEvent: public Event {
-private:
+protected:
   osm_pid_t pid;
   int inode;
   long bytes_read;
@@ -34,6 +36,8 @@ private:
   std::string dst_path;
   std::string mode;
   std::string version_hash;
+
+  FSEvent() {}
 
 public:
   FSEvent(const std::string &serialized_event);
@@ -51,6 +55,22 @@ public:
   }
 
   void set_version_hash(std::string hash) { version_hash = hash; }
+};
+
+class FSEventJson: public FSEvent {
+protected:
+  static std::map<std::string, std::string> WFEVENT_TO_FSEVENT;
+  static std::map<long, std::string> COOKIE_STATE;
+
+public:
+  FSEventJson(const std::string &serialized_event);
+  FSEventJson(osm_pid_t pid, int inode, long bytes_read, long bytes_written,
+      std::string event, std::string event_time, std::string cluster_name,
+      std::string fs_name, std::string path, std::string dst_path,
+      std::string mode, std::string version_hash) : FSEvent(pid, inode, bytes_read,
+          bytes_written, event, event_time, cluster_name, fs_name, path, dst_path,
+          mode, version_hash) {}
+  ~FSEventJson() {}
 };
 
 #endif /* EVENT_SCALE_EVENT_H_ */

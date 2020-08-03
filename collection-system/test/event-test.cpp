@@ -231,3 +231,105 @@ TEST(event_test, socket_connect_event_test1) {
   EXPECT_EQ("connect_time",  e_deserialized->get_value("connect_time"));
   EXPECT_EQ("node2",  e_deserialized->get_value("dst_node"));
 }
+
+TEST(event_test, fs_event_json_test1) {
+  std::string event = "{\"WF_JSON\": \"0.0.1\", \"wd\":\"1\",\"cookie\":\"0\",\"event\": "
+      "\"IN_CLOSE_NOWRITE\",\"path\": \"/gpfs/fs0/some-folder/some-file\", \"clusterName\": "
+      "\"gpfs-test-cluster\", \"nodeName\": \"node1\", \"nfsClientIp\": \"\", "
+      "\"fsName\": \"fs0\", \"inode\": \"82380\", \"fileSetID\": \"0\", \"linkCount\": \"1\", "
+      "\"openFlags\": \"32769\", \"poolName\": \"system\", \"fileSize\": \"13\", \"ownerUserId\": \"100\", "
+      "\"ownerGroupId\": \"100\", \"atime\": \"2020-08-03_09:06:26-0700\", \"ctime\": "
+      "\"2020-08-03_09:06:26-0700\", \"mtime\": \"2020-08-03_09:06:26-0700\", \"eventTime\": "
+      "\"2020-08-03_09:06:36-0700\", \"clientUserId\": \"100\", \"clientGroupId\": \"100\", "
+      "\"processId\": \"10391\", \"permissions\": \"200100644\", \"acls\": null, \"xattrs\": null, "
+      "\"subEvent\": \"NONE\" }";
+
+  std::shared_ptr<Event> e_deserialized = Event::deserialize_event(event);
+
+  // test deserialization
+  EXPECT_EQ(FS_EVENT, e_deserialized->get_type());
+  EXPECT_EQ("node1", e_deserialized->get_node_name());
+  EXPECT_EQ("CLOSE",  e_deserialized->get_value("event"));
+  EXPECT_EQ("gpfs-test-cluster",  e_deserialized->get_value("cluster_name"));
+  EXPECT_EQ("fs0",  e_deserialized->get_value("fs_name"));
+  EXPECT_EQ("/gpfs/fs0/some-folder/some-file",  e_deserialized->get_value("path"));
+  EXPECT_EQ("82380",  e_deserialized->get_value("inode"));
+  EXPECT_EQ("1",  e_deserialized->get_value("bytes_read"));
+  EXPECT_EQ("0",  e_deserialized->get_value("bytes_written"));
+  EXPECT_EQ("10391",  e_deserialized->get_value("pid"));
+  EXPECT_EQ("2020-08-03_09:06:36-0700",  e_deserialized->get_value("event_time"));
+  EXPECT_EQ("_NULL_",  e_deserialized->get_value("dst_path"));
+  EXPECT_EQ("",  e_deserialized->get_value("version_hash"));
+}
+
+TEST(event_test, fs_event_json_test2) {
+  std::string event = "{\"WF_JSON\": \"0.0.1\", \"wd\":\"1\",\"cookie\":\"0\",\"event\": "
+      "\"IN_CLOSE_WRITE\",\"path\": \"/gpfs/fs0/some-folder/some-file\", \"clusterName\": "
+      "\"gpfs-test-cluster\", \"nodeName\": \"node1\", \"nfsClientIp\": \"\", "
+      "\"fsName\": \"fs0\", \"inode\": \"82380\", \"fileSetID\": \"0\", \"linkCount\": \"1\", "
+      "\"openFlags\": \"32769\", \"poolName\": \"system\", \"fileSize\": \"13\", \"ownerUserId\": \"100\", "
+      "\"ownerGroupId\": \"100\", \"atime\": \"2020-08-03_09:06:26-0700\", \"ctime\": "
+      "\"2020-08-03_09:06:26-0700\", \"mtime\": \"2020-08-03_09:06:26-0700\", \"eventTime\": "
+      "\"2020-08-03_09:06:36-0700\", \"clientUserId\": \"100\", \"clientGroupId\": \"100\", "
+      "\"processId\": \"10391\", \"permissions\": \"200100644\", \"acls\": null, \"xattrs\": null, "
+      "\"subEvent\": \"NONE\" }";
+
+  std::shared_ptr<Event> e_deserialized = Event::deserialize_event(event);
+
+  // test deserialization
+  EXPECT_EQ(FS_EVENT, e_deserialized->get_type());
+  EXPECT_EQ("node1", e_deserialized->get_node_name());
+  EXPECT_EQ("CLOSE",  e_deserialized->get_value("event"));
+  EXPECT_EQ("gpfs-test-cluster",  e_deserialized->get_value("cluster_name"));
+  EXPECT_EQ("fs0",  e_deserialized->get_value("fs_name"));
+  EXPECT_EQ("/gpfs/fs0/some-folder/some-file",  e_deserialized->get_value("path"));
+  EXPECT_EQ("82380",  e_deserialized->get_value("inode"));
+  EXPECT_EQ("0",  e_deserialized->get_value("bytes_read"));
+  EXPECT_EQ("1",  e_deserialized->get_value("bytes_written"));
+  EXPECT_EQ("10391",  e_deserialized->get_value("pid"));
+  EXPECT_EQ("2020-08-03_09:06:36-0700",  e_deserialized->get_value("event_time"));
+  EXPECT_EQ("_NULL_",  e_deserialized->get_value("dst_path"));
+  EXPECT_EQ("",  e_deserialized->get_value("version_hash"));
+}
+
+TEST(event_test, fs_event_json_test3) {
+  std::string event1 = "{\"WF_JSON\": \"0.0.1\", \"wd\":\"1\",\"cookie\":\"12345\",\"event\": "
+      "\"IN_MOVED_FROM\",\"path\": \"/gpfs/fs0/some-folder/some-file\", \"clusterName\": "
+      "\"gpfs-test-cluster\", \"nodeName\": \"node1\", \"nfsClientIp\": \"\", "
+      "\"fsName\": \"fs0\", \"inode\": \"82380\", \"fileSetID\": \"0\", \"linkCount\": \"1\", "
+      "\"openFlags\": \"32769\", \"poolName\": \"system\", \"fileSize\": \"13\", \"ownerUserId\": \"100\", "
+      "\"ownerGroupId\": \"100\", \"atime\": \"2020-08-03_09:06:26-0700\", \"ctime\": "
+      "\"2020-08-03_09:06:26-0700\", \"mtime\": \"2020-08-03_09:06:26-0700\", \"eventTime\": "
+      "\"2020-08-03_09:06:36-0700\", \"clientUserId\": \"100\", \"clientGroupId\": \"100\", "
+      "\"processId\": \"10391\", \"permissions\": \"200100644\", \"acls\": null, \"xattrs\": null, "
+      "\"subEvent\": \"NONE\" }";
+  std::string event2 = "{\"WF_JSON\": \"0.0.1\", \"wd\":\"1\",\"cookie\":\"12345\",\"event\": "
+      "\"IN_MOVED_TO\",\"path\": \"/gpfs/fs0/some-folder/some-dst-file\", \"clusterName\": "
+      "\"gpfs-test-cluster\", \"nodeName\": \"node1\", \"nfsClientIp\": \"\", "
+      "\"fsName\": \"fs0\", \"inode\": \"82380\", \"fileSetID\": \"0\", \"linkCount\": \"1\", "
+      "\"openFlags\": \"32769\", \"poolName\": \"system\", \"fileSize\": \"13\", \"ownerUserId\": \"100\", "
+      "\"ownerGroupId\": \"100\", \"atime\": \"2020-08-03_09:06:26-0700\", \"ctime\": "
+      "\"2020-08-03_09:06:26-0700\", \"mtime\": \"2020-08-03_09:06:26-0700\", \"eventTime\": "
+      "\"2020-08-03_09:06:36-0700\", \"clientUserId\": \"100\", \"clientGroupId\": \"100\", "
+      "\"processId\": \"10391\", \"permissions\": \"200100644\", \"acls\": null, \"xattrs\": null, "
+      "\"subEvent\": \"NONE\" }";
+
+  std::shared_ptr<Event> e_deserialized1 = Event::deserialize_event(event1);
+  std::shared_ptr<Event> e_deserialized2 = Event::deserialize_event(event2);
+
+  // test deserialization
+  EXPECT_TRUE(!e_deserialized1);
+  EXPECT_EQ(FS_EVENT, e_deserialized2->get_type());
+  EXPECT_EQ("node1", e_deserialized2->get_node_name());
+  EXPECT_EQ("RENAME",  e_deserialized2->get_value("event"));
+  EXPECT_EQ("gpfs-test-cluster",  e_deserialized2->get_value("cluster_name"));
+  EXPECT_EQ("fs0",  e_deserialized2->get_value("fs_name"));
+  EXPECT_EQ("/gpfs/fs0/some-folder/some-file",  e_deserialized2->get_value("path"));
+  EXPECT_EQ("82380",  e_deserialized2->get_value("inode"));
+  EXPECT_EQ("0",  e_deserialized2->get_value("bytes_read"));
+  EXPECT_EQ("0",  e_deserialized2->get_value("bytes_written"));
+  EXPECT_EQ("10391",  e_deserialized2->get_value("pid"));
+  EXPECT_EQ("2020-08-03_09:06:36-0700",  e_deserialized2->get_value("event_time"));
+  EXPECT_EQ("/gpfs/fs0/some-folder/some-dst-file",  e_deserialized2->get_value("dst_path"));
+  EXPECT_EQ("",  e_deserialized2->get_value("version_hash"));
+}
