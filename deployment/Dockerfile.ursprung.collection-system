@@ -28,6 +28,10 @@ RUN /bin/bash -c 'cd /opt/collection-system/lib; \
 	make install'
 RUN /bin/bash -c 'cd /opt/collection-system/lib; git clone https://github.com/google/googletest.git'
 
+# set correct timezone in Docker container so time conversion to UTC works correctly
+ARG tz=America/Los_Angeles
+ENV TZ=$tz
+
 # build collection system
 RUN mkdir -p /opt/collection-system/build
 RUN /bin/bash -c 'cd /opt/collection-system/build; cmake3 -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=1 -DINFO=1 ../; make -j16; make test'
