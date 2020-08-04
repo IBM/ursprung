@@ -257,7 +257,7 @@ TEST(event_test, fs_event_json_test1) {
   EXPECT_EQ("1",  e_deserialized->get_value("bytes_read"));
   EXPECT_EQ("0",  e_deserialized->get_value("bytes_written"));
   EXPECT_EQ("10391",  e_deserialized->get_value("pid"));
-  EXPECT_EQ("2020-08-03_09:06:36-0700",  e_deserialized->get_value("event_time"));
+  EXPECT_EQ("2020-08-03 16:06:36.000",  e_deserialized->get_value("event_time"));
   EXPECT_EQ("_NULL_",  e_deserialized->get_value("dst_path"));
   EXPECT_EQ("",  e_deserialized->get_value("version_hash"));
 }
@@ -287,7 +287,7 @@ TEST(event_test, fs_event_json_test2) {
   EXPECT_EQ("0",  e_deserialized->get_value("bytes_read"));
   EXPECT_EQ("1",  e_deserialized->get_value("bytes_written"));
   EXPECT_EQ("10391",  e_deserialized->get_value("pid"));
-  EXPECT_EQ("2020-08-03_09:06:36-0700",  e_deserialized->get_value("event_time"));
+  EXPECT_EQ("2020-08-03 16:06:36.000",  e_deserialized->get_value("event_time"));
   EXPECT_EQ("_NULL_",  e_deserialized->get_value("dst_path"));
   EXPECT_EQ("",  e_deserialized->get_value("version_hash"));
 }
@@ -329,7 +329,7 @@ TEST(event_test, fs_event_json_test3) {
   EXPECT_EQ("0",  e_deserialized2->get_value("bytes_read"));
   EXPECT_EQ("0",  e_deserialized2->get_value("bytes_written"));
   EXPECT_EQ("10391",  e_deserialized2->get_value("pid"));
-  EXPECT_EQ("2020-08-03_09:06:36-0700",  e_deserialized2->get_value("event_time"));
+  EXPECT_EQ("2020-08-03 16:06:36.000",  e_deserialized2->get_value("event_time"));
   EXPECT_EQ("/gpfs/fs0/some-folder/some-dst-file",  e_deserialized2->get_value("dst_path"));
   EXPECT_EQ("",  e_deserialized2->get_value("version_hash"));
 }

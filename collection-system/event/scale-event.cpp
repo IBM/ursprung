@@ -288,7 +288,21 @@ FSEventJson::FSEventJson(const std::string &serialized_event) {
         " FSEventJson. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
   }
-  event_time = doc["eventTime"].GetString();
+  // convert to UTC time (scale event times are %YYYY-%mm-%dd_%HH-%MM-%SS%z)
+  std::string time_str = doc["eventTime"].GetString();
+  struct tm tm1;
+  strptime(time_str.c_str(), "%Y-%m-%d_%H:%M:%S%z", &tm1);
+  time_t t = mktime(&tm1);
+
+  struct tm tm2;
+  gmtime_r(&t, &tm2);
+  char string_representation[32];
+  size_t len = strftime(string_representation, sizeof(string_representation),
+      "%Y-%m-%d %H:%M:%S", &tm2);
+  // add '000' as milliseconds as we need it for the database but don't get
+  // milliseconds from watch folders
+  sprintf(string_representation + len, ".%03d", 0);
+  event_time = std::string(string_representation);
 
   // dst_path
   dst_path = "_NULL_";
