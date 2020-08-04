@@ -135,6 +135,11 @@ const sqlTableNames = {
 };
 
 /**
+ * Read fuzz factor from configuration constants
+ */
+const fuzzyTimeErrorMs = constants.TIME_ERR;
+
+/**
  * Returns an object with the same keys as o,
  * whose values are vNew = `'${vOld}'`.
  */
@@ -814,9 +819,6 @@ function sqlForFileContent(params) {
     return sql;
 }
 
-// assume time sources are within 500 ms of each other
-const fuzzyTimeErrorMs = 500;
-
 /**
  * Returns a SQL clause that evaluates to true if t1 is fuzzily LT  t1 < t2 within error err,
  * i.e. evaluates to true if: t1 < t2 + errMs. errMs is an integer representing milliseconds.
@@ -828,20 +830,4 @@ function sql_fuzzyLT(t1, t2, errMs) {
     const us_per_ms = 1000;
     const errUs = errMs * us_per_ms;
     return `( ${t1} < (${t2} + '${errUs} MICROSECONDS') )`;
-}
-
-/**
- * Like sql_fuzzyLT but for equality.
- */
-function sql_fuzzyEquals(t1, t2, errMs) {
-    // DB2 TIMESTAMPDIFF: https://www.ibm.com/support/knowledgecenter/en/SSEPEK_10.0.0/sqlref/src/tpc/db2z_bif_timestampdiff.html
-    const TSD_US = 1; // See mapping in DB2 TIMESTAMPDIFF docs
-    const us_per_ms = 1000;
-    const errUs = errMs * us_per_ms;
-    // TODO Implement using two calls to sql_fuzzyLT instead of repeating this code.
-    return `(
-    ( ${t1} < (${t2} + '${errUs} MICROSECONDS') )
-    AND
-    ( ${t2} < (${t1} + '${errUs} MICROSECONDS') )
-  )`;
 }

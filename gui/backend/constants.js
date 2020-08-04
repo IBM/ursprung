@@ -17,5 +17,6 @@
 module.exports = {
     PORT: process.env.PORT,
     DSN: process.env.DSN,
-    HG_REPO: process.env.HG_REPO
+    HG_REPO: process.env.HG_REPO,
+    TIME_ERR: process.env.TIME_ERR
 };
