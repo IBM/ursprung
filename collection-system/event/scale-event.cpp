@@ -223,7 +223,12 @@ FSEventJson::FSEventJson(const std::string &serialized_event) {
     throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
   }
   std::string wf_event = doc["event"].GetString();
-  event = FSEventJson::WFEVENT_TO_FSEVENT[wf_event];
+  if (FSEventJson::WFEVENT_TO_FSEVENT.find(wf_event) != FSEventJson::WFEVENT_TO_FSEVENT.end()) {
+    event = FSEventJson::WFEVENT_TO_FSEVENT[wf_event];
+  } else {
+    LOGGER_LOG_WARN("Event " << wf_event << " not supported, skipping.");
+    throw std::invalid_argument("Event" + wf_event + " not supported, skipping.");
+  }
 
   // cluster name
   if (!doc.HasMember("clusterName")) {
@@ -256,7 +261,11 @@ FSEventJson::FSEventJson(const std::string &serialized_event) {
         " FSEventJson. Wrong format!");
     throw std::invalid_argument(serialized_event + " is not a FSEventJson.");
   }
-  path = doc["path"].GetString();
+  if (doc["path"].IsString()) {
+    path = doc["path"].GetString();
+  } else {
+    path = "NULL";
+  }
 
   // inode
   if (!doc.HasMember("inode")) {

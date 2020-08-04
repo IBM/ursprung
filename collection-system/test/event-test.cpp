@@ -333,3 +333,33 @@ TEST(event_test, fs_event_json_test3) {
   EXPECT_EQ("/gpfs/fs0/some-folder/some-dst-file",  e_deserialized2->get_value("dst_path"));
   EXPECT_EQ("",  e_deserialized2->get_value("version_hash"));
 }
+
+TEST(event_test, fs_event_json_test4) {
+  std::string event = "{\"WF_JSON\": \"0.0.1\", \"wd\":\"1\",\"cookie\":\"0\",\"event\": "
+      "\"IN_CLOSE_WRITE\",\"path\": null, \"clusterName\": "
+      "\"gpfs-test-cluster\", \"nodeName\": \"node1\", \"nfsClientIp\": \"\", "
+      "\"fsName\": \"fs0\", \"inode\": \"82380\", \"fileSetID\": \"0\", \"linkCount\": \"1\", "
+      "\"openFlags\": \"32769\", \"poolName\": \"system\", \"fileSize\": \"13\", \"ownerUserId\": \"100\", "
+      "\"ownerGroupId\": \"100\", \"atime\": \"2020-08-03_09:06:26-0700\", \"ctime\": "
+      "\"2020-08-03_09:06:26-0700\", \"mtime\": \"2020-08-03_09:06:26-0700\", \"eventTime\": "
+      "\"2020-08-03_09:06:36-0700\", \"clientUserId\": \"100\", \"clientGroupId\": \"100\", "
+      "\"processId\": \"10391\", \"permissions\": \"200100644\", \"acls\": null, \"xattrs\": null, "
+      "\"subEvent\": \"NONE\" }";
+
+  std::shared_ptr<Event> e_deserialized = Event::deserialize_event(event);
+
+  // test deserialization
+  EXPECT_EQ(FS_EVENT, e_deserialized->get_type());
+  EXPECT_EQ("node1", e_deserialized->get_node_name());
+  EXPECT_EQ("CLOSE",  e_deserialized->get_value("event"));
+  EXPECT_EQ("gpfs-test-cluster",  e_deserialized->get_value("cluster_name"));
+  EXPECT_EQ("fs0",  e_deserialized->get_value("fs_name"));
+  EXPECT_EQ("NULL",  e_deserialized->get_value("path"));
+  EXPECT_EQ("82380",  e_deserialized->get_value("inode"));
+  EXPECT_EQ("0",  e_deserialized->get_value("bytes_read"));
+  EXPECT_EQ("1",  e_deserialized->get_value("bytes_written"));
+  EXPECT_EQ("10391",  e_deserialized->get_value("pid"));
+  EXPECT_EQ("2020-08-03 16:06:36.000",  e_deserialized->get_value("event_time"));
+  EXPECT_EQ("_NULL_",  e_deserialized->get_value("dst_path"));
+  EXPECT_EQ("",  e_deserialized->get_value("version_hash"));
+}
