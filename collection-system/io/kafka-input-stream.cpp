@@ -98,19 +98,26 @@ void KafkaInputStream::close() {
 }
 
 int KafkaInputStream::recv(std::string &next_msg) {
-  RdKafka::Message *msg;
   int rc;
 
   // get next message from Kafka
-  msg = consumer->consume(TIMEOUT_MS);
+  RdKafka::Message *msg = consumer->consume(TIMEOUT_MS);
   switch (msg->err()) {
   case RdKafka::ERR__TIMED_OUT:
     rc = ERROR_RETRY;
     break;
   case RdKafka::ERR_NO_ERROR:
     if (static_cast<int>(msg->len()) > 0) {
-      next_msg = static_cast<const char*>(msg->payload());
-      rc = NO_ERROR;
+      char msg_buffer[static_cast<int>(msg->len())];
+      sprintf(msg_buffer, "%.*s\n", static_cast<int>(msg->len()),
+          static_cast<const char*>(msg->payload()));
+      next_msg = std::string(msg_buffer);
+      // TODO why are those messages not delivered as part of RD_KAFKA_RESP_ERR__PARTITION_EOF errors?
+      if (next_msg == "Broker: No more messages\n") {
+        rc = ERROR_RETRY;
+      } else {
+        rc = NO_ERROR;
+      }
     } else {
       rc = ERROR_RETRY;
       LOGGER_LOG_WARN("Received empty message.");

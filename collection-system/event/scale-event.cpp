@@ -195,13 +195,21 @@ std::string FSEvent::get_value(std::string field) const {
 
 std::map<std::string, std::string> FSEventJson::WFEVENT_TO_FSEVENT = {
     { "IN_OPEN", "OPEN" },
+    { "IN_OPEN IN_ISDIR", "OPEN" },
     { "IN_CLOSE_WRITE", "CLOSE" },
+    { "IN_CLOSE_WRITE IN_ISDIR", "CLOSE" },
     { "IN_CLOSE_NOWRITE", "CLOSE" },
+    { "IN_CLOSE_NOWRITE IN_ISDIR", "CLOSE" },
     { "IN_CREATE", "CREATE" },
+    { "IN_CREATE IN_ISDIR", "CREATE" },
     { "IN_DELETE", "UNLINK" },
+    { "IN_DELETE IN_ISDIR", "UNLINK" },
     { "IN_DELETE_SELF", "UNLINK" },
+    { "IN_DELETE_SELF IN_ISDIR", "UNLINK" },
     { "IN_MOVED_FROM", "RENAME" },
-    { "IN_MOVED_TO", "RENAME" }
+    { "IN_MOVED_FROM IN_ISDIR", "RENAME" },
+    { "IN_MOVED_TO", "RENAME" },
+    { "IN_MOVED_TO IN_ISDIR", "RENAME" }
 };
 
 std::map<long, std::string> FSEventJson::COOKIE_STATE = {};
