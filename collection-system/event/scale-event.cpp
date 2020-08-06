@@ -196,6 +196,7 @@ std::string FSEvent::get_value(std::string field) const {
 std::map<std::string, std::string> FSEventJson::WFEVENT_TO_FSEVENT = {
     { "IN_OPEN", "OPEN" },
     { "IN_OPEN IN_ISDIR", "OPEN" },
+    { "IN_ISDIR IN_OPEN", "OPEN" },
     { "IN_CLOSE_WRITE", "CLOSE" },
     { "IN_CLOSE_WRITE IN_ISDIR", "CLOSE" },
     { "IN_CLOSE_NOWRITE", "CLOSE" },
