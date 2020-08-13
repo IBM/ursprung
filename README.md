@@ -44,7 +44,7 @@ the cloned directory. It is recommended to run the master node on a separate (vi
 machine where provenance collection is not required as otherwise, provenance of the
 Ursprung system itself will be collected.
 
-**Building the main components**
+**Building the master node components**
 
 Ursprung's main components are containerized and can be built through Docker.
 All Dockerfiles are located in `deployment`. Before building the actual components the
@@ -169,4 +169,47 @@ The data is hence persisted across restarts of the container.
 
 **Preparing the worker nodes**
 
-5. Start provd `docker run -v /opt/ursprung/:/opt/ursprung/ -v /tmp/:/tmp/ --network host --pid host --privileged -it ursprung-collection-system /opt/collection-system/build/provd/provd /opt/ursprung/config/provd.cfg`
+To set up the `auditd` plugin, update the plugin configuration template under `deployment/config/auditd-plugin.cfg.template`
+with your cluster's Kafka information and then run the following commands to copy the plugin and the necessary
+configurations to `auditd`'s plugin folder (as root)
+
+```
+mkdir -p /etc/audisp/plugins.d/plugins
+cp collection-system/build/auditd-plugin/auditd-plugin /etc/audisp/plugins.d/plugins
+cp deployment/config/auditd-plugin-audisp.cfg.template /etc/audisp/plugins.d
+cp deployment/config/auditd-plugin.cfg.template /etc/audisp/plugins.d/plugins/auditd-plugin.cfg
+```
+
+You should also update the `auditd` and `audispd` configurations for a more robust event delivery.
+
+```
+cp deployment/auditd/auditd.conf /etc/audit/
+cp deployment/auditd/audispd.conf /etc/audisp/ 
+```
+
+When you start `auditd` through `service auditd start`, you should see the following log output in `syslog`, which
+indicates that the plugin has been successfully loaded.
+
+```
+audispd: audispd initialized with q_depth=99999 and 1 active plugins
+```
+
+## Collecting Provenance
+
+**Collecting basic provenance on process/file interactions**
+
+To collect provenance, you need to set up collection rules for `auditd` and Spectrum Scale. For `auditd` just copy
+`deployment/auditd/ursprung.rules` to `/etc/audit/rules.d`. For Spectrum Scale, edit `deployment/scale/ursprung-watch.cfg.template`
+and add your broker information. Then run `mmwatch fs0 enable -F ursprung-watch.cfg ` to set up Watch Folders. You should
+now be able to collect basic provenance from your system and see interactions of processes with files on the Spectrum
+Scale file system.
+
+**Collecting application-specific provenance through rules**
+
+**TODO**
+
+Start provd `docker run -v /opt/ursprung/:/opt/ursprung/ -v /tmp/:/tmp/ --network host --pid host --privileged -it ursprung-collection-system /opt/collection-system/build/provd/provd /opt/ursprung/config/provd.cfg`
+
+## Exploring the Provenance
+
+**TODO**

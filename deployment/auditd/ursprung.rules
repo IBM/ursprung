@@ -1,0 +1,18 @@
+# Infinite buffer in case of spikes.
+-b 0
+
+# No per-second rate limiting
+-r 0
+
+# Monitor syscalls under both arches, might be necessary: https://gist.github.com/Neo23x0/9fe88c0c5979e017a389b90fd19ddfee
+-a always,exit -F arch=b32 -S setpgid -k prov-auditd
+-a always,exit -F arch=b64 -S setpgid -k prov-auditd
+-a always,exit -F arch=b32 -F uid>=1000 -S fork,vfork,clone,execve,exit,exit_group -k prov-auditd
+-a always,exit -F arch=b64 -F uid>=1000 -S fork,vfork,clone,execve,exit,exit_group -k prov-auditd
+-a always,exit -F arch=b32 -F uid>=1000 -S pipe,close,dup2 -k prov-auditd
+-a always,exit -F arch=b64 -F uid>=1000 -S pipe,close,dup2 -k prov-auditd
+# only for 64 bit, seems like there's no accept in 32 bit
+# only trace AF_INET (IPv4 and IPv6) sockets
+-a always,exit -F arch=b64 -F uid>=1000 -S accept,connect,bind -k prov-auditd
+-a always,exit -F arch=b64 -F uid>=1000 -F a0=2 -S socket -k prov-auditd
+-a always,exit -F arch=b64 -F uid>=1000 -F a0=10 -S socket -k prov-auditd
