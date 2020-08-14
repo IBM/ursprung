@@ -22,7 +22,9 @@ Ursprung consists of six main components:
 5. An [auditd](https://man7.org/linux/man-pages/man8/auditd.8.html) pluging to collect operating system events through Linux's auditing subsystem
 6. A Kafka message queue
 
-Below is an overview of how the different components interact with each other.
+The consumers, GUI, and database run on the master node while the `provd` daemons and the `auditd` plugin
+run on the cluster worker nodes from which provenance should be collected. Below is an overview of
+how the different components interact with each other.
 
 ![Ursprung Architecture](doc/architecture.svg)
 
@@ -30,10 +32,10 @@ Below is an overview of how the different components interact with each other.
 
 
 To run Ursprung in your cluster, you need:
-- Linux nodes (tested with CentOS and RHEL 8) with auditd installed
+- Linux nodes (tested with CentOS and RHEL 8)
 - A Kafka deployment
 - A Spectrum Scale file system with support for Watch Folder (version 5.0.1 or later)
-- Docker support on the master node, i.e. the node that hosts the consumers, provenance database, and GUI
+- Docker (or podman) on the master node
 
 ## Building the System
 
@@ -90,7 +92,7 @@ node.
 
 To build the plugin, install the Develoment Tools and the auditd and unixodbc dependencies
 (the instructions are for CentOS 8). Note that building the plugin also requires `cmake` version 3.13
-or higher. The default version in CentOS 8 is 3.11. You can download later versions manually
+or higher. The default cmake version in CentOS 8 is 3.11. You can download later versions manually
 from [here](https://cmake.org/download/).
 
 ```
