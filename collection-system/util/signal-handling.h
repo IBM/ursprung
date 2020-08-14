@@ -23,7 +23,7 @@
 
 namespace signal_handling {
 static volatile sig_atomic_t running = 1;
-static volatile sig_atomic_t hup = 1;
+static volatile sig_atomic_t hup = 0;
 
 static void term_handler(int sig) {
   LOGGER_LOG_INFO("Shutting down...");

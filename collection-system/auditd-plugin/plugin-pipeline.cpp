@@ -88,8 +88,15 @@ void ExtractorStep::handle_audisp_event(auparse_state_t *au,
     }
 
     // we only want syscall events
-    bool is_syscall_event = (0 <= AuparseInterface::get_syscall_record_number(au));
-    if (!is_syscall_event) {
+    // TODO support syscall records at positions other than 0
+    int syscall_record_number = AuparseInterface::get_syscall_record_number(au);
+    if (syscall_record_number < 0) {
+      that->stats->skipped_auditd_event();
+      num++;
+      continue;
+    } else if (syscall_record_number > 0) {
+      LOGGER_LOG_WARN("Got SYSCALL record at position other than 0 (" <<
+          syscall_record_number << "). Ignoring record");
       that->stats->skipped_auditd_event();
       num++;
       continue;
@@ -191,7 +198,7 @@ int ExtractorStep::run() {
 int TransformerStep::run() {
   mask_signals();
   pid_t tid = syscall(GETTID);
-  LOGGER_LOG_INFO("Transformer running with pid " << tid);
+  LOGGER_LOG_DEBUG("Transformer running with pid " << tid);
 
   time_t start_readtime;
   time_t curr_time;
