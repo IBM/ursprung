@@ -46,7 +46,7 @@ Ursprung system itself will be collected.
 
 **Building the master node components**
 
-Ursprung's main components are containerized and can be built through Docker.
+Ursprung's main components are containerized and can be built through Docker (also tested with podman).
 All Dockerfiles are located in `deployment`. Before building the actual components the
 base image needs to be created through
 
@@ -90,10 +90,15 @@ You can either build the plugin on one node and copy the binary to the other nod
 the necessary dependencies are installed on these nodes) or build it manually on each cluster
 node.
 
-To build the plugin, install the auditd and unixodbc dependencies (the instructions are for CentOS)
+To build the plugin, install the Develoment Tools and the auditd and unixodbc dependencies
+(the instructions are for CentOS 8). Note that building the plugin also requires `cmake` version 3.13
+or higher. The default version in CentOS 8 is 3.11. You can download later versions manually
+from [here](https://cmake.org/download/).
 
 ```
-yum install audit-libs-devel unixODBC-devel
+yum groupinstall 'Development Tools'
+yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+yum install audit-libs-devel unixODBC-devel rapidjson-devel
 ```
 
 The plugin also depends on `librdkafka`. To install `librdkafka`, run the following steps in a
@@ -104,7 +109,7 @@ wget https://github.com/edenhill/librdkafka/archive/v1.4.2.tar.gz
 tar xzvf v1.4.2.tar.gz
 cd librdkafka-1.4.2
 ./configure
-make -j16
+make
 make install
 ```
 
@@ -112,12 +117,14 @@ Once the dependencies are installed, run the following commands from the cloned 
 
 ```
 mkdir -p collection-system/build
-cd collection-system/build
+mkdir -p collection-system/lib
+cd collection-system/lib
+git clone https://github.com/google/googletest.git
+cd ../build
 cmake3 -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=1 -DINFO=1 ../
+cd auditd-plugin
 make
 ```
-
-This will build the `auditd` plugin under `collection-system/build/auditd-plugin`.
 
 ## Deploying Ursprung
 
@@ -137,26 +144,35 @@ mkdir -p /opt/ursprung/rules
 ```
 
 Next, create a configuration file for both the `auditd` and `scale` consumer from the
-teomplates available in the repository under `deployment/config`. You do not need to change
+templates available in the repository under `deployment/config`. You do not need to change
 the database configuration if you're using the database as created in this instruction.
 If you're using your own database, you need to set up an ODBC DSN for it and specify
 the corresponding details in the consumer configuration. If you're using the default
 database, you just need to specify your Kafka brokers and set any authentication
-details (if required). You can also leave the default topics but make sure to create
-the topics in your Kafka deployment.
+details (if required). If your Kafka deployment does not have authentication set, remove
+these options from the config template. You can leave the default topics but make sure to
+create the topics in your Kafka.
 
 A quick way of deploying a single node Kafka instance is through Docker
 
 ```
-docker run -p 2181:2181 -p 9092:9092 --env ADVERTISED_HOST=your-master-node --env ADVERTISED_PORT=9092 spotify/kafka
+docker run -p 2181:2181 -p 9092:9092 --name kafka --env ADVERTISED_HOST=your-master-node --env ADVERTISED_PORT=9092 spotify/kafka
 ```
-This starts a Kafka broker (port 9092) and a Zookeeper instance (port 2181) on your master node.
-
-Once you've adapted the configuration templates, copy them to `/opt/ursprung/config`. Start the individual
-components through the following commands
+This starts a Kafka broker (port 9092) and a Zookeeper instance (port 2181) on your master node. You can
+create topics by logging in to the container and running the following commands
 
 ```
-docker run --name ursprung-db -v /opt/ursprung/data:/var/lib/postgresql/data -p 5432:5432 -it ursprung-db
+docker exec -it kafka /bin/bash
+cd /opt/kafka_2.11-0.10.1.0/bin
+./kafka-topics.sh --create --topic gpfs --partitions 1 --zookeeper localhost:2181 --replication-factor 1
+./kafka-topics.sh --create --topic auditd --partitions 1 --zookeeper localhost:2181 --replication-factor 1
+```
+
+Copy the consumer configuration template files to `/opt/ursprung/config` and adapt them. Then start the
+individual components through the following commands
+
+```
+docker run --name ursprung-db -v /opt/ursprung/data:/var/lib/postgresql/data:z -p 5432:5432 -it ursprung-db
 docker run --name ursprung-scale-consumer -v /opt/ursprung/:/opt/ursprung/ --network host -it ursprung-collection-system /opt/collection-system/build/consumer/prov-consumer -c /opt/ursprung/config/scale-consumer.cfg
 docker run --name ursprung-auditd-consumer -v /opt/ursprung/:/opt/ursprung/ --network host -it ursprung-collection-system /opt/collection-system/build/consumer/prov-consumer -c /opt/ursprung/config/auditd-consumer.cfg
 docker run --name ursprung-gui-backend -v /opt/ursprung/:/opt/ursprung/ --network host -it ursprung-gui node /opt/gui/backend/app.js
@@ -171,28 +187,40 @@ The data is hence persisted across restarts of the container.
 
 To set up the `auditd` plugin, update the plugin configuration template under `deployment/config/auditd-plugin.cfg.template`
 with your cluster's Kafka information and then run the following commands to copy the plugin and the necessary
-configurations to `auditd`'s plugin folder (as root)
+configurations to `auditd`'s plugin folder. Note that the following instructions are for auditd version 3.0 and later in
+which the plugin system has been restructured. Previously, plugins were managed under `/etc/audisp`. If you're running
+an older version of auditd, make sure to copy the files to the right locations. As root, run the following commands
 
 ```
-mkdir -p /etc/audisp/plugins.d/plugins
-cp collection-system/build/auditd-plugin/auditd-plugin /etc/audisp/plugins.d/plugins
-cp deployment/config/auditd-plugin-audisp.cfg.template /etc/audisp/plugins.d
-cp deployment/config/auditd-plugin.cfg.template /etc/audisp/plugins.d/plugins/auditd-plugin.cfg
+mkdir -p /etc/audit/plugins.d/plugins
+cp collection-system/build/auditd-plugin/auditd-plugin /etc/audit/plugins.d/plugins
+cp deployment/config/auditd-plugin.conf.template /etc/audit/plugins.d/auditd-plugin.conf
+cp deployment/config/auditd-plugin.cfg.template /etc/audit/plugins.d/plugins/auditd-plugin.cfg
 ```
 
-You should also update the `auditd` and `audispd` configurations for a more robust event delivery.
+You should also update the `auditd` configuration for a more robust event delivery.
 
 ```
-cp deployment/auditd/auditd.conf /etc/audit/
-cp deployment/auditd/audispd.conf /etc/audisp/ 
+mv /etc/audit/auditd.conf /etc/audit/auditd.conf.bak
+cp deployment/auditd/auditd3.0.conf /etc/audit/
 ```
 
 When you start `auditd` through `service auditd start`, you should see the following log output in `syslog`, which
 indicates that the plugin has been successfully loaded.
 
 ```
-audispd: audispd initialized with q_depth=99999 and 1 active plugins
+audit dispatcher initialized with q_depth=99999 and 2 active plugins
 ```
+
+Note that on CentOS you might have to set SELinux into permissive mode (or disable it) if you get
+errors that prevent auditd from accessing the plugin executable. To temporarily set SELinux to
+permissive mode, run
+
+```
+setenforce 0
+```
+
+**TODO: add instructions for older `auditd` versions**
 
 ## Collecting Provenance
 

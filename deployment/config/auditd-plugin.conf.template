@@ -1,0 +1,6 @@
+active = yes
+direction = out
+path = /etc/audit/plugins.d/plugins/auditd-plugin
+type = always
+args = /etc/audisp/plugins.d/plugins/auditd-plugin.cfg
+format = string
