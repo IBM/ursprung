@@ -20,7 +20,7 @@ import Container from 'react-bootstrap/Container';
 const LandingPage = () => (
   <div>
     <Container>
-      <h1>Hello World!</h1>
+      <h1>TODO</h1>
     </Container>
   </div>
 );
