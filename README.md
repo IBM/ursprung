@@ -7,12 +7,10 @@ cluster.
 The collection framework
 combines low-level provenance information from system sources (operating and file system)
 with application-specific provenance that can be collected through rules in Ursprung's
-rule language.
+rule language. The GUI allows users to navigate the provenance graph and has additional
+features to view and compare past pipeline executions.
 
-The GUI allows users to navigate the provenance graph and has additional features to
-view and compare past pipeline executions.
-
-Ursprung is currently in pre-alpha phase.
+Ursprung is currently only a research prototype and in pre-alpha.
 
 ## Architecture overview
 
@@ -209,10 +207,11 @@ When you start `auditd` through `service auditd start`, you should see the follo
 indicates that the plugin has been successfully loaded.
 
 ```
-audit dispatcher initialized with q_depth=99999 and 2 active plugins
+audit dispatcher initialized with q_depth=99999 and 1 active plugins
 ```
 
-Note that on CentOS you might have to set SELinux into permissive mode (or disable it) if you get
+Note that on CentOS, you might see 2 active plugins as the `sedispatch` auditd plugin might
+be enabled by default. You may also have to set SELinux into permissive mode (or disable it) if you get
 errors that prevent auditd from accessing the plugin executable. To temporarily set SELinux to
 permissive mode, run
 
