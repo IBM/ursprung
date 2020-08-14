@@ -236,8 +236,6 @@ Scale file system.
 
 **TODO**
 
-Start provd `docker run -v /opt/ursprung/:/opt/ursprung/ -v /tmp/:/tmp/ --network host --pid host --privileged -it ursprung-collection-system /opt/collection-system/build/provd/provd /opt/ursprung/config/provd.cfg`
-
 ## Exploring the Provenance
 
 **TODO**
